@@ -122,9 +122,9 @@ public class DataDog {
 			streamsList.addMouseListener(new java.awt.event.MouseAdapter() { 
 				public void mouseClicked(java.awt.event.MouseEvent e) {
           if (e.getClickCount() == 2) {
-            StreamExplorer parser = (StreamExplorer) streamsList.getSelectedValue();            
-            if (parser != null) {
-              Container topLevel = parser.GetUI().getParent().getParent().getParent().getParent(); 
+            StreamExplorer explorer = (StreamExplorer) streamsList.getSelectedValue();            
+            if (explorer != null) {
+              Container topLevel = explorer.GetUI().getParent().getParent().getParent().getParent(); 
               topLevel.setVisible(true);
             }
           }
@@ -169,17 +169,17 @@ public class DataDog {
             String pathname = chooser.getSelectedFile().getAbsolutePath();
             
             // try each parser in turn until we get one which matches. FIXME: this could probably be made a lot smarter
-            for(int i=0; i< streamParserFactories.length; i++) {
+            for(int i=0; i< streamExplorerFactories.length; i++) {
               try {
-                if (streamParserFactories[i].Probe(pathname)) {
-                  StreamExplorer parser = streamParserFactories[i].Parse(pathname);
+                if (streamExplorerFactories[i].Probe(pathname)) {
+                  StreamExplorer explorer = streamExplorerFactories[i].Parse(pathname);
                   
-                  JFrame parserFrame = new JFrame();
-                  JPanel parserPanel = parser.GetUI();
-                  parserFrame.getContentPane().add(parserPanel);
-                  parserFrame.pack();
-                  parserFrame.setVisible(true);
-                  getOpenedStreams().addElement(parser);
+                  JFrame explorerFrame = new JFrame();
+                  JPanel explorerPanel = explorer.GetUI();
+                  explorerFrame.getContentPane().add(explorerPanel);
+                  explorerFrame.pack();
+                  explorerFrame.setVisible(true);
+                  getOpenedStreams().addElement(explorer);
                   return;
                 }
               } catch (Throwable t) {
@@ -350,6 +350,6 @@ public class DataDog {
   /**
    * The list of known stream analyser factories.
    */
-  private static final StreamExplorerFactory[] streamParserFactories = 
+  private static final StreamExplorerFactory[] streamExplorerFactories = 
     new StreamExplorerFactory[] { new net.lidskialf.datadog.mpeg.TransportStreamExplorerFactory() };
 }
