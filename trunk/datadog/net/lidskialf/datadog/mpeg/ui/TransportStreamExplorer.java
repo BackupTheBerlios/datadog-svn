@@ -35,14 +35,6 @@ public class TransportStreamExplorer implements StreamExplorer {
 
 	private JPanel mainPanel = null;  //  @jve:decl-index=0:visual-constraint="179,63"
 	private TransportStreamsViewer transportStreamsViewer = null;
-	private JButton nextButton = null;
-	private JButton previousButton = null;
-	private JPanel jPanel1 = null;
-	private JComboBox seekCombo = null;
-  
-  
-  
-  
 	/**
 	 * This method initializes mainPanel	
 	 * 	
@@ -52,7 +44,6 @@ public class TransportStreamExplorer implements StreamExplorer {
 		if (mainPanel == null) {
 			mainPanel = new JPanel();
 			GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
 			mainPanel.setLayout(new GridBagLayout());
       mainPanel.setSize(639, 176);
       mainPanel.setPreferredSize(new Dimension(639, 176));
@@ -63,14 +54,7 @@ public class TransportStreamExplorer implements StreamExplorer {
 			gridBagConstraints8.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints8.ipadx = 580;
 			gridBagConstraints8.ipady = 106;
-			gridBagConstraints9.gridx = 0;
-			gridBagConstraints9.gridy = 2;
-			gridBagConstraints9.ipadx = 0;
-			gridBagConstraints9.ipady = 0;
-			gridBagConstraints9.insets = new java.awt.Insets(0,0,1,0);
-			gridBagConstraints9.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			mainPanel.add(getTransportStreamsViewer(), gridBagConstraints8);
-			mainPanel.add(getJPanel1(), gridBagConstraints9);
 		}
 		return mainPanel;
 	}
@@ -86,74 +70,6 @@ public class TransportStreamExplorer implements StreamExplorer {
 		}
 		return transportStreamsViewer;
 	}
-	/**
-	 * This method initializes jButton	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
-	private JButton getNextButton() {
-		if (nextButton == null) {
-			nextButton = new JButton();
-			nextButton.setName("");
-			nextButton.setText(">>>");
-		}
-		return nextButton;
-	}
-	/**
-	 * This method initializes jButton1	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
-	private JButton getPreviousButton() {
-		if (previousButton == null) {
-			previousButton = new JButton();
-			previousButton.setName("");
-			previousButton.setText("<<<");
-		}
-		return previousButton;
-	}
-	/**
-	 * This method initializes jPanel1	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getJPanel1() {
-		if (jPanel1 == null) {
-			GridBagConstraints gridBagConstraints13 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
-			jPanel1 = new JPanel();
-			jPanel1.setLayout(new GridBagLayout());
-			gridBagConstraints11.gridx = 0;
-			gridBagConstraints11.gridy = 0;
-			gridBagConstraints11.ipadx = 0;
-			gridBagConstraints11.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints12.gridx = 2;
-			gridBagConstraints12.gridy = 0;
-			gridBagConstraints12.ipadx = 0;
-			gridBagConstraints12.anchor = java.awt.GridBagConstraints.EAST;
-			gridBagConstraints13.weightx = 1.0;
-			gridBagConstraints13.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints13.gridx = 1;
-			gridBagConstraints13.gridy = 0;
-			jPanel1.add(getPreviousButton(), gridBagConstraints11);
-			jPanel1.add(getSeekCombo(), gridBagConstraints13);
-			jPanel1.add(getNextButton(), gridBagConstraints12);
-		}
-		return jPanel1;
-	}
-	/**
-	 * This method initializes jComboBox	
-	 * 	
-	 * @return javax.swing.JComboBox	
-	 */    
-	private JComboBox getSeekCombo() {
-		if (seekCombo == null) {
-			seekCombo = new JComboBox();
-		}
-		return seekCombo;
-	}
-
   /**
    * Constructor.
    * 
