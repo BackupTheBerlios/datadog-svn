@@ -76,6 +76,7 @@ public class TransportStreamExplorer implements StreamExplorer {
   public TransportStreamExplorer(Bitstream bitstream) throws IOException {
     this.bitstream = bitstream;
     transportStream = new TransportStream(bitstream);
+    getTransportStreamsViewer().setStream(transportStream);
   }
   
   /* (non-Javadoc)

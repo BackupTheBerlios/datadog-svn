@@ -17,9 +17,12 @@
  */
 package net.lidskialf.datadog.mpeg.ui;
 
-import java.awt.Graphics;
 
 import net.lidskialf.datadog.ui.StreamsViewer;
+import net.lidskialf.datadog.mpeg.bitstream.*;
+
+import java.awt.*;
+import java.io.*;
 
 /**
  * @author Andrew de Quincey
@@ -28,19 +31,38 @@ import net.lidskialf.datadog.ui.StreamsViewer;
 public class TransportStreamsViewer extends StreamsViewer {
 
   /**
-   * 
+   * Constructor.
    */
   public TransportStreamsViewer() {
     super();
-    // TODO Auto-generated constructor stub
+    panel.setBackground(Color.white);
+  }
+  
+  /**
+   * Set the TransportStream viewed by this component.
+   * 
+   * @param stream The stream.
+   * @throws IOException On error.
+   */
+  public void setStream(TransportStream stream) throws IOException {
+    this.stream = stream;
+    setStreamHDimensions(stream.startPosition(), stream.length());
   }
 
   /* (non-Javadoc)
    * @see net.lidskialf.datadog.ui.StreamWidget#paintStreamsPanel(java.awt.Graphics, int, int, long, long)
    */
-  protected void paintStreamsPanel(Graphics g, int minStreamIdx,
-      int maxStreamIdx, long minStreamPosition, long length) {
-    // TODO Auto-generated method stub
+  protected void paintStreamsPanel(Graphics g) {
+    
+    // calculate which area of the stream we need to redraw
+    Rectangle clip = g.getClipBounds();
+    int minStreamIdx = windowYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
+    int maxStreamIdx = windowYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT);
+    long minStreamPosition = windowXPositionToStreamPosition(clip.x); 
+    long length = windowWidthToStreamLength(clip.width);
 
+    // FIXME: do something
   }
+  
+  protected TransportStream stream;
 }

@@ -86,6 +86,15 @@ public class TransportStream {
     return packet;
   }
   
+  public long length() throws IOException {
+    return bitstream.length();
+  }
+  
+  public long startPosition() throws IOException {
+    return 0;
+  }
+  
+  
   
   /* (non-Javadoc)
    * @see net.lidskialf.datadog.Stream#Probe()

@@ -18,6 +18,7 @@
 package net.lidskialf.datadog.ui;
 
 import java.awt.*;
+
 import javax.swing.*;
 
 /**
@@ -26,12 +27,34 @@ import javax.swing.*;
 public abstract class StreamsViewer extends JScrollPane {
 
   /**
+   * Spaces between streams should be treated as part of the stream above the separator in the display.
+   */
+  protected static final int SEPARATOR_PARTOF_STREAM_ABOVE_IT = 0;
+  
+  /**
+   * Spaces between streams should be treated as part of the stream below the separator in the display.
+   */
+  protected static final int SEPARATOR_PARTOF_STREAM_BELOW_IT = 1;
+  
+  /**
+   * Spaces between streams should be treated as invalid streams.
+   */
+  protected static final int SEPARATOR_INVALID = 2;
+
+  
+  
+  
+  /**
    * Constructor.
    */
   public StreamsViewer() {
     super(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+    
     panel = new StreamsPanel();    
     getViewport().add(panel);
+    
+    columnHeader = new StreamsViewerColumnHeader(this);
+    setColumnHeaderView(columnHeader);
   }
 
   /**
@@ -40,7 +63,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param streamIdx The index of the stream.
    * @return The Y position of the top of the stream's rendering position.
    */
-  protected int streamIndexToYPosition(int streamIdx) {
+  protected int streamIndexToWindowYPosition(int streamIdx) {
     return yBorder + (streamIdx * (streamPacketHeight + streamSeparationHeight));
   }
   
@@ -52,7 +75,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * spaces between the streams are treated.  
    * @return The stream index, or -1 for an invalid y position.
    */
-  protected int streamYPositionToStreamIndex(int yPos, int separatorDisposition) {
+  protected int windowYPositionToStreamIndex(int yPos, int separatorDisposition) {
     
     // calculate the index
     yPos -= yBorder;
@@ -71,32 +94,90 @@ public abstract class StreamsViewer extends JScrollPane {
     // watch out for too many streams!
     return tmpIdx;
   }
+  
+  /**
+   * Convert an X position in the window into a real position within the stream.
+   * 
+   * @param x The X position.
+   * @return The stream position.
+   */
+  protected long windowXPositionToStreamPosition(int x) {
+    return streamRealStart + (long) ((x << windowScalingFactor) + 0.5);
+  }
 
+  /**
+   * Convert an width position in the window into a real length of an area within the stream.
+   * 
+   * @param width The width.
+   * @return The length of the area within the stream..
+   */
+  protected long windowWidthToStreamLength(int width) {
+    return (long) ((width << windowScalingFactor) + 0.5);
+  }
+  
+  /**
+   * Set the horizontal dimensions of the stream. Also calculates an appropriate windowScalingFactor to avoid integer overflow issues.
+   * 
+   * @param streamsRealStart The real start position of the stream (so it can be nonzero).
+   * @param streamsRealLength The real length of the stream.
+   */
+  protected void setStreamHDimensions(long streamRealStart, long streamRealLength) {
+    // update the values
+    this.streamRealStart = streamRealStart;
+    this.streamRealLength = streamRealLength;
+    this.streamRealEnd = streamRealStart + streamRealLength;
+    
+    // now choose a scaling factor to avoid integer overflow
+    windowScalingFactor = 0;
+    while(streamRealStart > Integer.MAX_VALUE) {
+      windowScalingFactor++;
+      streamRealStart>>=1;
+    }
+    
+    // update the width of the window
+    windowWidth = (int) (streamRealLength >> windowScalingFactor);
+    Dimension curSize = panel.getPreferredSize();
+    curSize.width = windowWidth;
+    panel.setPreferredSize(curSize);
+    panel.revalidate();
+    
+    // update the width of the column header if present
+    if (columnHeader != null) {
+      curSize = columnHeader.getPreferredSize();
+      curSize.width = (int) (streamRealLength >> windowScalingFactor);
+      columnHeader.setPreferredSize(curSize);
+    }
+  }
+  
+  /**
+   * Render a position within the stream for display to the user.
+   * 
+   * @param position The position to render.
+   * @return The string to display.
+   */
+  protected String renderStreamPosition(long position) {
+    return "0x" + Long.toHexString(position);
+  }
+  
+  
   /**
    * The scrollable display for streams.
    * 
    * @author Andrew de Quincey
    */
-  protected class StreamsPanel extends JComponent implements Scrollable {
-
+  protected class StreamsPanel extends JPanel implements Scrollable {
     protected void paintComponent(Graphics g) {
       super.paintComponent(g);
-      
-      // calculate which area of the stream we need to redraw
-      Rectangle clip = g.getClipBounds();
-      int minStreamIdx = streamYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
-      int maxStreamIdx = streamYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT);
-      long minStreamPosition = streamsStartPosition + (long) ((clip.x << streamsScalingFactor) + 0.5);
-      long length = (long) ((clip.width << streamsScalingFactor) + 0.5);
-      
-      paintStreamsPanel(g, minStreamIdx, maxStreamIdx, minStreamPosition, length);
+      paintStreamsPanel(g);
     }
-
+    
+    
     /* (non-Javadoc)
      * @see javax.swing.Scrollable#getPreferredScrollableViewportSize()
      */
     public Dimension getPreferredScrollableViewportSize() {
-      return new Dimension(500, 200);
+      // TODO Auto-generated method stub
+      return null;
     }
     
     /* (non-Javadoc)
@@ -104,14 +185,13 @@ public abstract class StreamsViewer extends JScrollPane {
      */
     public int getScrollableBlockIncrement(Rectangle arg0, int arg1, int arg2) {
       // TODO Auto-generated method stub
-      return 5;
+      return ((int) (streamMinorTickSpacing >> windowScalingFactor)) * 10;
     }
     
     /* (non-Javadoc)
      * @see javax.swing.Scrollable#getScrollableTracksViewportHeight()
      */
     public boolean getScrollableTracksViewportHeight() {
-      // TODO Auto-generated method stub
       return true;
     }
     
@@ -119,8 +199,7 @@ public abstract class StreamsViewer extends JScrollPane {
      * @see javax.swing.Scrollable#getScrollableTracksViewportWidth()
      */
     public boolean getScrollableTracksViewportWidth() {
-      // TODO Auto-generated method stub
-      return true;
+      return false;
     }
     
     /* (non-Javadoc)
@@ -128,7 +207,7 @@ public abstract class StreamsViewer extends JScrollPane {
      */
     public int getScrollableUnitIncrement(Rectangle arg0, int arg1, int arg2) {
       // TODO Auto-generated method stub
-      return 5;
+      return (int) (streamMinorTickSpacing >> windowScalingFactor);
     }
   }
   
@@ -136,28 +215,9 @@ public abstract class StreamsViewer extends JScrollPane {
    * Repaint a bit of the streams panel
    * 
    * @param g The Graphics context.
-   * @param minStreamIdx The minimum stream index to repaint.
-   * @param maxStreamIdx The maximum stream index to repaint.
-   * @param minStreamPosition The minimum position in the streams. 
-   * @param length The length of the area to be repainted.
    */
-  protected abstract void paintStreamsPanel(Graphics g, int minStreamIdx, int maxStreamIdx, long minStreamPosition, long length);
-   
-  /**
-   * Spaces between streams should be treated as part of the stream above the separator in the display.
-   */
-  protected static final int SEPARATOR_PARTOF_STREAM_ABOVE_IT = 0;
-  
-  /**
-   * Spaces between streams should be treated as part of the stream below the separator in the display.
-   */
-  protected static final int SEPARATOR_PARTOF_STREAM_BELOW_IT = 1;
-  
-  /**
-   * Spaces between streams should be treated as invalid streams.
-   */
-  protected static final int SEPARATOR_INVALID = 2;
-    
+  protected abstract void paintStreamsPanel(Graphics g);
+ 
   /**
    * The height of a packet in a stream in pixels.
    */
@@ -174,27 +234,47 @@ public abstract class StreamsViewer extends JScrollPane {
   protected int yBorder = 5;
   
   /**
-   * The minimum position across all the streams (inclusively).
+   * The real start position of the stream.
    */
-  protected long streamsStartPosition = 0;
+  protected long streamRealStart = 0;
   
   /**
-   * The maximum position across all the streams (exclusively).
+   * The real length of the stream. 
    */
-  protected long streamsEndPosition = 0;
-
-  /**
-   * The maxmimum real (unscaled) length across all the streams. 
-   */
-  protected long streamsRealLength = 0;
+  protected long streamRealLength = 0;
   
   /**
-   * The scaling factor applied to the dimensions of the view panel (e.g. real stream position = (xpos << streamScalingFactor))
+   * The real end of the stream.
    */
-  protected long streamsScalingFactor = 1;
+  protected long streamRealEnd = 0;
+  
+  /**
+   * The scaling factor applied to the real stream coordinates so they don't cause integer overflow in the view panel.
+   */
+  protected int windowScalingFactor = 0;
 
+  /**
+   * Width of the panel window in pixels.
+   */
+  protected int windowWidth = 0;
+  
+  /**
+   * Spacing between minor ticks in the column header for the viewer. This is in real stream units.
+   */
+  protected long streamMinorTickSpacing = 16;
+  
+  /**
+   * Spacing between minor ticks in the column header for the viewer. This is in real stream units.
+   */
+  protected long streamMajorTickSpacing = 0x100;
+  
   /**
    * The stream viewer component instance.
    */
   protected StreamsPanel panel; 
+  
+  /**
+   * The column header component instance.
+   */
+  protected StreamsViewerColumnHeader columnHeader = null;
 }
