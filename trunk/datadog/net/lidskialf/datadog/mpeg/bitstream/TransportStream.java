@@ -18,8 +18,7 @@
 package net.lidskialf.datadog.mpeg.bitstream;
 
 import java.io.IOException;
-import java.io.RandomAccessFile;
-
+import net.lidskialf.datadog.*;
 
 
 /**
@@ -44,16 +43,15 @@ public class TransportStream {
   /**
    * Construct a parser for an mpeg2 transport stream.
    *  
-   * @param filename The filename of the stream.
+   * @param bitstream The Bitstream to access.
    */
-  public TransportStream(String filename) throws IOException {
+  public TransportStream(Bitstream bitstream) throws IOException {
     // sanity check
-    if (!probe(filename)) {
-      throw new RuntimeException("Invalid file: " + filename);
+    if (!probe(bitstream)) {
+      throw new RuntimeException("Invalid bitstream: " + bitstream.toString());
     }
     
-    // open it
-    dataFile = new RandomAccessFile(filename, "r");
+    this.bitstream = bitstream;
   }
   
   /**
@@ -75,12 +73,12 @@ public class TransportStream {
     }
     
     // check position is valid
-    if ((startPosition < 0) || ((startPosition + Constants.TS_PACKET_LENGTH) > dataFile.length())) return null;
+    if ((startPosition < 0) || ((startPosition + Constants.TS_PACKET_LENGTH) > bitstream.length())) return null;
     
     // ok, read it!
-    dataFile.seek(startPosition);
+    bitstream.seek(startPosition);
     byte[] data = new byte[Constants.TS_PACKET_LENGTH];
-    dataFile.read(data);
+    bitstream.readBlock(data);
     if (data[0] != Constants.TS_SYNC_BYTE) return null;
     TransportPacket packet = new TransportPacket(data, startPosition);
     
@@ -92,59 +90,51 @@ public class TransportStream {
   /* (non-Javadoc)
    * @see net.lidskialf.datadog.Stream#Probe()
    */
-  public static boolean probe(String filename) throws IOException {
-    RandomAccessFile tmpFile = new RandomAccessFile(filename, "r");
-    
+  public static boolean probe(Bitstream bitstream) throws IOException {
     // must be at least one TS packet long
-    if (tmpFile.length() < Constants.TS_PACKET_LENGTH) {
-      tmpFile.close();
+    if (bitstream.length() < Constants.TS_PACKET_LENGTH) {
       return false;
     }
     
     // must be divisible by TS_PACKET_LENGTH
-    if ((tmpFile.length() % Constants.TS_PACKET_LENGTH) != 0) {
+    if ((bitstream.length() % Constants.TS_PACKET_LENGTH) != 0) {
       return false;
     }
     
     // check sync byte of first packet
-    tmpFile.seek(0);
-    if (tmpFile.read() != Constants.TS_SYNC_BYTE) {
-      tmpFile.close();
+    bitstream.seek(0);
+    if (bitstream.readByte() != Constants.TS_SYNC_BYTE) {
       return false;
     }
     
     // check sync byte of second packet 
-    if (tmpFile.length() >= (Constants.TS_PACKET_LENGTH*2)) {
-      tmpFile.seek(Constants.TS_PACKET_LENGTH);
-      if (tmpFile.read() != Constants.TS_SYNC_BYTE) {
-        tmpFile.close();
+    if (bitstream.length() >= (Constants.TS_PACKET_LENGTH*2)) {
+      bitstream.seek(Constants.TS_PACKET_LENGTH);
+      if (bitstream.readByte() != Constants.TS_SYNC_BYTE) {
         return false;
       }
     }
     
     // check sync byte of 20th packet
-    if (tmpFile.length() >= (Constants.TS_PACKET_LENGTH*21)) {
-      tmpFile.seek(Constants.TS_PACKET_LENGTH*20);
-      if (tmpFile.read() != Constants.TS_SYNC_BYTE) {
-        tmpFile.close();
+    if (bitstream.length() >= (Constants.TS_PACKET_LENGTH*21)) {
+      bitstream.seek(Constants.TS_PACKET_LENGTH*20);
+      if (bitstream.readByte() != Constants.TS_SYNC_BYTE) {
         return false;
       }
     }
     
     // check sync byte of last packet
-    tmpFile.seek(tmpFile.length() - Constants.TS_PACKET_LENGTH);
-    if (tmpFile.read() != Constants.TS_SYNC_BYTE) {
-      tmpFile.close();
+    bitstream.seek(bitstream.length() - Constants.TS_PACKET_LENGTH);
+    if (bitstream.readByte() != Constants.TS_SYNC_BYTE) {
       return false;
     }
     
     // success!
-    tmpFile.close();
     return true;
   }
 
   /**
-   * The file containing our stream.
+   * The bitstream containing our stream.
    */
-  private RandomAccessFile dataFile;
+  private Bitstream bitstream;
 }

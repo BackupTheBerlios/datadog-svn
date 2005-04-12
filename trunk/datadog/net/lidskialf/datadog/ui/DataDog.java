@@ -27,9 +27,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import net.lidskialf.datadog.StreamExplorerFactory;
-import net.lidskialf.datadog.StreamExplorer;
-
+import net.lidskialf.datadog.*;
 
 import java.awt.GridLayout;
 import java.awt.Container;
@@ -169,27 +167,28 @@ public class DataDog {
             String pathname = chooser.getSelectedFile().getAbsolutePath();
             
             // try each parser in turn until we get one which matches. FIXME: this could probably be made a lot smarter
-            for(int i=0; i< streamExplorerFactories.length; i++) {
-              try {
-                if (streamExplorerFactories[i].probe(pathname)) {
-                  StreamExplorer explorer = streamExplorerFactories[i].open(pathname);
-                  
-                  JFrame explorerFrame = new JFrame(explorer.toString());
-                  JPanel explorerPanel = explorer.getUI();
-                  explorerFrame.getContentPane().add(explorerPanel);
-                  explorerFrame.pack();
-                  explorerFrame.setVisible(true);
-                  getOpenedStreams().addElement(explorer);
-                  return;
-                }
-              } catch (Throwable t) {
-                t.printStackTrace();
-                JOptionPane.showMessageDialog(getMainFrame(), 
-                    "An error during stream probing (" + t.getMessage() + ")", 
-                    "Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
+            try {
+              Bitstream stream = new FileBitstream(pathname);
+              for(int i=0; i< streamExplorerFactories.length; i++) {
+                  if (streamExplorerFactories[i].probe(stream)) {
+                    StreamExplorer explorer = streamExplorerFactories[i].open(stream);
+                    
+                    JFrame explorerFrame = new JFrame(explorer.toString());
+                    JPanel explorerPanel = explorer.getUI();
+                    explorerFrame.getContentPane().add(explorerPanel);
+                    explorerFrame.pack();
+                    explorerFrame.setVisible(true);
+                    getOpenedStreams().addElement(explorer);
+                    return;
+                  }
               }
+            } catch (Throwable t) {
+              t.printStackTrace();
+              JOptionPane.showMessageDialog(getMainFrame(), 
+                  "An error during stream probing (" + t.getMessage() + ")", 
+                  "Error", 
+                  JOptionPane.ERROR_MESSAGE);
+              return;
             }
             
             // if we get here, nothing matched
@@ -348,7 +347,7 @@ public class DataDog {
   public static final String version = "0.01";
   
   /**
-   * The list of known stream analyser factories.
+   * The list of known stream explorer factories.
    */
   private static final StreamExplorerFactory[] streamExplorerFactories = 
     new StreamExplorerFactory[] { new net.lidskialf.datadog.mpeg.TransportStreamExplorerFactory() };

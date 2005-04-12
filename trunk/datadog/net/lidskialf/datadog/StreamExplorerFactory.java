@@ -30,18 +30,18 @@ public interface StreamExplorerFactory {
   /**
    * Probe to see if the stream is supported by this StreamParser.
    * 
-   * @param filename Filename of the stream to test.
+   * @param bitstream The Bitstream to test.
    * @return True if supported, false if not.
    * @throws IOException On error.
    */
-  public boolean probe(String filename) throws IOException;
+  public boolean probe(Bitstream bitstream) throws IOException;
   
   /**
    * Open a stream.
    * 
-   * @param filename Stream to parse.
+   * @param bitstream The Bitstream to open.
    * @return StreamParser StreamParser instance representing this stream. 
    * @throws IOException On error.
    */
-  public StreamExplorer open(String filename) throws IOException;
+  public StreamExplorer open(Bitstream bitstream) throws IOException;
 }

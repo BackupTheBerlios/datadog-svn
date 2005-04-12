@@ -23,7 +23,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.io.IOException;
 
-import net.lidskialf.datadog.StreamExplorer;
+import net.lidskialf.datadog.*;
 import net.lidskialf.datadog.mpeg.bitstream.*;
 
 /**
@@ -71,11 +71,11 @@ public class TransportStreamExplorer implements StreamExplorer {
   /**
    * Constructor.
    * 
-   * @param filename The filename of the stream to parse.
+   * @param bitstream The Bitstream to view.
    */
-  public TransportStreamExplorer(String filename) throws IOException {
-    this.filename = filename;
-    transportStream = new TransportStream(filename);
+  public TransportStreamExplorer(Bitstream bitstream) throws IOException {
+    this.bitstream = bitstream;
+    transportStream = new TransportStream(bitstream);
   }
   
   /* (non-Javadoc)
@@ -89,13 +89,13 @@ public class TransportStreamExplorer implements StreamExplorer {
    * @see java.lang.Object#toString()
    */
   public String toString() {
-    return "Transport Stream: " + filename;
+    return "Transport Stream: " + bitstream.toString();
   }
   
   /**
-   * The filename we are parsing.
+   * The stream we are viewing.
    */
-  private String filename;
+  private Bitstream bitstream;
   
   /**
    * The transport stream we are accessing.
