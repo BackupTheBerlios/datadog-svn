@@ -40,7 +40,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param streamIdx The index of the stream.
    * @return The Y position of the top of the stream's rendering position.
    */
-  protected int StreamIndexToYPosition(int streamIdx) {
+  protected int streamIndexToYPosition(int streamIdx) {
     return yBorder + (streamIdx * (streamPacketHeight + streamSeparationHeight));
   }
   
@@ -52,7 +52,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * spaces between the streams are treated.  
    * @return The stream index, or -1 for an invalid y position.
    */
-  protected int StreamYPositionToStreamIndex(int yPos, int separatorDisposition) {
+  protected int streamYPositionToStreamIndex(int yPos, int separatorDisposition) {
     
     // calculate the index
     yPos -= yBorder;
@@ -69,7 +69,6 @@ public abstract class StreamsViewer extends JScrollPane {
     }
     
     // watch out for too many streams!
-    if (tmpIdx >= streamCount) return -1;
     return tmpIdx;
   }
 
@@ -85,8 +84,8 @@ public abstract class StreamsViewer extends JScrollPane {
       
       // calculate which area of the stream we need to redraw
       Rectangle clip = g.getClipBounds();
-      int minStreamIdx = StreamYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
-      int maxStreamIdx = StreamYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT);
+      int minStreamIdx = streamYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
+      int maxStreamIdx = streamYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT);
       long minStreamPosition = streamsStartPosition + (long) ((clip.x << streamsScalingFactor) + 0.5);
       long length = (long) ((clip.width << streamsScalingFactor) + 0.5);
       
@@ -158,11 +157,6 @@ public abstract class StreamsViewer extends JScrollPane {
    * Spaces between streams should be treated as invalid streams.
    */
   protected static final int SEPARATOR_INVALID = 2;
-  
-  /**
-   * The number of streams being displayed.
-   */
-  protected int streamCount = 0;
     
   /**
    * The height of a packet in a stream in pixels.

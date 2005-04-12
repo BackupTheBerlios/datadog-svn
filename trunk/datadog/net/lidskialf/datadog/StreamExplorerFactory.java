@@ -34,14 +34,14 @@ public interface StreamExplorerFactory {
    * @return True if supported, false if not.
    * @throws IOException On error.
    */
-  public boolean Probe(String filename) throws IOException;
+  public boolean probe(String filename) throws IOException;
   
   /**
-   * Parses a stream.
+   * Open a stream.
    * 
    * @param filename Stream to parse.
    * @return StreamParser StreamParser instance representing this stream. 
    * @throws IOException On error.
    */
-  public StreamExplorer Parse(String filename) throws IOException;
+  public StreamExplorer open(String filename) throws IOException;
 }

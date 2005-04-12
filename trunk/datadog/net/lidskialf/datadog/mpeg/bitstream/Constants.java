@@ -18,13 +18,19 @@
 package net.lidskialf.datadog.mpeg.bitstream;
 
 /**
+ * Miscellaneous mpeg related constants.
+ * 
  * @author Andrew de Quincey
- *
  */
 public class Constants {
   
+  /**
+   * The value of the transport stream sync byte.
+   */
   public static final int TS_SYNC_BYTE = 0x47;
   
+  /**
+   * The length of a transport stream packet in bytes.
+   */
   public static final int TS_PACKET_LENGTH = 188;
-
 }

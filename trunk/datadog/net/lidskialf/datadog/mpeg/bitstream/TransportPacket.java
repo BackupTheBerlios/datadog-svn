@@ -348,7 +348,7 @@ public class TransportPacket {
    * @param destOff Offset in dest to put the data.
    * @param length Number of bytes to extract.
    */
-  public void GetPayloadData(int payloadOff, byte[] dest, int destOff, int length) {
+  public void getPayloadData(int payloadOff, byte[] dest, int destOff, int length) {
     System.arraycopy(data, payloadOff, dest, destOff, length);
   }
 

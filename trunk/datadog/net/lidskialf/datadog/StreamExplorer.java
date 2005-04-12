@@ -31,5 +31,5 @@ public interface StreamExplorer {
    * 
    * @param parent Parent component
    */
-  public JPanel GetUI();
+  public JPanel getUI();
 }

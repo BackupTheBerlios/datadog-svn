@@ -124,7 +124,7 @@ public class DataDog {
           if (e.getClickCount() == 2) {
             StreamExplorer explorer = (StreamExplorer) streamsList.getSelectedValue();            
             if (explorer != null) {
-              Container topLevel = explorer.GetUI().getParent().getParent().getParent().getParent(); 
+              Container topLevel = explorer.getUI().getParent().getParent().getParent().getParent(); 
               topLevel.setVisible(true);
             }
           }
@@ -171,11 +171,11 @@ public class DataDog {
             // try each parser in turn until we get one which matches. FIXME: this could probably be made a lot smarter
             for(int i=0; i< streamExplorerFactories.length; i++) {
               try {
-                if (streamExplorerFactories[i].Probe(pathname)) {
-                  StreamExplorer explorer = streamExplorerFactories[i].Parse(pathname);
+                if (streamExplorerFactories[i].probe(pathname)) {
+                  StreamExplorer explorer = streamExplorerFactories[i].open(pathname);
                   
-                  JFrame explorerFrame = new JFrame();
-                  JPanel explorerPanel = explorer.GetUI();
+                  JFrame explorerFrame = new JFrame(explorer.toString());
+                  JPanel explorerPanel = explorer.getUI();
                   explorerFrame.getContentPane().add(explorerPanel);
                   explorerFrame.pack();
                   explorerFrame.setVisible(true);
@@ -267,7 +267,7 @@ public class DataDog {
 				public void actionPerformed(java.awt.event.ActionEvent e) {   
           StreamExplorer parser = (StreamExplorer) getStreamsList().getSelectedValue();            
           if (parser != null) {
-            Container topLevel = parser.GetUI().getParent().getParent().getParent().getParent(); 
+            Container topLevel = parser.getUI().getParent().getParent().getParent().getParent(); 
             topLevel.setVisible(true);
           }
 				}
@@ -292,7 +292,7 @@ public class DataDog {
           StreamExplorer parser = (StreamExplorer) getStreamsList().getSelectedValue();            
           if (parser != null) {
             getOpenedStreams().removeElement(parser);
-            JFrame topLevel = (JFrame) parser.GetUI().getParent().getParent().getParent().getParent(); 
+            JFrame topLevel = (JFrame) parser.getUI().getParent().getParent().getParent().getParent(); 
             topLevel.dispose();
           }
 				}

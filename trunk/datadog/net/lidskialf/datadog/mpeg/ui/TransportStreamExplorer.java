@@ -18,15 +18,13 @@
 package net.lidskialf.datadog.mpeg.ui;
 
 import javax.swing.JPanel;
-import javax.swing.JButton;
-
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
-
-import javax.swing.JComboBox;
+import java.io.IOException;
 
 import net.lidskialf.datadog.StreamExplorer;
+import net.lidskialf.datadog.mpeg.bitstream.*;
 
 /**
  * @author Andrew de Quincey
@@ -75,14 +73,15 @@ public class TransportStreamExplorer implements StreamExplorer {
    * 
    * @param filename The filename of the stream to parse.
    */
-  public TransportStreamExplorer(String filename) {
+  public TransportStreamExplorer(String filename) throws IOException {
     this.filename = filename;
+    transportStream = new TransportStream(filename);
   }
   
   /* (non-Javadoc)
    * @see net.lidskialf.datadog.StreamParser#GetUI(java.lang.String)
    */
-  public JPanel GetUI() {
+  public JPanel getUI() {
     return getMainPanel();
   }
   
@@ -97,4 +96,9 @@ public class TransportStreamExplorer implements StreamExplorer {
    * The filename we are parsing.
    */
   private String filename;
+  
+  /**
+   * The transport stream we are accessing.
+   */
+  private TransportStream transportStream;
 }

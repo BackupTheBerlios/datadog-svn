@@ -29,9 +29,17 @@ import java.io.RandomAccessFile;
  */
 public class TransportStream {
   
-  
+  /**
+   * Round packet position down to the previous packet. 
+   */
   public static final int ROUND_PREVIOUS = 0;
-  public static final int ROUND_NEXT = 1;  
+  
+  /**
+   * Round packet position up to the next packet.
+   */
+  public static final int ROUND_NEXT = 1;
+  
+  
   
   /**
    * Construct a parser for an mpeg2 transport stream.
@@ -40,7 +48,7 @@ public class TransportStream {
    */
   public TransportStream(String filename) throws IOException {
     // sanity check
-    if (!Probe(filename)) {
+    if (!probe(filename)) {
       throw new RuntimeException("Invalid file: " + filename);
     }
     
@@ -57,7 +65,7 @@ public class TransportStream {
    * @return The packet, or null if unavailable (i.e. end of stream).
    * @throws IOException On IO error.
    */
-  public TransportPacket GetPacketAt(long position, int rounding) throws IOException {    
+  public TransportPacket getPacketAt(long position, int rounding) throws IOException {    
     // round to the correct place
     long startPosition = 0;
     if (rounding == ROUND_PREVIOUS) {
@@ -84,7 +92,7 @@ public class TransportStream {
   /* (non-Javadoc)
    * @see net.lidskialf.datadog.Stream#Probe()
    */
-  public static boolean Probe(String filename) throws IOException {
+  public static boolean probe(String filename) throws IOException {
     RandomAccessFile tmpFile = new RandomAccessFile(filename, "r");
     
     // must be at least one TS packet long

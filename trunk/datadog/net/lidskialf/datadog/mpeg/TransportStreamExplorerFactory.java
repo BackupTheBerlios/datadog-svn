@@ -34,14 +34,14 @@ public class TransportStreamExplorerFactory implements StreamExplorerFactory {
   /* (non-Javadoc)
    * @see net.lidskialf.datadog.StreamParser#Probe(java.lang.String)
    */
-  public boolean Probe(String filename) throws IOException {
-    return TransportStream.Probe(filename);
+  public boolean probe(String filename) throws IOException {
+    return TransportStream.probe(filename);
   }
 
   /* (non-Javadoc)
    * @see net.lidskialf.datadog.StreamParser#OpenUI(java.lang.String)
    */
-  public StreamExplorer Parse(String filename) throws IOException {
+  public StreamExplorer open(String filename) throws IOException {
     return new TransportStreamExplorer(filename);
   }
 }
