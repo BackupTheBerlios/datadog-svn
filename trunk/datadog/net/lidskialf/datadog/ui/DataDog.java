@@ -27,8 +27,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import net.lidskialf.datadog.StreamParserFactory;
-import net.lidskialf.datadog.StreamParser;
+import net.lidskialf.datadog.StreamExplorerFactory;
+import net.lidskialf.datadog.StreamExplorer;
 
 
 import java.awt.GridLayout;
@@ -122,7 +122,7 @@ public class DataDog {
 			streamsList.addMouseListener(new java.awt.event.MouseAdapter() { 
 				public void mouseClicked(java.awt.event.MouseEvent e) {
           if (e.getClickCount() == 2) {
-            StreamParser parser = (StreamParser) streamsList.getSelectedValue();            
+            StreamExplorer parser = (StreamExplorer) streamsList.getSelectedValue();            
             if (parser != null) {
               Container topLevel = parser.GetUI().getParent().getParent().getParent().getParent(); 
               topLevel.setVisible(true);
@@ -172,7 +172,7 @@ public class DataDog {
             for(int i=0; i< streamParserFactories.length; i++) {
               try {
                 if (streamParserFactories[i].Probe(pathname)) {
-                  StreamParser parser = streamParserFactories[i].Parse(pathname);
+                  StreamExplorer parser = streamParserFactories[i].Parse(pathname);
                   
                   JFrame parserFrame = new JFrame();
                   JPanel parserPanel = parser.GetUI();
@@ -265,7 +265,7 @@ public class DataDog {
 			showSelectedStream.setText("Show Selected Stream");
 			showSelectedStream.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {   
-          StreamParser parser = (StreamParser) getStreamsList().getSelectedValue();            
+          StreamExplorer parser = (StreamExplorer) getStreamsList().getSelectedValue();            
           if (parser != null) {
             Container topLevel = parser.GetUI().getParent().getParent().getParent().getParent(); 
             topLevel.setVisible(true);
@@ -289,7 +289,7 @@ public class DataDog {
 			closeSelectedStream.setText("Close selected stream");
 			closeSelectedStream.addActionListener(new java.awt.event.ActionListener() { 
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-          StreamParser parser = (StreamParser) getStreamsList().getSelectedValue();            
+          StreamExplorer parser = (StreamExplorer) getStreamsList().getSelectedValue();            
           if (parser != null) {
             getOpenedStreams().removeElement(parser);
             JFrame topLevel = (JFrame) parser.GetUI().getParent().getParent().getParent().getParent(); 
@@ -350,6 +350,6 @@ public class DataDog {
   /**
    * The list of known stream analyser factories.
    */
-  private static final StreamParserFactory[] streamParserFactories = 
-    new StreamParserFactory[] { new net.lidskialf.datadog.mpeg.TransportStreamParserFactory() };
+  private static final StreamExplorerFactory[] streamParserFactories = 
+    new StreamExplorerFactory[] { new net.lidskialf.datadog.mpeg.TransportStreamExplorerFactory() };
 }

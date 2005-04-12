@@ -26,12 +26,12 @@ import java.awt.GridBagConstraints;
 
 import javax.swing.JComboBox;
 
-import net.lidskialf.datadog.StreamParser;
+import net.lidskialf.datadog.StreamExplorer;
 
 /**
  * @author Andrew de Quincey
  */
-public class TransportStreamParser implements StreamParser {
+public class TransportStreamExplorer implements StreamExplorer {
 
 	private JPanel mainPanel = null;  //  @jve:decl-index=0:visual-constraint="179,63"
 	private TransportStreamsViewer transportStreamsViewer = null;
@@ -159,7 +159,7 @@ public class TransportStreamParser implements StreamParser {
    * 
    * @param filename The filename of the stream to parse.
    */
-  public TransportStreamParser(String filename) {
+  public TransportStreamExplorer(String filename) {
     this.filename = filename;
   }
   

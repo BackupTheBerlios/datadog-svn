@@ -15,21 +15,33 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-package net.lidskialf.datadog;
+package net.lidskialf.datadog.mpeg;
 
-import javax.swing.JPanel;
+import java.io.*;
+
+import net.lidskialf.datadog.StreamExplorer;
+import net.lidskialf.datadog.StreamExplorerFactory;
+import net.lidskialf.datadog.mpeg.bitstream.TransportStream;
+import net.lidskialf.datadog.mpeg.ui.TransportStreamExplorer;
 
 /**
- * Interface implemented by a stream parser.
+ * The StreamParserFactory for Transport Streams.
  * 
  * @author Andrew de Quincey
  */
-public interface StreamParser {
-  
-  /**
-   * Gets the UI for viewing the stream (only one UI instance per StreamParser).
-   * 
-   * @param parent Parent component
+public class TransportStreamExplorerFactory implements StreamExplorerFactory {
+
+  /* (non-Javadoc)
+   * @see net.lidskialf.datadog.StreamParser#Probe(java.lang.String)
    */
-  public JPanel GetUI();
+  public boolean Probe(String filename) throws IOException {
+    return TransportStream.Probe(filename);
+  }
+
+  /* (non-Javadoc)
+   * @see net.lidskialf.datadog.StreamParser#OpenUI(java.lang.String)
+   */
+  public StreamExplorer Parse(String filename) throws IOException {
+    return new TransportStreamExplorer(filename);
+  }
 }

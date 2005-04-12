@@ -25,7 +25,7 @@ import java.io.*;
  * 
  * @author Andrew de Quincey
  */
-public interface StreamParserFactory {
+public interface StreamExplorerFactory {
 
   /**
    * Probe to see if the stream is supported by this StreamParser.
@@ -43,5 +43,5 @@ public interface StreamParserFactory {
    * @return StreamParser StreamParser instance representing this stream. 
    * @throws IOException On error.
    */
-  public StreamParser Parse(String filename) throws IOException;
+  public StreamExplorer Parse(String filename) throws IOException;
 }
