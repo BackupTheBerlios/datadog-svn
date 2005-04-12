@@ -32,6 +32,7 @@ public class FileBitstream implements Bitstream {
    * @param filename The filename of the file to wrap.
    */
   public FileBitstream(String filename) throws IOException {
+    this.filename = filename;
     dataFile = new RandomAccessFile(filename, "r");
   }
   
@@ -80,8 +81,20 @@ public class FileBitstream implements Bitstream {
     dataFile = null;
   }
   
+  /* (non-Javadoc)
+   * @see java.lang.Object#toString()
+   */
+  public String toString() {
+    return filename;
+  }
+  
   /**
    * The file backing the bitstream.
    */
   private RandomAccessFile dataFile;
+  
+  /**
+   * The filename of the file.
+   */
+  private String filename;
 }
