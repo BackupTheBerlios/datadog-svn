@@ -119,6 +119,7 @@ public class TransportStreamsViewer extends StreamsViewer {
           pidToRowDescriptor.put(pidI, newDesc);
           inserted = true;
           i++;
+          curDesc.rowIdx = i;
         }
       } else {
         // update all row indexes after the inserted position
