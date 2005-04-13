@@ -19,6 +19,7 @@ package net.lidskialf.datadog.mpeg.ui;
 
 
 import net.lidskialf.datadog.ui.StreamsViewer;
+import net.lidskialf.datadog.ui.StreamsViewerRowDescriptor;
 import net.lidskialf.datadog.mpeg.bitstream.*;
 
 import java.awt.*;
@@ -36,6 +37,11 @@ public class TransportStreamsViewer extends StreamsViewer {
   public TransportStreamsViewer() {
     super();
     panel.setBackground(Color.white);
+    
+    rows.add(new StreamsViewerRowDescriptor("1"));
+    rows.add(new StreamsViewerRowDescriptor("----2---"));
+    rows.add(new StreamsViewerRowDescriptor("3"));
+    rows.add(new StreamsViewerRowDescriptor("4"));
   }
   
   /**

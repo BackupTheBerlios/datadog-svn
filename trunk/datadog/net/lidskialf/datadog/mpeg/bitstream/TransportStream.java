@@ -86,18 +86,35 @@ public class TransportStream {
     return packet;
   }
   
+  
+  /**
+   * Retrieve the length of the stream.
+   * 
+   * @return The length.
+   * @throws IOException On error.
+   */
   public long length() throws IOException {
     return bitstream.length();
   }
   
+  /**
+   * Retrieve the starting position of the stream.
+   * 
+   * @return The starting position.
+   * @throws IOException On error.
+   */
   public long startPosition() throws IOException {
     return 0;
   }
   
   
   
-  /* (non-Javadoc)
-   * @see net.lidskialf.datadog.Stream#Probe()
+  /**
+   * Probe a Bitstream to see if we support it.
+   * 
+   * @param bitstream The bitstream to probe.
+   * @return True if we support it, false if not.
+   * @throws IOException On error.
    */
   public static boolean probe(Bitstream bitstream) throws IOException {
     // must be at least one TS packet long

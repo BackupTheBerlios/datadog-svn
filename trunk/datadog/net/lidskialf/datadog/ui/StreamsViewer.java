@@ -17,6 +17,7 @@
  */
 package net.lidskialf.datadog.ui;
 
+import java.util.*;
 import java.awt.*;
 
 import javax.swing.*;
@@ -53,8 +54,13 @@ public abstract class StreamsViewer extends JScrollPane {
     panel = new StreamsPanel();    
     getViewport().add(panel);
     
-    columnHeader = new StreamsViewerColumnHeader(this);
+    columnHeader = new ColumnHeader();
     setColumnHeaderView(columnHeader);
+    
+    rowHeader = new RowHeader();
+    setRowHeaderView(rowHeader);
+    
+    rowHeaderColour = new Color(207, 212, 255);
   }
 
   /**
@@ -64,7 +70,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @return The Y position of the top of the stream's rendering position.
    */
   protected int streamIndexToWindowYPosition(int streamIdx) {
-    return yBorder + (streamIdx * (streamPacketHeight + streamSeparationHeight));
+    return streamIdx * (windowRowHeight + windowRowSeparation);
   }
   
   /**
@@ -78,17 +84,16 @@ public abstract class StreamsViewer extends JScrollPane {
   protected int windowYPositionToStreamIndex(int yPos, int separatorDisposition) {
     
     // calculate the index
-    yPos -= yBorder;
     int tmpIdx = -1;
     if (separatorDisposition == SEPARATOR_PARTOF_STREAM_BELOW_IT) {
-      tmpIdx = (yPos + streamSeparationHeight) / (streamPacketHeight + streamSeparationHeight);
+      tmpIdx = (yPos + windowRowSeparation) / (windowRowHeight + windowRowSeparation);
     } else if (separatorDisposition == SEPARATOR_PARTOF_STREAM_ABOVE_IT) {
       if (yPos < 0) return -1;
-      tmpIdx = yPos / (streamPacketHeight + streamSeparationHeight);
+      tmpIdx = yPos / (windowRowHeight + windowRowSeparation);
     } else if (separatorDisposition == SEPARATOR_INVALID) {
       if (yPos < 0) return -1;
-      tmpIdx = yPos / (streamPacketHeight + streamSeparationHeight);
-      if (yPos >= ((tmpIdx * (streamPacketHeight + streamSeparationHeight)) + streamPacketHeight)) return -1;
+      tmpIdx = yPos / (windowRowHeight + windowRowSeparation);
+      if (yPos >= ((tmpIdx * (windowRowHeight + windowRowSeparation)) + windowRowHeight)) return -1;
     }
     
     // watch out for too many streams!
@@ -159,6 +164,138 @@ public abstract class StreamsViewer extends JScrollPane {
     return "0x" + Long.toHexString(position);
   }
   
+  /**
+   * Update the dimensions of the row header when the list of rows changes.
+   */
+  protected void updateRowHeaderDimensions() {
+    // work out the minimum width
+    int minWidth = 0;
+    FontMetrics fontMetrics = rowHeader.getGraphics().getFontMetrics();
+    for(int i=0; i < rows.size(); i++) {
+      String str = rows.get(i).toString();
+      int curWidth = fontMetrics.stringWidth(str) + 2;
+      if (curWidth > minWidth) {
+        minWidth = curWidth;
+      }
+    }
+    
+    // set the width
+    Dimension curSize = rowHeader.getPreferredSize();
+    curSize.width = minWidth;
+    rowHeader.setPreferredSize(curSize);
+  }
+  
+  /**
+   * Paint the column header component.
+   * 
+   * @param g Graphics to paint into
+   */
+  protected void paintColumnHeader(Graphics g) {
+    super.paintComponent(g);
+    
+    // calculate what to draw
+    Rectangle clip = g.getClipBounds();
+    long minStreamDrawPosition = windowXPositionToStreamPosition(clip.x); 
+    long maxStreamDrawPosition = minStreamDrawPosition + windowWidthToStreamLength(clip.width);
+    
+    // round the min position down to the nearest major tick
+    minStreamDrawPosition = (minStreamDrawPosition  / streamMajorTickSpacing) * streamMajorTickSpacing;
+    
+    // round the max position up to the nearest major tick
+    maxStreamDrawPosition = ((maxStreamDrawPosition + streamMajorTickSpacing) / streamMajorTickSpacing) * streamMajorTickSpacing;
+    
+    // draw the ticks
+    g.setColor(Color.black);
+    for(long pos = minStreamDrawPosition; pos <= maxStreamDrawPosition; pos+= streamMinorTickSpacing) {
+      int x = (int) (pos >> windowScalingFactor);
+      
+      // determine the kind of tick we need to draw
+      if ((pos % streamMajorTickSpacing) == 0) {
+        // draw major tick
+        g.drawLine(x, 11, x, 20);
+        
+        // render the position string and draw it somewhere
+        String rendered = renderStreamPosition(pos);
+        int width = g.getFontMetrics().stringWidth(rendered);
+        x -= (width/2);
+        if (x < 0) x = 0;
+        if (x > windowWidth) x = windowWidth - width;
+        g.drawString(rendered, x, 10);
+      } else {
+        g.drawLine(x, 15, x, 20);
+      }
+    }
+  }
+
+  /**
+   * Paint the row header component.
+   * 
+   * @param g Graphics to paint into
+   */
+  protected void paintRowHeader(Graphics g) {
+    super.paintComponent(g);
+    
+    // work out what to redraw
+    Rectangle clip = g.getClipBounds();
+    int minStreamIdx = windowYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
+    int maxStreamIdx = windowYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT)+1;
+    if (maxStreamIdx > rows.size()) maxStreamIdx = rows.size();
+    
+    // redraw it!
+    int y = 0;
+    for(int i=minStreamIdx; i< maxStreamIdx; i++) {
+      g.setColor(rowHeaderColour);
+      g.fillRect(0, y, 30, windowRowHeight);
+      
+      g.setColor(Color.black);
+      g.drawString(rows.get(i).toString(), 1, y + windowRowHeight);
+      y += windowRowSeparation + windowRowHeight;
+    }
+  }
+
+  /**
+   * Repaint a bit of the streams panel
+   * 
+   * @param g The Graphics context.
+   */
+  protected abstract void paintStreamsPanel(Graphics g);
+ 
+  
+  
+  /**
+   * The column header
+   * 
+   * @author Andrew de Quincey
+   */
+  protected class ColumnHeader extends JPanel {
+    
+    public ColumnHeader() {
+      setPreferredSize(new Dimension(0, 20));
+    }
+    
+    protected void paintComponent(Graphics g) {
+      super.paintComponent(g);
+      paintColumnHeader(g);
+    }
+  }
+ 
+  /**
+   * The row header
+   * 
+   * @author Andrew de Quincey
+   */
+  protected class RowHeader extends JPanel {
+    
+    public RowHeader() {
+      setPreferredSize(new Dimension(20, 0));
+    }
+    
+    protected void paintComponent(Graphics g) {
+      super.paintComponent(g);
+      paintRowHeader(g);
+    }
+  }
+  
   
   /**
    * The scrollable display for streams.
@@ -171,12 +308,10 @@ public abstract class StreamsViewer extends JScrollPane {
       paintStreamsPanel(g);
     }
     
-    
     /* (non-Javadoc)
      * @see javax.swing.Scrollable#getPreferredScrollableViewportSize()
      */
     public Dimension getPreferredScrollableViewportSize() {
-      // TODO Auto-generated method stub
       return null;
     }
     
@@ -184,7 +319,6 @@ public abstract class StreamsViewer extends JScrollPane {
      * @see javax.swing.Scrollable#getScrollableBlockIncrement(java.awt.Rectangle, int, int)
      */
     public int getScrollableBlockIncrement(Rectangle arg0, int arg1, int arg2) {
-      // TODO Auto-generated method stub
       return ((int) (streamMinorTickSpacing >> windowScalingFactor)) * 10;
     }
     
@@ -206,33 +340,10 @@ public abstract class StreamsViewer extends JScrollPane {
      * @see javax.swing.Scrollable#getScrollableUnitIncrement(java.awt.Rectangle, int, int)
      */
     public int getScrollableUnitIncrement(Rectangle arg0, int arg1, int arg2) {
-      // TODO Auto-generated method stub
       return (int) (streamMinorTickSpacing >> windowScalingFactor);
     }
   }
-  
-  /**
-   * Repaint a bit of the streams panel
-   * 
-   * @param g The Graphics context.
-   */
-  protected abstract void paintStreamsPanel(Graphics g);
- 
-  /**
-   * The height of a packet in a stream in pixels.
-   */
-  protected int streamPacketHeight = 10;
-  
-  /**
-   * The separation between two streams in pixels.
-   */
-  protected int streamSeparationHeight = 5;
-  
-  /**
-   * The Y border at the top of the window - FIXME - maybe this should be replaced with just a normal border?
-   */
-  protected int yBorder = 5;
-  
+
   /**
    * The real start position of the stream.
    */
@@ -259,6 +370,16 @@ public abstract class StreamsViewer extends JScrollPane {
   protected int windowWidth = 0;
   
   /**
+   * The height of a row in pixels.
+   */
+  protected int windowRowHeight = 10;
+  
+  /**
+   * The separation between two rows in pixels.
+   */
+  protected int windowRowSeparation = 1;
+  
+  /**
    * Spacing between minor ticks in the column header for the viewer. This is in real stream units.
    */
   protected long streamMinorTickSpacing = 16;
@@ -276,5 +397,17 @@ public abstract class StreamsViewer extends JScrollPane {
   /**
    * The column header component instance.
    */
-  protected StreamsViewerColumnHeader columnHeader = null;
+  protected ColumnHeader columnHeader = null;
+  
+  /**
+   * The row header component instance.
+   */
+  protected RowHeader rowHeader = null;
+  
+  /**
+   * The rows displayed by the viewer.
+   */
+  protected java.util.List rows = Collections.synchronizedList(new ArrayList());
+  
+  protected Color rowHeaderColour;
 }
