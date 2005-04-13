@@ -26,6 +26,12 @@ public class StreamsViewerRowDescriptor {
 
   /**
    * Constructor.
+   */
+  public StreamsViewerRowDescriptor() {
+  }
+  
+  /**
+   * Constructor.
    * 
    * @param description The description to display.
    */

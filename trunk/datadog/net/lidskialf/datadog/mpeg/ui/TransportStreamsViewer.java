@@ -18,8 +18,7 @@
 package net.lidskialf.datadog.mpeg.ui;
 
 
-import net.lidskialf.datadog.ui.StreamsViewer;
-import net.lidskialf.datadog.ui.StreamsViewerRowDescriptor;
+import net.lidskialf.datadog.ui.*;
 import net.lidskialf.datadog.mpeg.bitstream.*;
 
 import java.awt.*;
@@ -38,10 +37,10 @@ public class TransportStreamsViewer extends StreamsViewer {
     super();
     panel.setBackground(Color.white);
     
-    rows.add(new StreamsViewerRowDescriptor("1"));
-    rows.add(new StreamsViewerRowDescriptor("----2---"));
-    rows.add(new StreamsViewerRowDescriptor("3"));
-    rows.add(new StreamsViewerRowDescriptor("4"));
+    rows.add(new TransportStreamRowDescriptor(0));
+    rows.add(new TransportStreamRowDescriptor(1));
+    rows.add(new TransportStreamRowDescriptor(2));
+    rows.add(new TransportStreamRowDescriptor(3));
   }
   
   /**
@@ -68,6 +67,32 @@ public class TransportStreamsViewer extends StreamsViewer {
     long length = windowWidthToStreamLength(clip.width);
 
     // FIXME: do something
+  }
+  
+  /**
+   * RowDescriptor tailored for transport streams.
+   * 
+   * @author Andrew de Quincey
+   */
+  private class TransportStreamRowDescriptor extends StreamsViewerRowDescriptor {
+    
+    /**
+     * Constructor.
+     * 
+     * @param pid PID this row is representing.
+     */
+    public TransportStreamRowDescriptor(int pid) {
+      String tmp = Integer.toHexString(pid);
+      while(tmp.length() < 4) {
+        tmp = "0" + tmp; 
+      }
+      description = "0x" + tmp;
+    }
+
+    /**
+     * The PID of the row.
+     */
+    public int pid;
   }
   
   protected TransportStream stream;

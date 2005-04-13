@@ -168,6 +168,9 @@ public abstract class StreamsViewer extends JScrollPane {
    * Update the dimensions of the row header when the list of rows changes.
    */
   protected void updateRowHeaderDimensions() {
+    rowHeaderWidth = -1;
+    if (rowHeader.getGraphics() == null) return;
+    
     // work out the minimum width
     int minWidth = 0;
     FontMetrics fontMetrics = rowHeader.getGraphics().getFontMetrics();
@@ -178,11 +181,13 @@ public abstract class StreamsViewer extends JScrollPane {
         minWidth = curWidth;
       }
     }
+    rowHeaderWidth = minWidth;
     
     // set the width
     Dimension curSize = rowHeader.getPreferredSize();
-    curSize.width = minWidth;
+    curSize.width = rowHeaderWidth;
     rowHeader.setPreferredSize(curSize);
+    rowHeader.revalidate();
   }
   
   /**
@@ -245,7 +250,7 @@ public abstract class StreamsViewer extends JScrollPane {
     int y = 0;
     for(int i=minStreamIdx; i< maxStreamIdx; i++) {
       g.setColor(rowHeaderColour);
-      g.fillRect(0, y, 30, windowRowHeight);
+      g.fillRect(0, y, rowHeaderWidth, windowRowHeight);
       
       g.setColor(Color.black);
       g.drawString(rows.get(i).toString(), 1, y + windowRowHeight);
@@ -292,6 +297,8 @@ public abstract class StreamsViewer extends JScrollPane {
     
     protected void paintComponent(Graphics g) {
       super.paintComponent(g);
+      
+      updateRowHeaderDimensions();
       paintRowHeader(g);
     }
   }
@@ -403,6 +410,8 @@ public abstract class StreamsViewer extends JScrollPane {
    * The row header component instance.
    */
   protected RowHeader rowHeader = null;
+  
+  protected int rowHeaderWidth = -1; 
   
   /**
    * The rows displayed by the viewer.
