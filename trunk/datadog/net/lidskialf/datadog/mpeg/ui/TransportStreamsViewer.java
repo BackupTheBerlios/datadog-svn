@@ -21,8 +21,10 @@ package net.lidskialf.datadog.mpeg.ui;
 import net.lidskialf.datadog.ui.*;
 import net.lidskialf.datadog.mpeg.bitstream.*;
 
+import java.util.*;
 import java.awt.*;
 import java.io.*;
+import javax.swing.*;
 
 /**
  * @author Andrew de Quincey
@@ -36,11 +38,6 @@ public class TransportStreamsViewer extends StreamsViewer {
   public TransportStreamsViewer() {
     super();
     panel.setBackground(Color.white);
-    
-    rows.add(new TransportStreamRowDescriptor(0));
-    rows.add(new TransportStreamRowDescriptor(1));
-    rows.add(new TransportStreamRowDescriptor(2));
-    rows.add(new TransportStreamRowDescriptor(3));
   }
   
   /**
@@ -63,11 +60,83 @@ public class TransportStreamsViewer extends StreamsViewer {
     Rectangle clip = g.getClipBounds();
     int minStreamIdx = windowYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
     int maxStreamIdx = windowYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT);
-    long minStreamPosition = windowXPositionToStreamPosition(clip.x); 
-    long length = windowWidthToStreamLength(clip.width);
-
-    // FIXME: do something
+    
+    
+    try {
+      long minStreamPosition = stream.round(windowXPositionToStreamPosition(clip.x), TransportStream.ROUND_DOWN);
+      long maxStreamPosition = stream.round(minStreamPosition + windowWidthToStreamLength(clip.width), TransportStream.ROUND_INC);
+      
+      // render each packet
+      for(long curPos = minStreamPosition; curPos <= maxStreamPosition; curPos+=Constants.TS_PACKET_LENGTH) {
+        // get the packet
+        TransportPacket packet = stream.getPacketAt(curPos);
+        if (packet == null) continue;
+        
+        // find/create a row for the PID
+        int pid = packet.pid();
+        TransportStreamRowDescriptor row = getRowForPid(pid);
+        
+        // draw it if it is within the bounds
+        if ((row.rowIdx >= minStreamIdx) && (row.rowIdx <= maxStreamIdx)) {
+          int x = streamPositionToWindowXPosition(curPos);
+          int y = streamIndexToWindowYPosition(row.rowIdx);
+          g.setColor(Color.red);
+          g.fillRect(x, y, packetWidth, windowRowHeight);
+          g.setColor(Color.black);
+          g.drawRect(x, y, packetWidth, windowRowHeight);
+        }
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+      JOptionPane.showMessageDialog(this, 
+          "An error during stream rendering (" + e.getMessage() + ")", 
+          "Error", 
+          JOptionPane.ERROR_MESSAGE);
+    }
   }
+  
+  private TransportStreamRowDescriptor getRowForPid(int pid) {
+    
+    // retrieve the old version if present
+    Integer pidI = new Integer(pid);
+    if (pidToRowDescriptor.containsKey(pidI)) {
+      return (TransportStreamRowDescriptor) pidToRowDescriptor.get(pidI);
+    }
+    
+    // create a new one
+    TransportStreamRowDescriptor newDesc = new TransportStreamRowDescriptor(pid);
+    
+    // find where to insert it
+    boolean inserted = false;
+    for(int i=0; i< rows.size(); i++) {
+      TransportStreamRowDescriptor curDesc = (TransportStreamRowDescriptor) rows.get(i);
+      
+      // found a pid greater than our current one? insert it!
+      if (!inserted) {
+        if (curDesc.pid > newDesc.pid) {
+          newDesc.rowIdx = i;
+          rows.add(i, newDesc);
+          pidToRowDescriptor.put(pidI, newDesc);
+          inserted = true;
+          i++;
+        }
+      } else {
+        // update all row indexes after the inserted position
+        curDesc.rowIdx = i;
+      }
+    }
+    
+    // if we didn't insert it anywhere, append it
+    if (!inserted) {
+      newDesc.rowIdx = rows.size();
+      rows.add(newDesc);
+      pidToRowDescriptor.put(pidI, newDesc);
+    }
+    
+    updateRowHeaderDimensions();
+    return newDesc;
+  }
+  
   
   /**
    * RowDescriptor tailored for transport streams.
@@ -87,6 +156,7 @@ public class TransportStreamsViewer extends StreamsViewer {
         tmp = "0" + tmp; 
       }
       description = "0x" + tmp;
+      this.pid = pid;
     }
 
     /**
@@ -95,5 +165,15 @@ public class TransportStreamsViewer extends StreamsViewer {
     public int pid;
   }
   
-  protected TransportStream stream;
+  /**
+   * The stream we are viewing.
+   */
+  private TransportStream stream;
+  
+  /**
+   * PID -> row descriptor.
+   */
+  private Map pidToRowDescriptor = Collections.synchronizedMap(new HashMap());
+  
+  private int packetWidth = (int) streamLengthToWindowWidth(Constants.TS_PACKET_LENGTH);
 }

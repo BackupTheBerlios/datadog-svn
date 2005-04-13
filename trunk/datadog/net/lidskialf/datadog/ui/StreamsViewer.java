@@ -111,13 +111,33 @@ public abstract class StreamsViewer extends JScrollPane {
   }
 
   /**
-   * Convert an width position in the window into a real length of an area within the stream.
+   * Convert a real position within the stream into an X position in the window.
+   * 
+   * @param x The X position.
+   * @return The stream position.
+   */
+  protected int streamPositionToWindowXPosition(long position) {
+    return (int) ((position - streamRealStart) >> windowScalingFactor);
+  }
+  
+  /**
+   * Convert an width in the window into a real length of an area within the stream.
    * 
    * @param width The width.
    * @return The length of the area within the stream..
    */
   protected long windowWidthToStreamLength(int width) {
     return (long) ((width << windowScalingFactor) + 0.5);
+  }
+  
+  /**
+   * Convert a real length of an area within the stream into a width in the window.
+   * 
+   * @param width The width.
+   * @return The length of the area within the stream..
+   */
+  protected int streamLengthToWindowWidth(long length) {
+    return (int) (length >> windowScalingFactor);
   }
   
   /**
@@ -243,12 +263,12 @@ public abstract class StreamsViewer extends JScrollPane {
     // work out what to redraw
     Rectangle clip = g.getClipBounds();
     int minStreamIdx = windowYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
-    int maxStreamIdx = windowYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT)+1;
-    if (maxStreamIdx > rows.size()) maxStreamIdx = rows.size();
+    int maxStreamIdx = windowYPositionToStreamIndex(clip.y + clip.height + (windowRowSeparation + windowRowHeight-1), SEPARATOR_PARTOF_STREAM_ABOVE_IT);
+    if (maxStreamIdx >= rows.size()) maxStreamIdx = rows.size()-1;
     
     // redraw it!
-    int y = 0;
-    for(int i=minStreamIdx; i< maxStreamIdx; i++) {
+    int y = minStreamIdx * (windowRowSeparation + windowRowHeight);
+    for(int i=minStreamIdx; i <= maxStreamIdx; i++) {
       g.setColor(rowHeaderColour);
       g.fillRect(0, y, rowHeaderWidth, windowRowHeight);
       
@@ -411,6 +431,9 @@ public abstract class StreamsViewer extends JScrollPane {
    */
   protected RowHeader rowHeader = null;
   
+  /**
+   * Width of the row header window.
+   */
   protected int rowHeaderWidth = -1; 
   
   /**

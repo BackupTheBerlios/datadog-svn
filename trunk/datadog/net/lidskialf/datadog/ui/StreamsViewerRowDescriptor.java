@@ -28,6 +28,7 @@ public class StreamsViewerRowDescriptor {
    * Constructor.
    */
   public StreamsViewerRowDescriptor() {
+    description = "";
   }
   
   /**
@@ -35,8 +36,9 @@ public class StreamsViewerRowDescriptor {
    * 
    * @param description The description to display.
    */
-  public StreamsViewerRowDescriptor(String description) {
+  public StreamsViewerRowDescriptor(String description, int rowIdx) {
     this.description = description;
+    this.rowIdx = rowIdx;
   }
     
   /* (non-Javadoc)
@@ -49,5 +51,10 @@ public class StreamsViewerRowDescriptor {
   /**
    * The description.
    */
-  protected String description;
+  public String description;
+  
+  /**
+   * The index of the row this descriptor represents.
+   */
+  public int rowIdx;
 }

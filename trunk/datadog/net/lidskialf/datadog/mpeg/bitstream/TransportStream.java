@@ -18,6 +18,9 @@
 package net.lidskialf.datadog.mpeg.bitstream;
 
 import java.io.IOException;
+
+import org.omg.CORBA.DATA_CONVERSION;
+
 import net.lidskialf.datadog.*;
 
 
@@ -31,13 +34,17 @@ public class TransportStream {
   /**
    * Round packet position down to the previous packet. 
    */
-  public static final int ROUND_PREVIOUS = 0;
+  public static final int ROUND_DOWN = 0;
   
   /**
    * Round packet position up to the next packet.
    */
-  public static final int ROUND_NEXT = 1;
+  public static final int ROUND_UP = 1;
   
+  /**
+   * Position should be that of the next packet start (always rounds up).  
+   */
+  public static final int ROUND_INC = 2;
   
   
   /**
@@ -58,32 +65,55 @@ public class TransportStream {
    * Retrieve the nearest transport packet to the given position.
    * 
    * @param position The position concerned.
-   * @param rounding One of ROUND_*. If a packet does not start exactly at the given position, 
-   * this controls how to find the one returned.
    * @return The packet, or null if unavailable (i.e. end of stream).
    * @throws IOException On IO error.
    */
-  public TransportPacket getPacketAt(long position, int rounding) throws IOException {    
-    // round to the correct place
-    long startPosition = 0;
-    if (rounding == ROUND_PREVIOUS) {
-      startPosition = (position / Constants.TS_PACKET_LENGTH) * Constants.TS_PACKET_LENGTH;
-    } else if (rounding == ROUND_NEXT) {
-      startPosition = ((position + Constants.TS_PACKET_LENGTH) / Constants.TS_PACKET_LENGTH) * Constants.TS_PACKET_LENGTH;      
-    }
-    
+  public TransportPacket getPacketAt(long position) throws IOException {    
     // check position is valid
-    if ((startPosition < 0) || ((startPosition + Constants.TS_PACKET_LENGTH) > bitstream.length())) return null;
+    if ((position < 0) || ((position + Constants.TS_PACKET_LENGTH) > bitstream.length())) return null;
     
     // ok, read it!
-    bitstream.seek(startPosition);
+    bitstream.seek(position);
     byte[] data = new byte[Constants.TS_PACKET_LENGTH];
     bitstream.readBlock(data);
     if (data[0] != Constants.TS_SYNC_BYTE) return null;
-    TransportPacket packet = new TransportPacket(data, startPosition);
+    TransportPacket packet = new TransportPacket(data, position);
     
     // done
     return packet;
+  }
+  
+  /**
+   * Round a given position within the stream to a transport packet.
+   *  
+   * @param position The original position.
+   * @param roundOp One of ROUND_* - controls how the rounding is done.
+   * @return The rounded position. 
+   * @throws IOException On error.
+   */
+  public long round(long position, int roundOp) throws IOException {
+    long newPos;
+    switch(roundOp) {
+    case ROUND_DOWN:
+      newPos = (position / Constants.TS_PACKET_LENGTH) * Constants.TS_PACKET_LENGTH;
+      break;
+      
+    case ROUND_UP:
+      newPos = (position + (Constants.TS_PACKET_LENGTH-1) / Constants.TS_PACKET_LENGTH) * Constants.TS_PACKET_LENGTH;
+      break;
+      
+    case ROUND_INC:
+      newPos = ((position + Constants.TS_PACKET_LENGTH) / Constants.TS_PACKET_LENGTH) * Constants.TS_PACKET_LENGTH;
+      break;
+      
+    default:
+      return 0;
+    }
+    
+    if (newPos < 0) return 0;
+    if (newPos > bitstream.length()) return bitstream.length() - Constants.TS_PACKET_LENGTH;
+    
+    return newPos;
   }
   
   
