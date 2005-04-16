@@ -103,8 +103,8 @@ public class TransportStreamExplorer implements StreamExplorer {
     viewer = new TransportStreamsViewer(transportStream, rowModel);
     viewer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
-    columnHeader = new StreamsViewerColumnHeader(viewer);
-    viewer.setColumnHeaderView(columnHeader);
+//    columnHeader = new StreamsViewerColumnHeader(viewer);
+//    viewer.setColumnHeaderView(columnHeader);
 
     rowHeader = new StreamsViewerRowHeader(viewer, rowModel);
     viewer.setRowHeaderView(rowHeader);
