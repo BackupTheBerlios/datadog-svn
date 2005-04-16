@@ -41,7 +41,7 @@ public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
    */
   public StreamsViewerRowHeader(StreamsViewer viewer, ListModel rowModel) {
     this.viewer = viewer;
-    this.rows = rowModel;
+    this.rowModel = rowModel;
 
     // FIXME: remove this when a full implementation is done
     rowHeaderColour = new Color(207, 212, 255);
@@ -81,7 +81,7 @@ public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
     Rectangle clip = g.getClipBounds();
     int minStreamIdx = viewer.windowYPositionToStreamIndex(clip.y, StreamsViewer.SEPARATOR_PARTOF_STREAM_BELOW_IT);
     int maxStreamIdx = viewer.windowYPositionToStreamIndex(clip.y + clip.height + (viewer.windowRowSeparation + viewer.windowRowHeight-1), StreamsViewer.SEPARATOR_PARTOF_STREAM_ABOVE_IT);
-    if (maxStreamIdx >= rows.getSize()) maxStreamIdx = rows.getSize()-1;
+    if (maxStreamIdx >= rowModel.getSize()) maxStreamIdx = rowModel.getSize()-1;
     
     // redraw it!
     int y = minStreamIdx * (viewer.windowRowSeparation + viewer.windowRowHeight);
@@ -90,7 +90,7 @@ public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
       g.fillRect(0, y, rowHeaderWidth, viewer.windowRowHeight);
       
       g.setColor(Color.black);
-      g.drawString(rows.getElementAt(i).toString(), 1, y + viewer.windowRowHeight);
+      g.drawString(rowModel.getElementAt(i).toString(), 1, y + viewer.windowRowHeight);
       y += viewer.windowRowSeparation + viewer.windowRowHeight;
     }
   }
@@ -106,8 +106,8 @@ public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
     // work out the minimum width
     int minWidth = 0;
     FontMetrics fontMetrics = getGraphics().getFontMetrics();
-    for(int i=0; i < rows.getSize(); i++) {
-      String str = rows.getElementAt(i).toString();
+    for(int i=0; i < rowModel.getSize(); i++) {
+      String str = rowModel.getElementAt(i).toString();
       int curWidth = fontMetrics.stringWidth(str) + 2;
       if (curWidth > minWidth) {
         minWidth = curWidth;
@@ -124,7 +124,7 @@ public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
   }
   
   protected int rowHeaderWidth = -1; 
-  protected ListModel rows;
+  protected ListModel rowModel;
   protected Color rowHeaderColour;
   protected StreamsViewer viewer;
 }
