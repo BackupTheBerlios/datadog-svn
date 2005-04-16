@@ -43,6 +43,7 @@ public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
     this.viewer = viewer;
     this.rows = rowModel;
 
+    // FIXME: remove this when a full implementation is done
     rowHeaderColour = new Color(207, 212, 255);
 
     setPreferredSize(new Dimension(20, 0));
