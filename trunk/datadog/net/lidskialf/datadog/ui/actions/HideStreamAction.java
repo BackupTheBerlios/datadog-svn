@@ -26,29 +26,29 @@ import net.lidskialf.datadog.StreamExplorer;
 import net.lidskialf.datadog.ui.DataDog;
 
 /**
- * Action to show (i.e. unhide) a stream.
+ * Action to hide (i.e. make non-visible, but NOT close) a stream.
  * 
  * @author Andrew de Quincey
  */
-public class ShowStreamAction extends AbstractAction {
+public class HideStreamAction extends AbstractAction {
   
   /**
    * Constructor for an Action which listens to the currently selected item
    * on the streams list on the main datadog window.
    */
-  public ShowStreamAction() {
+  public HideStreamAction() {
     this.explorer = null;
     
-    putValue(Action.NAME, "Show selected stream");
+    putValue(Action.NAME, "Hide selected stream");
   }
   
   /**
    * Constructor for an Action to close a specific stream.
    */
-  public ShowStreamAction(StreamExplorer explorer) {
+  public HideStreamAction(StreamExplorer explorer) {
     this.explorer = explorer;
     
-    putValue(Action.NAME, "Show stream");
+    putValue(Action.NAME, "Hide stream");
   }
 
   
@@ -61,7 +61,7 @@ public class ShowStreamAction extends AbstractAction {
       tmpexplorer = DataDog.getApplication().getSelectedStream();
     }
     if (tmpexplorer != null) {
-      DataDog.getApplication().setStreamVisibility(tmpexplorer, true);
+      DataDog.getApplication().setStreamVisibility(tmpexplorer, false);
     }
   }
 

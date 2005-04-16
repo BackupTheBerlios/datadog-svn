@@ -17,7 +17,8 @@
  */
 package net.lidskialf.datadog.mpeg.ui;
 
-import javax.swing.JPanel;
+import javax.swing.*;
+
 import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
@@ -78,12 +79,30 @@ public class TransportStreamExplorer implements StreamExplorer {
     transportStream = new TransportStream(bitstream);
     getTransportStreamsViewer().setStream(transportStream);
   }
+ 
   
   /* (non-Javadoc)
    * @see net.lidskialf.datadog.StreamParser#GetUI(java.lang.String)
    */
-  public JPanel getUI() {
+  public JComponent buildUI() {
     return getMainPanel();
+  }
+  
+  /* (non-Javadoc)
+   * @see net.lidskialf.datadog.StreamExplorer#buildMenuBar()
+   */
+  public JMenuBar buildMenuBar() {
+    return null;
+  }
+  
+  /* (non-Javadoc)
+   * @see net.lidskialf.datadog.StreamExplorer#close()
+   */
+  public void close() {
+    try {
+      bitstream.close();
+    } catch (IOException e) {
+    }
   }
   
   /* (non-Javadoc)

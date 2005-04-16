@@ -18,22 +18,51 @@
 package net.lidskialf.datadog.ui.actions;
 
 import java.awt.event.ActionEvent;
-
 import javax.swing.AbstractAction;
+import javax.swing.Action;
+
+import net.lidskialf.datadog.*;
+import net.lidskialf.datadog.ui.*;
 
 /**
- * Action to close a previously opened stream.
+ * Action to close a stream.
  * 
  * @author Andrew de Quincey
  */
 public class CloseStreamAction extends AbstractAction {
+  
+  /**
+   * Constructor for an Action which listens to the currently selected item
+   * on the streams list on the main datadog window.
+   */
+  public CloseStreamAction() {
+    this.explorer = null;
+    
+    putValue(Action.NAME, "Close selected stream");
+  }
+  
+  /**
+   * Constructor for an Action to close a specific stream.
+   */
+  public CloseStreamAction(StreamExplorer explorer) {
+    this.explorer = explorer;
+    
+    putValue(Action.NAME, "Close stream");
+  }
 
+  
   /* (non-Javadoc)
    * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
    */
   public void actionPerformed(ActionEvent arg0) {
-    // TODO Auto-generated method stub
-
+    StreamExplorer tmpexplorer = explorer;
+    if (tmpexplorer == null) {
+      tmpexplorer = DataDog.getApplication().getSelectedStream();
+    }
+    if (tmpexplorer != null) {
+      DataDog.getApplication().closeStream(tmpexplorer);
+    }
   }
 
+  private StreamExplorer explorer;
 }

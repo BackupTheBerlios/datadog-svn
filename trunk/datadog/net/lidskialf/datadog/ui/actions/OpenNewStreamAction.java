@@ -51,17 +51,12 @@ public class OpenNewStreamAction extends AbstractAction {
       try {
         Bitstream stream = new FileBitstream(pathname);
         for(int i=0; i< DataDog.streamExplorerFactories.length; i++) {
-            if (DataDog.streamExplorerFactories[i].probe(stream)) {
-              StreamExplorer explorer = DataDog.streamExplorerFactories[i].open(stream);
-              
-              JFrame explorerFrame = new JFrame(explorer.toString());
-              JPanel explorerPanel = explorer.getUI();
-              explorerFrame.getContentPane().add(explorerPanel);
-              explorerFrame.pack();
-              explorerFrame.setVisible(true);
-              DataDog.getApplication().AddNewOpenedStream(explorer);
-              return;
-            }
+          if (DataDog.streamExplorerFactories[i].probe(stream)) {
+            StreamExplorer explorer = DataDog.streamExplorerFactories[i].open(stream);
+            
+            DataDog.getApplication().addNewStream(explorer);
+            return;
+          }
         }
       } catch (Throwable t) {
         t.printStackTrace();

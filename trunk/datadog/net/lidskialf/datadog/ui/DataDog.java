@@ -17,6 +17,7 @@
  */
 package net.lidskialf.datadog.ui;
 
+import java.util.*;
 import java.awt.event.*;
 import javax.swing.*;
 
@@ -60,6 +61,13 @@ public class DataDog {
     streamsList = new JList();
     streamsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
     streamsList.setModel(openedStreams);
+    streamsList.addMouseListener(new java.awt.event.MouseAdapter() {
+      public void mouseClicked(java.awt.event.MouseEvent e) {
+        if (e.getClickCount() == 2) {
+          showStreamAction.actionPerformed(new ActionEvent(frame, ActionEvent.ACTION_PERFORMED, ""));
+        }
+      }
+    });
     
     streamsListScrollPane = new JScrollPane();
     streamsListScrollPane.setViewportView(streamsList);
@@ -94,7 +102,8 @@ public class DataDog {
     
     JMenu fileMenu = new JMenu("File");
     fileMenu.add(new OpenNewStreamAction());
-    fileMenu.add(new ShowStreamAction());
+    showStreamAction = new ShowStreamAction(); 
+    fileMenu.add(showStreamAction);
     fileMenu.add(new CloseStreamAction());
     quitAction = new QuitDataDogAction();
     fileMenu.add(quitAction);
@@ -107,15 +116,76 @@ public class DataDog {
     return menuBar;
   }
   
+  /**
+   * Get the main JFrame for the application.
+   * 
+   * @return The JFrame.
+   */
   public JFrame getFrame() {
     return frame;
   }
   
-  public void AddNewOpenedStream(StreamExplorer explorer) {
+  /**
+   * Add a new stream to the central list.
+   * 
+   * @param explorer The StreamExplorer instance to add.
+   */
+  public void addNewStream(StreamExplorer explorer) {
     openedStreams.addElement(explorer);
+    
+    JFrame explorerFrame = new JFrame(explorer.toString());
+    JComponent explorerUi = explorer.buildUI();
+    explorerFrame.getContentPane().add(explorerUi);
+    
+    openedStreamsUis.put(explorer, explorerFrame);
+    
+    JMenuBar menuBar = explorer.buildMenuBar();
+    if (menuBar != null) {
+      explorerFrame.setJMenuBar(menuBar);
+    }
+    
+    explorerFrame.pack();
+    explorerFrame.setVisible(true);
   }
   
+  /**
+   * Get the currently selected stream.
+   * 
+   * @return The StreamExplorer instance, or null if nothing is selected.
+   */
+  public StreamExplorer getSelectedStream() {
+    return (StreamExplorer) streamsList.getSelectedValue();
+  }
   
+  /**
+   * Close a stream.
+   * 
+   * @param explorer The StreamExplorer to close.
+   */
+  public void closeStream(StreamExplorer explorer) {
+    // destroy the UI.
+    JFrame explorerFrame = (JFrame) openedStreamsUis.get(explorer);
+    if (explorerFrame != null) {
+      explorerFrame.dispose();
+      openedStreamsUis.remove(explorer);
+    }
+    
+    explorer.close();
+    openedStreams.removeElement(explorer);
+  }
+  
+  /**
+   * Set the visibility of a particular stream's explorer.
+   * 
+   * @param explorer The StreamExplorer in question.
+   * @param visible True to set it visible, false to hide it.
+   */
+  public void setStreamVisibility(StreamExplorer explorer, boolean visible) {
+    JFrame explorerFrame = (JFrame) openedStreamsUis.get(explorer);
+    if (explorerFrame != null) {
+      explorerFrame.setVisible(visible);
+    }
+  }
   
   
   
@@ -138,6 +208,7 @@ public class DataDog {
       e.printStackTrace();
     }
     
+    // create the main app.
     application = new DataDog();
   }
   
@@ -153,11 +224,15 @@ public class DataDog {
   
   private JFrame frame;
   private JList streamsList;
-  private JScrollPane streamsListScrollPane; 
-  private DefaultListModel openedStreams;
+  private JScrollPane streamsListScrollPane;
   private Action quitAction;
+  private Action showStreamAction;
+  private DefaultListModel openedStreams;
+  private Map openedStreamsUis = Collections.synchronizedMap(new HashMap());
   
-  
+  /**
+   * The application instance.
+   */
   private static DataDog application;
   
   /**
@@ -170,238 +245,4 @@ public class DataDog {
    */
   public static final StreamExplorerFactory[] streamExplorerFactories = 
     new StreamExplorerFactory[] { new net.lidskialf.datadog.mpeg.TransportStreamExplorerFactory() };
-  
-  
-  
-  
-  
-  
-  /*
-	private JPanel jContentPane = null;
-	private JFrame mainFrame = null;  //  @jve:decl-index=0:visual-constraint="141,28"
-	private JMenuBar jJMenuBar = null;
-	private JList streamsList = null;
-	private JMenu fileMenu = null;
-	private JMenuItem openNewStream = null;
-	private JMenuItem quit = null;
-	private JMenu helpMenu = null;
-	private JMenuItem about = null;
-	private JMenuItem showSelectedStream = null;
-	private JMenuItem closeSelectedStream = null;  
-  private JScrollPane jScrollPane = null;
-  private DefaultListModel openedStreams = null;   //  @jve:decl-index=0:
-
-	private JPanel getJContentPane() {
-		if (jContentPane == null) {
-			GridLayout gridLayout3 = new GridLayout();
-			jContentPane = new JPanel();
-			jContentPane.setLayout(gridLayout3);
-			gridLayout3.setRows(1);
-			jContentPane.add(getJScrollPane(), null);
-		}
-		return jContentPane;
-	}
-  
-	private JFrame getMainFrame() {
-		if (mainFrame == null) {
-			mainFrame = new JFrame();
-			mainFrame.setContentPane(getJContentPane());
-			mainFrame.setTitle("DataDog v" + version);
-			mainFrame.setSize(480, 186);
-			mainFrame.setJMenuBar(getJJMenuBar());
-			mainFrame.setVisible(true);
-			mainFrame.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
-			mainFrame.addWindowListener(new java.awt.event.WindowAdapter() { 
-				public void windowClosing(java.awt.event.WindowEvent e) {
-          System.exit(0);
-				}
-			});
-		}
-		return mainFrame;
-	}
-  
-	private JMenuBar getJJMenuBar() {
-		if (jJMenuBar == null) {
-			jJMenuBar = new JMenuBar();
-			jJMenuBar.add(getFileMenu());
-			jJMenuBar.add(getHelpMenu());
-		}
-		return jJMenuBar;
-	}
-  
-	private JList getStreamsList() {
-		if (streamsList == null) {
-		  streamsList = new JList();
-			streamsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-			streamsList.setModel(getOpenedStreams());
-			streamsList.setVisibleRowCount(8);
-			streamsList.addMouseListener(new java.awt.event.MouseAdapter() { 
-				public void mouseClicked(java.awt.event.MouseEvent e) {
-          if (e.getClickCount() == 2) {
-            StreamExplorer explorer = (StreamExplorer) streamsList.getSelectedValue();            
-            if (explorer != null) {
-              Container topLevel = explorer.getUI().getParent().getParent().getParent().getParent(); 
-              topLevel.setVisible(true);
-            }
-          }
-				}
-			});
-		}
-		return streamsList;
-	}
-  
-	private JMenu getFileMenu() {
-		if (fileMenu == null) {
-			fileMenu = new JMenu();
-			fileMenu.setText("File");
-			fileMenu.add(getOpenNewStream());
-			fileMenu.add(getShowSelectedStream());
-			fileMenu.add(getCloseSelectedStream());
-			fileMenu.add(getQuit());
-		}
-		return fileMenu;
-	}
-  
-	private JMenuItem getOpenNewStream() {
-		if (openNewStream == null) {
-			openNewStream = new JMenuItem();
-			openNewStream.setText("Open New Stream...");
-			openNewStream.addActionListener(new java.awt.event.ActionListener() { 
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-          JFileChooser chooser = new JFileChooser();
-          int result = chooser.showOpenDialog(getMainFrame());
-          if (result == JFileChooser.APPROVE_OPTION) {
-            String filename = chooser.getSelectedFile().getName();
-            String pathname = chooser.getSelectedFile().getAbsolutePath();
-            
-            // try each parser in turn until we get one which matches. FIXME: this could probably be made a lot smarter
-            try {
-              Bitstream stream = new FileBitstream(pathname);
-              for(int i=0; i< streamExplorerFactories.length; i++) {
-                  if (streamExplorerFactories[i].probe(stream)) {
-                    StreamExplorer explorer = streamExplorerFactories[i].open(stream);
-                    
-                    JFrame explorerFrame = new JFrame(explorer.toString());
-                    JPanel explorerPanel = explorer.getUI();
-                    explorerFrame.getContentPane().add(explorerPanel);
-                    explorerFrame.pack();
-                    explorerFrame.setVisible(true);
-                    getOpenedStreams().addElement(explorer);
-                    return;
-                  }
-              }
-            } catch (Throwable t) {
-              t.printStackTrace();
-              JOptionPane.showMessageDialog(getMainFrame(), 
-                  "An error during stream probing (" + t.getMessage() + ")", 
-                  "Error", 
-                  JOptionPane.ERROR_MESSAGE);
-              return;
-            }
-            
-            // if we get here, nothing matched
-            JOptionPane.showMessageDialog(getMainFrame(), 
-                "Sorry, the stream \"" + filename + "\" is unsupported.", 
-                "Unsupported stream", 
-                JOptionPane.WARNING_MESSAGE);            
-          }
-				}
-			});
-		}
-		return openNewStream;
-	}
-  
-	private JMenuItem getQuit() {
-		if (quit == null) {
-			quit = new JMenuItem();
-			quit.setText("Quit");
-			quit.addActionListener(new java.awt.event.ActionListener() { 
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-          System.exit(0);
-				}
-			});
-		}
-		return quit;
-	}
-  
-	private JMenu getHelpMenu() {
-		if (helpMenu == null) {
-			helpMenu = new JMenu();
-			helpMenu.setText("Help");
-			helpMenu.add(getAbout());
-		}
-		return helpMenu;
-	}
-  
-	private JMenuItem getAbout() {
-		if (about == null) {
-			about = new JMenuItem();
-			about.setText("About");
-			about.addActionListener(new java.awt.event.ActionListener() { 
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-          AboutBox about = new AboutBox();
-				}
-			});
-		}
-		return about;
-	}
-  
-	private JMenuItem getShowSelectedStream() {
-		if (showSelectedStream == null) {
-			showSelectedStream = new JMenuItem();
-			showSelectedStream.setText("Show Selected Stream");
-			showSelectedStream.addActionListener(new java.awt.event.ActionListener() { 
-				public void actionPerformed(java.awt.event.ActionEvent e) {   
-          StreamExplorer parser = (StreamExplorer) getStreamsList().getSelectedValue();            
-          if (parser != null) {
-            Container topLevel = parser.getUI().getParent().getParent().getParent().getParent(); 
-            topLevel.setVisible(true);
-          }
-				}
-			});
-		}
-		return showSelectedStream;
-	}
-  
-	private JMenuItem getCloseSelectedStream() {
-    int x = 1;
-    
-		if (closeSelectedStream == null) {
-			closeSelectedStream = new JMenuItem();
-			closeSelectedStream.setText("Close selected stream");
-			closeSelectedStream.addActionListener(new java.awt.event.ActionListener() { 
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-          StreamExplorer parser = (StreamExplorer) getStreamsList().getSelectedValue();            
-          if (parser != null) {
-            getOpenedStreams().removeElement(parser);
-            JFrame topLevel = (JFrame) parser.getUI().getParent().getParent().getParent().getParent(); 
-            topLevel.dispose();
-          }
-				}
-			});
-		}
-		return closeSelectedStream;
-	}
-  
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getStreamsList());
-			jScrollPane.setVerticalScrollBarPolicy(javax.swing.JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		}
-		return jScrollPane;
-	}
-  
-	private DefaultListModel getOpenedStreams() {
-		if (openedStreams == null) {
-			openedStreams = new DefaultListModel();
-		}
-		return openedStreams;
-	}
-  */
-  
-  
-  
-  
-
 }

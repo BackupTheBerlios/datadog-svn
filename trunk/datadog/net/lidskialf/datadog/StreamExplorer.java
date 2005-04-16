@@ -17,7 +17,7 @@
  */
 package net.lidskialf.datadog;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 
 /**
  * Interface implemented by a stream parser.
@@ -28,8 +28,18 @@ public interface StreamExplorer {
   
   /**
    * Gets the UI for viewing the stream (only one UI instance per StreamParser).
-   * 
-   * @param parent Parent component
    */
-  public JPanel getUI();
+  public JComponent buildUI();
+  
+  /**
+   * Gets the menubar for the stream viewer.
+   * 
+   * @return The JMenuBar instance, or null if no menubar is wanted.
+   */
+  public JMenuBar buildMenuBar();
+  
+  /**
+   * The stream is no longer required - free all resources etc.
+   */
+  public void close();
 }
