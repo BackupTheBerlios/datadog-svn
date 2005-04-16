@@ -19,56 +19,24 @@ package net.lidskialf.datadog.mpeg.ui;
 
 import javax.swing.*;
 
-import java.awt.Dimension;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
+import com.jgoodies.forms.builder.PanelBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
+
 import java.io.IOException;
 
 import net.lidskialf.datadog.*;
 import net.lidskialf.datadog.mpeg.bitstream.*;
+import net.lidskialf.datadog.ui.StreamsViewerRowHeader;
+import net.lidskialf.datadog.ui.StreamsViewerColumnHeader;
 
 /**
+ * The StreamExplorer for Transport Streams.
+ * 
  * @author Andrew de Quincey
  */
 public class TransportStreamExplorer implements StreamExplorer {
 
-	private JPanel mainPanel = null;  //  @jve:decl-index=0:visual-constraint="179,63"
-	private TransportStreamsViewer transportStreamsViewer = null;
-	/**
-	 * This method initializes mainPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getMainPanel() {
-		if (mainPanel == null) {
-			mainPanel = new JPanel();
-			GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
-			mainPanel.setLayout(new GridBagLayout());
-      mainPanel.setSize(639, 176);
-      mainPanel.setPreferredSize(new Dimension(639, 176));
-			gridBagConstraints8.gridx = 0;
-			gridBagConstraints8.gridy = 0;
-			gridBagConstraints8.weightx = 1.0;
-			gridBagConstraints8.weighty = 1.0;
-			gridBagConstraints8.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints8.ipadx = 580;
-			gridBagConstraints8.ipady = 106;
-			mainPanel.add(getTransportStreamsViewer(), gridBagConstraints8);
-		}
-		return mainPanel;
-	}
-	/**
-	 * This method initializes transportStreamsViewer	
-	 * 	
-	 * @return net.lidskialf.datadog.mpeg.ui.TransportStreamsViewer	
-	 */    
-	private TransportStreamsViewer getTransportStreamsViewer() {
-		if (transportStreamsViewer == null) {
-			transportStreamsViewer = new TransportStreamsViewer();
-			transportStreamsViewer.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		}
-		return transportStreamsViewer;
-	}
   /**
    * Constructor.
    * 
@@ -77,15 +45,29 @@ public class TransportStreamExplorer implements StreamExplorer {
   public TransportStreamExplorer(Bitstream bitstream) throws IOException {
     this.bitstream = bitstream;
     transportStream = new TransportStream(bitstream);
-    getTransportStreamsViewer().setStream(transportStream);
   }
- 
-  
+   
   /* (non-Javadoc)
    * @see net.lidskialf.datadog.StreamParser#GetUI(java.lang.String)
    */
   public JComponent buildUI() {
-    return getMainPanel();
+    if (ui != null) return ui;
+    
+    try {
+      initComponents();
+    } catch (IOException e) {
+      // FIXME: do something with this
+    }
+    
+    FormLayout layout = new FormLayout("pref:grow",
+                                       "pref:grow");
+    PanelBuilder builder = new PanelBuilder(layout);
+    CellConstraints cc = new CellConstraints();
+
+    builder.add(viewer, cc.xy(1, 1, "fill, fill"));
+    ui = builder.getPanel();
+    
+    return ui;
   }
   
   /* (non-Javadoc)
@@ -101,8 +83,7 @@ public class TransportStreamExplorer implements StreamExplorer {
   public void close() {
     try {
       bitstream.close();
-    } catch (IOException e) {
-    }
+    } catch (IOException e) {}
   }
   
   /* (non-Javadoc)
@@ -112,13 +93,31 @@ public class TransportStreamExplorer implements StreamExplorer {
     return "Transport Stream: " + bitstream.toString();
   }
   
-  /**
-   * The stream we are viewing.
-   */
-  private Bitstream bitstream;
   
   /**
-   * The transport stream we are accessing.
+   * Initialise components used here.
    */
+  private void initComponents() throws IOException {
+    rowModel = new DefaultListModel();
+    
+    viewer = new TransportStreamsViewer(transportStream, rowModel);
+    viewer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+
+    columnHeader = new StreamsViewerColumnHeader(viewer);
+    viewer.setColumnHeaderView(columnHeader);
+
+    rowHeader = new StreamsViewerRowHeader(viewer, rowModel);
+    viewer.setRowHeaderView(rowHeader);
+  }
+
+  
+  
+  private Bitstream bitstream;
   private TransportStream transportStream;
+  private DefaultListModel rowModel;
+  
+  private TransportStreamsViewer viewer;
+  private StreamsViewerColumnHeader columnHeader;
+  private StreamsViewerRowHeader rowHeader;
+  private JComponent ui;
 }

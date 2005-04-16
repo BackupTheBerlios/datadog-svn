@@ -18,9 +18,6 @@
 package net.lidskialf.datadog.mpeg.bitstream;
 
 import java.io.IOException;
-
-import org.omg.CORBA.DATA_CONVERSION;
-
 import net.lidskialf.datadog.*;
 
 

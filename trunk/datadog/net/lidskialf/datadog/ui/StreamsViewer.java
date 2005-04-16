@@ -17,7 +17,6 @@
  */
 package net.lidskialf.datadog.ui;
 
-import java.util.*;
 import java.awt.*;
 
 import javax.swing.*;
@@ -54,13 +53,7 @@ public abstract class StreamsViewer extends JScrollPane {
     panel = new StreamsPanel();    
     getViewport().add(panel);
     
-    columnHeader = new ColumnHeader();
-    setColumnHeaderView(columnHeader);
-    
-    rowHeader = new RowHeader();
-    setRowHeaderView(rowHeader);
-    
-    rowHeaderColour = new Color(207, 212, 255);
+    setPreferredSize(new Dimension(600, 200));
   }
 
   /**
@@ -146,7 +139,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param streamsRealStart The real start position of the stream (so it can be nonzero).
    * @param streamsRealLength The real length of the stream.
    */
-  protected void setStreamHDimensions(long streamRealStart, long streamRealLength) {
+  public void setStreamHDimensions(long streamRealStart, long streamRealLength) {
     // update the values
     this.streamRealStart = streamRealStart;
     this.streamRealLength = streamRealLength;
@@ -183,100 +176,6 @@ public abstract class StreamsViewer extends JScrollPane {
   protected String renderStreamPosition(long position) {
     return "0x" + Long.toHexString(position);
   }
-  
-  /**
-   * Update the dimensions of the row header when the list of rows changes.
-   */
-  protected void updateRowHeaderDimensions() {
-    rowHeaderWidth = -1;
-    if (rowHeader.getGraphics() == null) return;
-    
-    // work out the minimum width
-    int minWidth = 0;
-    FontMetrics fontMetrics = rowHeader.getGraphics().getFontMetrics();
-    for(int i=0; i < rows.size(); i++) {
-      String str = rows.get(i).toString();
-      int curWidth = fontMetrics.stringWidth(str) + 2;
-      if (curWidth > minWidth) {
-        minWidth = curWidth;
-      }
-    }
-    rowHeaderWidth = minWidth;
-    
-    // set the width
-    Dimension curSize = rowHeader.getPreferredSize();
-    curSize.width = rowHeaderWidth;
-    rowHeader.setPreferredSize(curSize);
-    rowHeader.revalidate();
-  }
-  
-  /**
-   * Paint the column header component.
-   * 
-   * @param g Graphics to paint into
-   */
-  protected void paintColumnHeader(Graphics g) {
-    super.paintComponent(g);
-    
-    // calculate what to draw
-    Rectangle clip = g.getClipBounds();
-    long minStreamDrawPosition = windowXPositionToStreamPosition(clip.x); 
-    long maxStreamDrawPosition = minStreamDrawPosition + windowWidthToStreamLength(clip.width);
-    
-    // round the min position down to the nearest major tick
-    minStreamDrawPosition = (minStreamDrawPosition  / streamMajorTickSpacing) * streamMajorTickSpacing;
-    
-    // round the max position up to the nearest major tick
-    maxStreamDrawPosition = ((maxStreamDrawPosition + streamMajorTickSpacing) / streamMajorTickSpacing) * streamMajorTickSpacing;
-    
-    // draw the ticks
-    g.setColor(Color.black);
-    for(long pos = minStreamDrawPosition; pos <= maxStreamDrawPosition; pos+= streamMinorTickSpacing) {
-      int x = (int) (pos >> windowScalingFactor);
-      
-      // determine the kind of tick we need to draw
-      if ((pos % streamMajorTickSpacing) == 0) {
-        // draw major tick
-        g.drawLine(x, 11, x, 20);
-        
-        // render the position string and draw it somewhere
-        String rendered = renderStreamPosition(pos);
-        int width = g.getFontMetrics().stringWidth(rendered);
-        x -= (width/2);
-        if (x < 0) x = 0;
-        if (x > windowWidth) x = windowWidth - width;
-        g.drawString(rendered, x, 10);
-      } else {
-        g.drawLine(x, 15, x, 20);
-      }
-    }
-  }
-
-  /**
-   * Paint the row header component.
-   * 
-   * @param g Graphics to paint into
-   */
-  protected void paintRowHeader(Graphics g) {
-    super.paintComponent(g);
-    
-    // work out what to redraw
-    Rectangle clip = g.getClipBounds();
-    int minStreamIdx = windowYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
-    int maxStreamIdx = windowYPositionToStreamIndex(clip.y + clip.height + (windowRowSeparation + windowRowHeight-1), SEPARATOR_PARTOF_STREAM_ABOVE_IT);
-    if (maxStreamIdx >= rows.size()) maxStreamIdx = rows.size()-1;
-    
-    // redraw it!
-    int y = minStreamIdx * (windowRowSeparation + windowRowHeight);
-    for(int i=minStreamIdx; i <= maxStreamIdx; i++) {
-      g.setColor(rowHeaderColour);
-      g.fillRect(0, y, rowHeaderWidth, windowRowHeight);
-      
-      g.setColor(Color.black);
-      g.drawString(rows.get(i).toString(), 1, y + windowRowHeight);
-      y += windowRowSeparation + windowRowHeight;
-    }
-  }
 
   /**
    * Repaint a bit of the streams panel
@@ -284,45 +183,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param g The Graphics context.
    */
   protected abstract void paintStreamsPanel(Graphics g);
- 
-  
-  
-  /**
-   * The column header
-   * 
-   * @author Andrew de Quincey
-   */
-  protected class ColumnHeader extends JPanel {
-    
-    public ColumnHeader() {
-      setPreferredSize(new Dimension(0, 20));
-    }
-    
-    protected void paintComponent(Graphics g) {
-      super.paintComponent(g);
-      paintColumnHeader(g);
-    }
-  }
- 
-  /**
-   * The row header
-   * 
-   * @author Andrew de Quincey
-   */
-  protected class RowHeader extends JPanel {
-    
-    public RowHeader() {
-      setPreferredSize(new Dimension(20, 0));
-    }
-    
-    protected void paintComponent(Graphics g) {
-      super.paintComponent(g);
-      
-      updateRowHeaderDimensions();
-      paintRowHeader(g);
-    }
-  }
-  
+
   
   /**
    * The scrollable display for streams.
@@ -420,26 +281,4 @@ public abstract class StreamsViewer extends JScrollPane {
    * The stream viewer component instance.
    */
   protected StreamsPanel panel; 
-  
-  /**
-   * The column header component instance.
-   */
-  protected ColumnHeader columnHeader = null;
-  
-  /**
-   * The row header component instance.
-   */
-  protected RowHeader rowHeader = null;
-  
-  /**
-   * Width of the row header window.
-   */
-  protected int rowHeaderWidth = -1; 
-  
-  /**
-   * The rows displayed by the viewer.
-   */
-  protected java.util.List rows = Collections.synchronizedList(new ArrayList());
-  
-  protected Color rowHeaderColour;
 }
