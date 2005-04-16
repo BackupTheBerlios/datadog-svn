@@ -17,21 +17,17 @@
  */
 package net.lidskialf.datadog.ui;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
+import java.awt.event.*;
+import javax.swing.*;
 
 import net.lidskialf.datadog.*;
+import net.lidskialf.datadog.ui.actions.*;
 
-import java.awt.GridLayout;
-import java.awt.Container;
-import javax.swing.JScrollPane;
+import com.jgoodies.forms.builder.PanelBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.forms.layout.FormLayout;
+import com.jgoodies.looks.plastic.*;
+import com.jgoodies.looks.plastic.theme.*;
 
 /**
  * @author Andrew de Quincey
@@ -39,6 +35,148 @@ import javax.swing.JScrollPane;
  */
 public class DataDog {
 
+  public DataDog() {
+    frame = new JFrame();
+    frame.setTitle("DataDog");
+    frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+    frame.addWindowListener(new java.awt.event.WindowAdapter() {
+      public void windowClosing(java.awt.event.WindowEvent e) {
+        quitAction.actionPerformed(new ActionEvent(frame, ActionEvent.ACTION_PERFORMED, ""));
+      }
+    });
+    
+    frame.setJMenuBar(buildMenuBar());
+    frame.getContentPane().add(buildPanel());
+    frame.pack();
+    frame.setVisible(true);
+  }
+  
+  /**
+   * Initialise components used here.
+   */
+  private void initComponents() {
+    openedStreams = new DefaultListModel();
+    
+    streamsList = new JList();
+    streamsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+    streamsList.setModel(openedStreams);
+    
+    streamsListScrollPane = new JScrollPane();
+    streamsListScrollPane.setViewportView(streamsList);
+    streamsListScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+  }
+  
+  /**
+   * Build the panel/layout components. 
+   * 
+   * @return The completed JComponent
+   */
+  private JComponent buildPanel() {
+    initComponents();
+    
+    FormLayout layout = new FormLayout("pref:grow",
+                                       "pref:grow");
+    PanelBuilder builder = new PanelBuilder(layout);
+    CellConstraints cc = new CellConstraints();
+    
+    builder.add(streamsListScrollPane, cc.xy(1, 1, "fill, fill"));
+    
+    return builder.getPanel();
+  }
+  
+  /**
+   * Build the menu bar.
+   * 
+   * @return The menu bar
+   */
+  private JMenuBar buildMenuBar() {
+    JMenuBar menuBar = new JMenuBar();
+    
+    JMenu fileMenu = new JMenu("File");
+    fileMenu.add(new OpenNewStreamAction());
+    fileMenu.add(new ShowStreamAction());
+    fileMenu.add(new CloseStreamAction());
+    quitAction = new QuitDataDogAction();
+    fileMenu.add(quitAction);
+    menuBar.add(fileMenu);
+    
+    JMenu helpMenu = new JMenu("Help");
+    helpMenu.add(new AboutDataDogAction());
+    menuBar.add(helpMenu);
+    
+    return menuBar;
+  }
+  
+  public JFrame getFrame() {
+    return frame;
+  }
+  
+  public void AddNewOpenedStream(StreamExplorer explorer) {
+    openedStreams.addElement(explorer);
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  /**
+   * The entry point!
+   * 
+   * @param args Command line arguments
+   */
+  public static void main(String[] args) {
+    
+    // set the look and feel for the application
+    PlasticLookAndFeel.setMyCurrentTheme(new ExperienceBlue());
+    try {
+      UIManager.setLookAndFeel(new PlasticLookAndFeel());
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    
+    application = new DataDog();
+  }
+  
+  
+  /**
+   * Get the instance of the DataDog application.
+   * 
+   * @return The application instance.
+   */
+  public static DataDog getApplication() {
+    return application;
+  }
+  
+  private JFrame frame;
+  private JList streamsList;
+  private JScrollPane streamsListScrollPane; 
+  private DefaultListModel openedStreams;
+  private Action quitAction;
+  
+  
+  private static DataDog application;
+  
+  /**
+   * The version of the application. 
+   */
+  public static final String version = "0.01";
+  
+  /**
+   * The list of known stream explorer factories.
+   */
+  public static final StreamExplorerFactory[] streamExplorerFactories = 
+    new StreamExplorerFactory[] { new net.lidskialf.datadog.mpeg.TransportStreamExplorerFactory() };
+  
+  
+  
+  
+  
+  
+  /*
 	private JPanel jContentPane = null;
 	private JFrame mainFrame = null;  //  @jve:decl-index=0:visual-constraint="141,28"
 	private JMenuBar jJMenuBar = null;
@@ -53,11 +191,6 @@ public class DataDog {
   private JScrollPane jScrollPane = null;
   private DefaultListModel openedStreams = null;   //  @jve:decl-index=0:
 
-	/**
-	 * This method initializes jContentPane	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
 	private JPanel getJContentPane() {
 		if (jContentPane == null) {
 			GridLayout gridLayout3 = new GridLayout();
@@ -69,11 +202,6 @@ public class DataDog {
 		return jContentPane;
 	}
   
-	/**
-	 * This method initializes jFrame	
-	 * 	
-	 * @return javax.swing.JFrame	
-	 */    
 	private JFrame getMainFrame() {
 		if (mainFrame == null) {
 			mainFrame = new JFrame();
@@ -92,11 +220,6 @@ public class DataDog {
 		return mainFrame;
 	}
   
-	/**
-	 * This method initializes jJMenuBar	
-	 * 	
-	 * @return javax.swing.JMenuBar	
-	 */    
 	private JMenuBar getJJMenuBar() {
 		if (jJMenuBar == null) {
 			jJMenuBar = new JMenuBar();
@@ -106,11 +229,6 @@ public class DataDog {
 		return jJMenuBar;
 	}
   
-	/**
-	 * This method initializes jList	
-	 * 	
-	 * @return javax.swing.JList	
-	 */    
 	private JList getStreamsList() {
 		if (streamsList == null) {
 		  streamsList = new JList();
@@ -132,11 +250,6 @@ public class DataDog {
 		return streamsList;
 	}
   
-	/**
-	 * This method initializes jMenu	
-	 * 	
-	 * @return javax.swing.JMenu	
-	 */    
 	private JMenu getFileMenu() {
 		if (fileMenu == null) {
 			fileMenu = new JMenu();
@@ -149,11 +262,6 @@ public class DataDog {
 		return fileMenu;
 	}
   
-	/**
-	 * This method initializes jMenuItem	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
 	private JMenuItem getOpenNewStream() {
 		if (openNewStream == null) {
 			openNewStream = new JMenuItem();
@@ -203,11 +311,6 @@ public class DataDog {
 		return openNewStream;
 	}
   
-	/**
-	 * This method initializes jMenuItem1	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
 	private JMenuItem getQuit() {
 		if (quit == null) {
 			quit = new JMenuItem();
@@ -221,11 +324,6 @@ public class DataDog {
 		return quit;
 	}
   
-	/**
-	 * This method initializes jMenu1	
-	 * 	
-	 * @return javax.swing.JMenu	
-	 */    
 	private JMenu getHelpMenu() {
 		if (helpMenu == null) {
 			helpMenu = new JMenu();
@@ -235,11 +333,6 @@ public class DataDog {
 		return helpMenu;
 	}
   
-	/**
-	 * This method initializes jMenuItem1	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
 	private JMenuItem getAbout() {
 		if (about == null) {
 			about = new JMenuItem();
@@ -253,11 +346,6 @@ public class DataDog {
 		return about;
 	}
   
-	/**
-	 * This method initializes jMenuItem2	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
 	private JMenuItem getShowSelectedStream() {
 		if (showSelectedStream == null) {
 			showSelectedStream = new JMenuItem();
@@ -275,11 +363,6 @@ public class DataDog {
 		return showSelectedStream;
 	}
   
-	/**
-	 * This method initializes jMenuItem3	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
 	private JMenuItem getCloseSelectedStream() {
     int x = 1;
     
@@ -300,11 +383,6 @@ public class DataDog {
 		return closeSelectedStream;
 	}
   
-	/**
-	 * This method initializes jScrollPane	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */    
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
@@ -314,41 +392,16 @@ public class DataDog {
 		return jScrollPane;
 	}
   
-	/**
-	 * This method initializes defaultListModel	
-	 * 	
-	 * @return javax.swing.DefaultListModel	
-	 */    
 	private DefaultListModel getOpenedStreams() {
 		if (openedStreams == null) {
 			openedStreams = new DefaultListModel();
 		}
 		return openedStreams;
 	}
+  */
   
-  /**
-   * The entry point!
-   * 
-   * @param args Command line arguments
-   */
-  public static void main(String[] args) {
-    application = new DataDog();
-    application.getMainFrame().setVisible(true);
-  }
   
-  /**
-   * The singleton application instance.
-   */
-  private static DataDog application;
   
-  /**
-   * The version of the application. 
-   */
-  public static final String version = "0.01";
   
-  /**
-   * The list of known stream explorer factories.
-   */
-  private static final StreamExplorerFactory[] streamExplorerFactories = 
-    new StreamExplorerFactory[] { new net.lidskialf.datadog.mpeg.TransportStreamExplorerFactory() };
+
 }

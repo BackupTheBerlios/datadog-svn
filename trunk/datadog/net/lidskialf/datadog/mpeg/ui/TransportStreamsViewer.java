@@ -80,7 +80,7 @@ public class TransportStreamsViewer extends StreamsViewer {
         if ((row.rowIdx >= minStreamIdx) && (row.rowIdx <= maxStreamIdx)) {
           int x = streamPositionToWindowXPosition(curPos);
           int y = streamIndexToWindowYPosition(row.rowIdx);
-          g.setColor(Color.red);
+          g.setColor(Color.green);
           g.fillRect(x, y, packetWidth, windowRowHeight);
           g.setColor(Color.black);
           g.drawRect(x, y, packetWidth, windowRowHeight);
