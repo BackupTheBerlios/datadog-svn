@@ -17,6 +17,7 @@
  */
 package net.lidskialf.datadog.mpeg.ui;
 
+import java.awt.*;
 import javax.swing.*;
 
 import com.jgoodies.forms.builder.PanelBuilder;
@@ -66,7 +67,7 @@ public class TransportStreamExplorer implements StreamExplorer {
 
     builder.add(viewer, cc.xy(1, 1, "fill, fill"));
     ui = builder.getPanel();
-    
+
     return ui;
   }
   
@@ -103,8 +104,8 @@ public class TransportStreamExplorer implements StreamExplorer {
     viewer = new TransportStreamsViewer(transportStream, rowModel);
     viewer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
-//    columnHeader = new StreamsViewerColumnHeader(viewer);
-//    viewer.setColumnHeaderView(columnHeader);
+    columnHeader = new StreamsViewerColumnHeader(viewer);
+    viewer.setColumnHeaderView(columnHeader);
 
     rowHeader = new StreamsViewerRowHeader(viewer, rowModel);
     viewer.setRowHeaderView(rowHeader);

@@ -31,7 +31,10 @@ public class StreamsViewerColumnHeader extends JPanel {
   
   public StreamsViewerColumnHeader(StreamsViewer viewer) {
     this.viewer = viewer;
-    setPreferredSize(new Dimension(0, 20));      
+    
+    Dimension curSize = new Dimension(0,20);
+    curSize.width = (int) (viewer.streamRealLength >> viewer.windowScalingFactor);
+    setPreferredSize(curSize);
   }
   
   protected void paintComponent(Graphics g) {

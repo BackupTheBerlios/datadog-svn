@@ -152,19 +152,12 @@ public abstract class StreamsViewer extends JScrollPane {
       streamRealStart>>=1;
     }
     
-    // update the width of the window
+    // update the width of the panel
     windowWidth = (int) (streamRealLength >> windowScalingFactor);
     Dimension curSize = panel.getPreferredSize();
     curSize.width = windowWidth;
     panel.setPreferredSize(curSize);
     panel.revalidate();
-    
-    // update the width of the column header if present
-    if (columnHeader != null) {
-      curSize = columnHeader.getPreferredSize();
-      curSize.width = (int) (streamRealLength >> windowScalingFactor);
-      columnHeader.setPreferredSize(curSize);
-    }
   }
   
   /**
