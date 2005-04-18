@@ -41,7 +41,7 @@ public class TransportStreamsViewer extends StreamsViewer {
     this.stream = stream;
     
     panel.setBackground(Color.white);
-    setStreamHDimensions(stream.startPosition(), stream.length());
+    setStreamHDimensions(stream.length());
   }
 
   /* (non-Javadoc)
@@ -54,7 +54,7 @@ public class TransportStreamsViewer extends StreamsViewer {
     int maxStreamIdx = windowYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT);
     
     try {
-      long minStreamPosition = stream.round(windowXPositionToStreamPosition(clip.x), TransportStream.ROUND_DOWN);
+      long minStreamPosition = stream.round(windowXPositionToAbsPosition(clip.x), TransportStream.ROUND_DOWN);
       long maxStreamPosition = stream.round(minStreamPosition + windowWidthToStreamLength(clip.width), TransportStream.ROUND_INC);
       
       // render each packet
@@ -69,7 +69,7 @@ public class TransportStreamsViewer extends StreamsViewer {
         
         // draw it if it is within the bounds
         if ((row.rowIdx >= minStreamIdx) && (row.rowIdx <= maxStreamIdx)) {
-          int x = streamPositionToWindowXPosition(curPos);
+          int x = absPositionToWindowXPosition(curPos);
           int y = streamIndexToWindowYPosition(row.rowIdx);
           g.setColor(Color.green);
           g.fillRect(x, y, packetWidth, windowRowHeight);

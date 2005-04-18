@@ -18,7 +18,7 @@
 package net.lidskialf.datadog.ui;
 
 import java.awt.*;
-
+import java.util.*;
 import javax.swing.*;
 
 /**
@@ -41,6 +41,11 @@ public abstract class StreamsViewer extends JScrollPane {
    */
   protected static final int SEPARATOR_INVALID = 2;
 
+
+  protected static final int CHANGED_ZOOM = 0;
+  protected static final int CHANGED_LENGTH = 1;
+  
+  
   
   
   
@@ -55,6 +60,24 @@ public abstract class StreamsViewer extends JScrollPane {
     
     setPreferredSize(new Dimension(600, 200));
   }
+  
+  /**
+   * Add a StreamsViewerChangeListener to receive events from this StreamsViewer.
+   * 
+   * @param listener The listener to add.
+   */
+  public void addStreamsViewerChangeListener(StreamsViewerChangeListener listener) {
+    changeListeners.add(listener);
+  }
+  
+  /**
+   * Remove a StreamsViewerChangeListener so it no longer receives events from this StreamsViewer.
+   * 
+   * @param listener The listener to remove.
+   */
+  public void removeStreamsViewerChangeListener(StreamsViewerChangeListener listener) {
+    changeListeners.remove(listener);
+  }
 
   /**
    * Determine the Y position a stream with index streamIdx will be displayed at.
@@ -62,7 +85,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param streamIdx The index of the stream.
    * @return The Y position of the top of the stream's rendering position.
    */
-  protected int streamIndexToWindowYPosition(int streamIdx) {
+  public int streamIndexToWindowYPosition(int streamIdx) {
     return streamIdx * (windowRowHeight + windowRowSeparation);
   }
   
@@ -74,7 +97,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * spaces between the streams are treated.  
    * @return The stream index, or -1 for an invalid y position.
    */
-  protected int windowYPositionToStreamIndex(int yPos, int separatorDisposition) {
+  public int windowYPositionToStreamIndex(int yPos, int separatorDisposition) {
     
     // calculate the index
     int tmpIdx = -1;
@@ -99,8 +122,8 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param x The X position.
    * @return The stream position.
    */
-  protected long windowXPositionToStreamPosition(int x) {
-    return streamRealStart + (long) ((x << windowScalingFactor) + 0.5);
+  public long windowXPositionToAbsPosition(int x) {
+    return (long) ((x << curZoomFactor) + 0.5);
   }
 
   /**
@@ -109,8 +132,8 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param x The X position.
    * @return The stream position.
    */
-  protected int streamPositionToWindowXPosition(long position) {
-    return (int) ((position - streamRealStart) >> windowScalingFactor);
+  public int absPositionToWindowXPosition(long position) {
+    return (int) ((position) >> curZoomFactor);
   }
   
   /**
@@ -119,8 +142,8 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param width The width.
    * @return The length of the area within the stream..
    */
-  protected long windowWidthToStreamLength(int width) {
-    return (long) ((width << windowScalingFactor) + 0.5);
+  public long windowWidthToStreamLength(int width) {
+    return (long) ((width << curZoomFactor) + 0.5);
   }
   
   /**
@@ -129,47 +152,108 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param width The width.
    * @return The length of the area within the stream..
    */
-  protected int streamLengthToWindowWidth(long length) {
-    return (int) (length >> windowScalingFactor);
+  public int streamLengthToWindowWidth(long length) {
+    return (int) (length >> curZoomFactor);
   }
   
   /**
-   * Set the horizontal dimensions of the stream. Also calculates an appropriate windowScalingFactor to avoid integer overflow issues.
-   * 
-   * @param streamsRealStart The real start position of the stream (so it can be nonzero).
-   * @param streamsRealLength The real length of the stream.
+   * Tell the StreamsViewer to zoom in one step.
    */
-  public void setStreamHDimensions(long streamRealStart, long streamRealLength) {
-    // update the values
-    this.streamRealStart = streamRealStart;
-    this.streamRealLength = streamRealLength;
-    this.streamRealEnd = streamRealStart + streamRealLength;
-    
-    // now choose a scaling factor to avoid integer overflow
-    windowScalingFactor = 0;
-    while(streamRealStart > Integer.MAX_VALUE) {
-      windowScalingFactor++;
-      streamRealStart>>=1;
-    }
-    
-    // update the width of the panel
-    windowWidth = (int) (streamRealLength >> windowScalingFactor);
-    Dimension curSize = panel.getPreferredSize();
-    curSize.width = windowWidth;
-    panel.setPreferredSize(curSize);
-    panel.revalidate();
+  public void zoomIn() {
+    if (curZoomFactor == minZoomFactor) return; 
+      
+    curZoomFactor--;
+    fireChangeListeners(CHANGED_ZOOM);
+    panel.repaint();
   }
   
+  /**
+   * Tell the StreamsViewer to zoom out one step.
+   */
+  public void zoomOut() {
+    if (curZoomFactor == maxZoomFactor) return;
+    
+    curZoomFactor++;
+    fireChangeListeners(CHANGED_ZOOM);
+    panel.repaint();
+  }
+
   /**
    * Render a position within the stream for display to the user.
    * 
    * @param position The position to render.
    * @return The string to display.
    */
-  protected String renderStreamPosition(long position) {
+  public String renderStreamPosition(long position) {
     return "0x" + Long.toHexString(position);
   }
 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  /**
+   * Fires all change listener events for the given changeType.
+   * 
+   * @param changeType The type of change that occured (One of CHANGED_*).
+   */
+  protected void fireChangeListeners(int changeType) {
+    Iterator it = changeListeners.iterator();
+    while(it.hasNext()) {
+      StreamsViewerChangeListener curListener = (StreamsViewerChangeListener) it.next();
+      
+      switch(changeType) {
+      case CHANGED_ZOOM:
+        curListener.zoomChanged(this, curZoomFactor);
+        break;
+        
+      case CHANGED_LENGTH:
+        curListener.lengthChanged(this, absoluteLength);
+        break;
+      }
+    }
+  }
+  
+  /**
+   * Set the horizontal dimensions of the stream. Also calculates appropriate minZoomFactor/maxZoomFactors to avoid integer overflow issues.
+   *  
+   * @param streamsRealLength The absolute length of the stream.
+   */
+  protected void setStreamHDimensions(long absoluteLength) {
+    // update the values
+    this.absoluteLength = absoluteLength;
+    
+    // FIXME: need to choose appropriate min and max zoom values here!!!!!
+    
+    // now choose a minimum zoom factor to avoid integer overflow
+    minZoomFactor = 0;
+    while(absoluteLength > Integer.MAX_VALUE) {
+      minZoomFactor++;
+      absoluteLength >>= 1;
+    }
+    curZoomFactor = minZoomFactor;
+    
+    // update the width of the panel
+    windowWidth = (int) (absoluteLength >> curZoomFactor);
+    Dimension curSize = panel.getPreferredSize();
+    curSize.width = windowWidth;
+    panel.setPreferredSize(curSize);
+    panel.revalidate();
+    
+    fireChangeListeners(CHANGED_LENGTH);
+  }
+  
   /**
    * Repaint a bit of the streams panel
    * 
@@ -177,7 +261,6 @@ public abstract class StreamsViewer extends JScrollPane {
    */
   protected abstract void paintStreamsPanel(Graphics g);
 
-  
   /**
    * The scrollable display for streams.
    * 
@@ -200,7 +283,7 @@ public abstract class StreamsViewer extends JScrollPane {
      * @see javax.swing.Scrollable#getScrollableBlockIncrement(java.awt.Rectangle, int, int)
      */
     public int getScrollableBlockIncrement(Rectangle arg0, int arg1, int arg2) {
-      return ((int) (streamMinorTickSpacing >> windowScalingFactor)) * 10;
+      return ((int) (streamMinorTickSpacing >> curZoomFactor)) * 10;
     }
     
     /* (non-Javadoc)
@@ -221,30 +304,32 @@ public abstract class StreamsViewer extends JScrollPane {
      * @see javax.swing.Scrollable#getScrollableUnitIncrement(java.awt.Rectangle, int, int)
      */
     public int getScrollableUnitIncrement(Rectangle arg0, int arg1, int arg2) {
-      return (int) (streamMinorTickSpacing >> windowScalingFactor);
+      return (int) (streamMinorTickSpacing >> curZoomFactor);
     }
   }
+  
+  
 
   /**
-   * The real start position of the stream.
+   * The absolute length of the stream. 
    */
-  protected long streamRealStart = 0;
+  protected long absoluteLength = 0;
   
   /**
-   * The real length of the stream. 
+   * The zoom factor applied to the absolute stream positions.
    */
-  protected long streamRealLength = 0;
+  protected int curZoomFactor = 0;
   
   /**
-   * The real end of the stream.
+   * The minimum permitted zoom factor (chosen to avoid integer overflows for very long streams).
    */
-  protected long streamRealEnd = 0;
-  
-  /**
-   * The scaling factor applied to the real stream coordinates so they don't cause integer overflow in the view panel.
-   */
-  protected int windowScalingFactor = 0;
+  protected int minZoomFactor = 0;
 
+  /**
+   * The maximum permitted zoom factor (chosen to avoid performance degradation for large streams).
+   */
+  protected int maxZoomFactor = 10;
+  
   /**
    * Width of the panel window in pixels.
    */
@@ -274,4 +359,6 @@ public abstract class StreamsViewer extends JScrollPane {
    * The stream viewer component instance.
    */
   protected StreamsPanel panel; 
+  
+  private java.util.List changeListeners = Collections.synchronizedList(new ArrayList());
 }

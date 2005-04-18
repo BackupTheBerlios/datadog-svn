@@ -24,16 +24,18 @@ import java.awt.Rectangle;
 import javax.swing.JPanel;
 
 /**
+ * A generic ColumnHeader for a StreamsViewer.
  * 
  * @author Andrew de Quincey
  */
-public class StreamsViewerColumnHeader extends JPanel {
+public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerChangeListener {
   
   public StreamsViewerColumnHeader(StreamsViewer viewer) {
     this.viewer = viewer;
+    viewer.addStreamsViewerChangeListener(this);
     
     Dimension curSize = new Dimension(0,20);
-    curSize.width = (int) (viewer.streamRealLength >> viewer.windowScalingFactor);
+    curSize.width = (int) (viewer.absoluteLength >> viewer.curZoomFactor); // FIXME: add methods to StreamsViewer
     setPreferredSize(curSize);
   }
   
@@ -42,7 +44,7 @@ public class StreamsViewerColumnHeader extends JPanel {
 
     // calculate what to draw
     Rectangle clip = g.getClipBounds();
-    long minStreamDrawPosition = viewer.windowXPositionToStreamPosition(clip.x); 
+    long minStreamDrawPosition = viewer.windowXPositionToAbsPosition(clip.x); 
     long maxStreamDrawPosition = minStreamDrawPosition + viewer.windowWidthToStreamLength(clip.width);
     
     // round the min position down to the nearest major tick
@@ -54,7 +56,7 @@ public class StreamsViewerColumnHeader extends JPanel {
     // draw the ticks
     g.setColor(Color.black);
     for(long pos = minStreamDrawPosition; pos <= maxStreamDrawPosition; pos+= viewer.streamMinorTickSpacing) {
-      int x = (int) (pos >> viewer.windowScalingFactor);
+      int x = (int) (pos >> viewer.curZoomFactor); // FIXME: use new listener stuff?
       
       // determine the kind of tick we need to draw
       if ((pos % viewer.streamMajorTickSpacing) == 0) {
@@ -73,6 +75,20 @@ public class StreamsViewerColumnHeader extends JPanel {
       }
     }
   }
-
+  
+  /* (non-Javadoc)
+   * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#lengthChanged(net.lidskialf.datadog.ui.StreamsViewer, long)
+   */
+  public void lengthChanged(StreamsViewer viewer, long newLength) {
+    // TODO: implement
+  }
+  
+  /* (non-Javadoc)
+   * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#zoomChanged(net.lidskialf.datadog.ui.StreamsViewer, int)
+   */
+  public void zoomChanged(StreamsViewer viewer, int newZoom) {
+    // TODO Auto-generated method stub
+  }
+  
   protected StreamsViewer viewer; 
 }
