@@ -40,9 +40,9 @@ public class TransportStreamsViewer extends StreamsViewer {
     this.rowModel = rowModel;
     this.stream = stream;
     
-    // hardcoded value since packets are always the same length.
+    // hardcoded "good" value.
     maxZoomFactor = 5;
-        
+
     setAbsoluteLength(stream.length());
   }
 
@@ -54,11 +54,11 @@ public class TransportStreamsViewer extends StreamsViewer {
     Rectangle clip = g.getClipBounds();
     int minStreamIdx = windowYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
     int maxStreamIdx = windowYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT);
-    int packetWidth = streamLengthToPanelWidth(Constants.TS_PACKET_LENGTH);
+    int packetWidth = absoluteLengthToPanelWidth(Constants.TS_PACKET_LENGTH);
 
     try {
-      long minStreamPosition = stream.round(panelXPositionToAbsPosition(clip.x), TransportStream.ROUND_DOWN);
-      long maxStreamPosition = stream.round(minStreamPosition + panelWidthToStreamLength(clip.width), TransportStream.ROUND_INC);
+      long minStreamPosition = stream.round(panelXPositionToAbsolutePosition(clip.x), TransportStream.ROUND_DOWN);
+      long maxStreamPosition = stream.round(minStreamPosition + panelWidthToAbsoluteLength(clip.width), TransportStream.ROUND_INC);
       
       // render each packet
       for(long curPos = minStreamPosition; curPos <= maxStreamPosition; curPos+=Constants.TS_PACKET_LENGTH) {
@@ -72,7 +72,7 @@ public class TransportStreamsViewer extends StreamsViewer {
         
         // draw it if it is within the bounds
         if ((row.rowIdx >= minStreamIdx) && (row.rowIdx <= maxStreamIdx)) {
-          int x = absPositionToPanelXPosition(curPos);
+          int x = absolutePositionToPanelXPosition(curPos);
           int y = streamIndexToWindowYPosition(row.rowIdx);
           g.setColor(Color.green);
           g.fillRect(x, y, packetWidth, panelRowHeight);

@@ -37,6 +37,9 @@ import net.lidskialf.datadog.ui.actions.*;
  */
 public class TransportStreamExplorer implements StreamExplorer {
 
+  public static final int MINOR_TICK_SPACING = 16;
+  public static final int MAJOR_TICK_SPACING = 0x100;
+  
   /**
    * Constructor.
    * 
@@ -104,7 +107,7 @@ public class TransportStreamExplorer implements StreamExplorer {
     viewer = new TransportStreamsViewer(transportStream, rowModel);
     viewer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
-    columnHeader = new StreamsViewerColumnHeader(viewer);
+    columnHeader = new StreamsViewerColumnHeader(viewer, MINOR_TICK_SPACING, MAJOR_TICK_SPACING);
     viewer.setColumnHeaderView(columnHeader);
 
     rowHeader = new StreamsViewerRowHeader(viewer, rowModel);

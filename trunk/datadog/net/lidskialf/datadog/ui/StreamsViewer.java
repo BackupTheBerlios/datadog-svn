@@ -65,7 +65,7 @@ public abstract class StreamsViewer extends JScrollPane {
     panel = new StreamsPanel();    
     getViewport().add(panel);
     panel.setBackground(Color.white);
-    
+        
     setPreferredSize(new Dimension(600, 200));
   }
   
@@ -130,7 +130,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param x The X position.
    * @return The stream position.
    */
-  public long panelXPositionToAbsPosition(int x) {
+  public long panelXPositionToAbsolutePosition(int x) {
     return (long) ((x << curZoomFactor) + 0.5);
   }
 
@@ -140,7 +140,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param x The X position.
    * @return The stream position.
    */
-  public int absPositionToPanelXPosition(long position) {
+  public int absolutePositionToPanelXPosition(long position) {
     return (int) ((position) >> curZoomFactor);
   }
   
@@ -150,7 +150,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param width The width.
    * @return The length of the area within the stream..
    */
-  public long panelWidthToStreamLength(int width) {
+  public long panelWidthToAbsoluteLength(int width) {
     return (long) ((width << curZoomFactor) + 0.5);
   }
   
@@ -160,7 +160,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param width The width.
    * @return The length of the area within the stream..
    */
-  public int streamLengthToPanelWidth(long length) {
+  public int absoluteLengthToPanelWidth(long length) {
     return (int) (length >> curZoomFactor);
   }
   
@@ -171,6 +171,15 @@ public abstract class StreamsViewer extends JScrollPane {
    */
   public int getTotalPanelWidth() {
     return panelWidth;
+  }
+  
+  /**
+   * Accessor for the current zoom factor.
+   * 
+   * @return The current zoom factor.
+   */
+  public int getCurZoomFactor() {
+    return curZoomFactor;
   }
   
   /**
@@ -276,6 +285,24 @@ public abstract class StreamsViewer extends JScrollPane {
   }
   
   /**
+   * Calculate the current scroll unit increment.
+   * 
+   * @return The increment
+   */
+  protected int unitScrollIncrement(Rectangle arg0, int arg1, int arg2) {
+    return 16;
+  }
+  
+  /**
+   * Calculate the current scroll block increment.
+   * 
+   * @return The increment
+   */
+  protected int blockScrollIncrement(Rectangle arg0, int arg1, int arg2) {
+    return 0x100;
+  }
+  
+  /**
    * Repaint a bit of the streams panel
    * 
    * @param g The Graphics context.
@@ -304,7 +331,7 @@ public abstract class StreamsViewer extends JScrollPane {
      * @see javax.swing.Scrollable#getScrollableBlockIncrement(java.awt.Rectangle, int, int)
      */
     public int getScrollableBlockIncrement(Rectangle arg0, int arg1, int arg2) {
-      return ((int) (streamMinorTickSpacing >> curZoomFactor)) * 10;
+      return blockScrollIncrement(arg0, arg1, arg2);
     }
     
     /* (non-Javadoc)
@@ -325,7 +352,7 @@ public abstract class StreamsViewer extends JScrollPane {
      * @see javax.swing.Scrollable#getScrollableUnitIncrement(java.awt.Rectangle, int, int)
      */
     public int getScrollableUnitIncrement(Rectangle arg0, int arg1, int arg2) {
-      return (int) (streamMinorTickSpacing >> curZoomFactor);
+      return unitScrollIncrement(arg0, arg1, arg2);
     }
   }
   
@@ -365,17 +392,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * The separation between two rows in pixels.
    */
   protected int panelRowSeparation = 1;
-  
-  /**
-   * Spacing between minor ticks in the column header for the viewer. This is in real stream units.
-   */
-  protected long streamMinorTickSpacing = 16;
-  
-  /**
-   * Spacing between minor ticks in the column header for the viewer. This is in real stream units.
-   */
-  protected long streamMajorTickSpacing = 0x100;
-  
+
   /**
    * The stream viewer component instance.
    */

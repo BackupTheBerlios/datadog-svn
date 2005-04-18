@@ -35,8 +35,11 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
    * 
    * @param viewer The associated StreamsViewer. 
    */
-  public StreamsViewerColumnHeader(StreamsViewer viewer) {
+  public StreamsViewerColumnHeader(StreamsViewer viewer, 
+                                   int nominalMinorTickSpacing,int nominalMajorTickSpacing) {
     this.viewer = viewer;
+    this.nominalMinorTickSpacing = nominalMinorTickSpacing;
+    this.nominalMajorTickSpacing = nominalMajorTickSpacing;
     viewer.addStreamsViewerChangeListener(this);
     
     setPreferredSize(new Dimension(0, 20));
@@ -49,22 +52,22 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
 
     // calculate what to draw
     Rectangle clip = g.getClipBounds();
-    long minStreamDrawPosition = viewer.panelXPositionToAbsPosition(clip.x); 
-    long maxStreamDrawPosition = minStreamDrawPosition + viewer.panelWidthToStreamLength(clip.width);
+    long minStreamDrawPosition = viewer.panelXPositionToAbsolutePosition(clip.x); 
+    long maxStreamDrawPosition = minStreamDrawPosition + viewer.panelWidthToAbsoluteLength(clip.width);
     
     // round the min position down to the nearest major tick
-    minStreamDrawPosition = (minStreamDrawPosition  / viewer.streamMajorTickSpacing) * viewer.streamMajorTickSpacing;
+    minStreamDrawPosition = (minStreamDrawPosition  / curMajorTickSpacing) * curMajorTickSpacing;
     
     // round the max position up to the nearest major tick
-    maxStreamDrawPosition = ((maxStreamDrawPosition + viewer.streamMajorTickSpacing) / viewer.streamMajorTickSpacing) * viewer.streamMajorTickSpacing;
+    maxStreamDrawPosition = ((maxStreamDrawPosition + curMajorTickSpacing) / curMajorTickSpacing) * curMajorTickSpacing;
     
     // draw the ticks
     g.setColor(Color.black);
-    for(long pos = minStreamDrawPosition; pos <= maxStreamDrawPosition; pos+= viewer.streamMinorTickSpacing) {
-      int x = viewer.absPositionToPanelXPosition(pos);
+    for(long pos = minStreamDrawPosition; pos <= maxStreamDrawPosition; pos+= curMinorTickSpacing) {
+      int x = viewer.absolutePositionToPanelXPosition(pos);
       
       // determine the kind of tick we need to draw
-      if ((pos % viewer.streamMajorTickSpacing) == 0) {
+      if ((pos % curMajorTickSpacing) == 0) {
         // draw major tick
         g.drawLine(x, 11, x, 20);
         
@@ -103,6 +106,11 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     Dimension curSize = getPreferredSize();
     curSize.width = panelWidth;
     setPreferredSize(curSize);
+    
+    curMinorTickSpacing = nominalMinorTickSpacing << viewer.getCurZoomFactor();
+    curMajorTickSpacing = nominalMajorTickSpacing << viewer.getCurZoomFactor();
+    
+    repaint();
   }
   
   /**
@@ -114,4 +122,24 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
    * The width of the stream panel window in pixels.
    */
   protected int panelWidth;
+  
+  /**
+   * Nominal (i.e. at 1:1 zoom) spacing between minor ticks. 
+   */
+  protected long nominalMinorTickSpacing = 16;
+  
+  /**
+   * Nominal (i.e. at 1:1 zoom) spacing between major ticks. 
+   */
+  protected long nominalMajorTickSpacing = 0x100;
+  
+  /**
+   * Minor tick spacing at current zoom level. 
+   */
+  protected long curMinorTickSpacing;
+  
+  /**
+   * Major tick spacing at current zoom level. 
+   */
+  protected long curMajorTickSpacing;
 }
