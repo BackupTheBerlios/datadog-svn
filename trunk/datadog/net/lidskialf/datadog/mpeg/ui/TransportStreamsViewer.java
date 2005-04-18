@@ -40,7 +40,9 @@ public class TransportStreamsViewer extends StreamsViewer {
     this.rowModel = rowModel;
     this.stream = stream;
     
-    panel.setBackground(Color.white);
+    // hardcoded value since packets are always the same length.
+    maxZoomFactor = 5;
+        
     setStreamHDimensions(stream.length());
   }
 
@@ -52,7 +54,8 @@ public class TransportStreamsViewer extends StreamsViewer {
     Rectangle clip = g.getClipBounds();
     int minStreamIdx = windowYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
     int maxStreamIdx = windowYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT);
-    
+    int packetWidth = streamLengthToWindowWidth(Constants.TS_PACKET_LENGTH);
+
     try {
       long minStreamPosition = stream.round(windowXPositionToAbsPosition(clip.x), TransportStream.ROUND_DOWN);
       long maxStreamPosition = stream.round(minStreamPosition + windowWidthToStreamLength(clip.width), TransportStream.ROUND_INC);
@@ -176,8 +179,6 @@ public class TransportStreamsViewer extends StreamsViewer {
    * PID -> row descriptor.
    */
   private Map pidToRowDescriptor = Collections.synchronizedMap(new HashMap());
-  
-  private int packetWidth = (int) streamLengthToWindowWidth(Constants.TS_PACKET_LENGTH);
-  
+    
   private DefaultListModel rowModel; 
 }

@@ -57,6 +57,7 @@ public abstract class StreamsViewer extends JScrollPane {
     
     panel = new StreamsPanel();    
     getViewport().add(panel);
+    panel.setBackground(Color.white);
     
     setPreferredSize(new Dimension(600, 200));
   }
@@ -157,14 +158,24 @@ public abstract class StreamsViewer extends JScrollPane {
   }
   
   /**
+   * The total width of the entire StreamsViewer panel.
+   *  
+   * @return The width in pixels.
+   */
+  public int getTotalWindowWidth() {
+    return windowWidth;
+  }
+  
+  /**
    * Tell the StreamsViewer to zoom in one step.
    */
   public void zoomIn() {
     if (curZoomFactor == minZoomFactor) return; 
-      
+
     curZoomFactor--;
-    fireChangeListeners(CHANGED_ZOOM);
+    updateDimensions();
     panel.repaint();
+    fireChangeListeners(CHANGED_ZOOM);
   }
   
   /**
@@ -174,8 +185,9 @@ public abstract class StreamsViewer extends JScrollPane {
     if (curZoomFactor == maxZoomFactor) return;
     
     curZoomFactor++;
-    fireChangeListeners(CHANGED_ZOOM);
+    updateDimensions();
     panel.repaint();
+    fireChangeListeners(CHANGED_ZOOM);
   }
 
   /**
@@ -188,6 +200,23 @@ public abstract class StreamsViewer extends JScrollPane {
     return "0x" + Long.toHexString(position);
   }
 
+  /**
+   * Accessor for the current zoom factor of the StreamsWindow.
+   * 
+   * @return The zoom factor.
+   */
+  public int getZoomFactor() {
+    return curZoomFactor;
+  }
+  
+  /**
+   * Accessor for the absolute length of the StreamsWindow.
+   * 
+   * @return The length.
+   */
+  public long getAbsoluteLength() {
+    return absoluteLength;
+  }
   
   
   
@@ -234,8 +263,6 @@ public abstract class StreamsViewer extends JScrollPane {
     // update the values
     this.absoluteLength = absoluteLength;
     
-    // FIXME: need to choose appropriate min and max zoom values here!!!!!
-    
     // now choose a minimum zoom factor to avoid integer overflow
     minZoomFactor = 0;
     while(absoluteLength > Integer.MAX_VALUE) {
@@ -244,14 +271,21 @@ public abstract class StreamsViewer extends JScrollPane {
     }
     curZoomFactor = minZoomFactor;
     
+    // update everything else
+    updateDimensions();
+    fireChangeListeners(CHANGED_LENGTH);
+  }
+  
+  /**
+   * Update the dimensions of the streams window.
+   */
+  protected void updateDimensions() {
     // update the width of the panel
     windowWidth = (int) (absoluteLength >> curZoomFactor);
     Dimension curSize = panel.getPreferredSize();
     curSize.width = windowWidth;
     panel.setPreferredSize(curSize);
     panel.revalidate();
-    
-    fireChangeListeners(CHANGED_LENGTH);
   }
   
   /**
@@ -326,9 +360,9 @@ public abstract class StreamsViewer extends JScrollPane {
   protected int minZoomFactor = 0;
 
   /**
-   * The maximum permitted zoom factor (chosen to avoid performance degradation for large streams).
+   * The maximum permitted zoom factor.
    */
-  protected int maxZoomFactor = 10;
+  protected int maxZoomFactor = 20;
   
   /**
    * Width of the panel window in pixels.

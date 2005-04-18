@@ -34,9 +34,8 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     this.viewer = viewer;
     viewer.addStreamsViewerChangeListener(this);
     
-    Dimension curSize = new Dimension(0,20);
-    curSize.width = (int) (viewer.absoluteLength >> viewer.curZoomFactor); // FIXME: add methods to StreamsViewer
-    setPreferredSize(curSize);
+    setPreferredSize(new Dimension(0, 20));
+    updateDimensions();
   }
   
   protected void paintComponent(Graphics g) {
@@ -80,15 +79,29 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
    * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#lengthChanged(net.lidskialf.datadog.ui.StreamsViewer, long)
    */
   public void lengthChanged(StreamsViewer viewer, long newLength) {
-    // TODO: implement
+    updateDimensions();
   }
   
   /* (non-Javadoc)
    * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#zoomChanged(net.lidskialf.datadog.ui.StreamsViewer, int)
    */
   public void zoomChanged(StreamsViewer viewer, int newZoom) {
-    // TODO Auto-generated method stub
+    updateDimensions();
   }
   
+  /**
+   * Update the dimensions of the column header.
+   */
+  protected void updateDimensions() {
+    Dimension curSize = getPreferredSize();
+    curSize.width = viewer.getTotalWindowWidth();
+    setPreferredSize(curSize);
+  }
+  
+  /**
+   * The StreamsViewer we are associated with.
+   */
   protected StreamsViewer viewer; 
+  
+  protected long absoluteLength;
 }

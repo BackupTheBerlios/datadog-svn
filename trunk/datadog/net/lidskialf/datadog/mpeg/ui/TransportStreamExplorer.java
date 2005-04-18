@@ -27,8 +27,8 @@ import java.io.IOException;
 
 import net.lidskialf.datadog.*;
 import net.lidskialf.datadog.mpeg.bitstream.*;
-import net.lidskialf.datadog.ui.StreamsViewerRowHeader;
-import net.lidskialf.datadog.ui.StreamsViewerColumnHeader;
+import net.lidskialf.datadog.ui.*;
+import net.lidskialf.datadog.ui.actions.*;
 
 /**
  * The StreamExplorer for Transport Streams.
@@ -114,7 +114,8 @@ public class TransportStreamExplorer implements StreamExplorer {
     toolbar.setFloatable(false);
     toolbar.setRollover(true);
     
-    toolbar.add(new JButton("TEST")); // FIXME: just a quick test
+    toolbar.add(new ZoomInAction(viewer));
+    toolbar.add(new ZoomOutAction(viewer));
   }
 
   
