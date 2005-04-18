@@ -131,6 +131,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @return The stream position.
    */
   public long panelXPositionToAbsolutePosition(int x) {
+    // FIXME: accuracy
     return (long) ((x << curZoomFactor) + 0.5);
   }
 
@@ -141,6 +142,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @return The stream position.
    */
   public int absolutePositionToPanelXPosition(long position) {
+    // FIXME: accuracy
     return (int) ((position) >> curZoomFactor);
   }
   
@@ -151,6 +153,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @return The length of the area within the stream..
    */
   public long panelWidthToAbsoluteLength(int width) {
+    // FIXME: accuracy
     return (long) ((width << curZoomFactor) + 0.5);
   }
   
@@ -161,6 +164,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @return The length of the area within the stream..
    */
   public int absoluteLengthToPanelWidth(long length) {
+    // FIXME: accuracy
     return (int) (length >> curZoomFactor);
   }
   
@@ -216,7 +220,20 @@ public abstract class StreamsViewer extends JScrollPane {
     return "0x" + Long.toHexString(position);
   }
   
-  
+  /**
+   * Update the position of the selector.
+   * 
+   * @param newSelectorPos The absolute new position of the selector.
+   */
+  public void updateSelector(long newSelectorPos) {
+    if (newSelectorPos != absoluteSelectorPos) {
+      long oldSelectorPos = absoluteSelectorPos;
+      absoluteSelectorPos = newSelectorPos;
+      
+      if (oldSelectorPos != -1) panel.repaint(absolutePositionToPanelXPosition(oldSelectorPos), 0, 1, getHeight());
+      panel.repaint(absolutePositionToPanelXPosition(absoluteSelectorPos), 0, 1, getHeight());
+    }
+  }
   
   
   
@@ -289,18 +306,14 @@ public abstract class StreamsViewer extends JScrollPane {
    * 
    * @return The increment
    */
-  protected int unitScrollIncrement(Rectangle arg0, int arg1, int arg2) {
-    return 16;
-  }
+  protected abstract int unitScrollIncrement(Rectangle arg0, int arg1, int arg2);
   
   /**
    * Calculate the current scroll block increment.
    * 
    * @return The increment
    */
-  protected int blockScrollIncrement(Rectangle arg0, int arg1, int arg2) {
-    return 0x100;
-  }
+  protected abstract int blockScrollIncrement(Rectangle arg0, int arg1, int arg2);
   
   /**
    * Repaint a bit of the streams panel
@@ -309,6 +322,19 @@ public abstract class StreamsViewer extends JScrollPane {
    */
   protected abstract void paintStreamsPanel(Graphics g);
 
+  /**
+   * Paint the selector onto a graphics context.
+   * 
+   * @param g The Graphics context to paint onto.
+   */
+  protected void paintSelector(Graphics g, long minStreamDrawPosition, long maxStreamDrawPosition) {
+    if ((absoluteSelectorPos >= minStreamDrawPosition) && (absoluteSelectorPos <= maxStreamDrawPosition)) {
+      int xpos = absolutePositionToPanelXPosition(absoluteSelectorPos);
+      g.setColor(Color.blue);
+      g.drawLine(xpos, 0, xpos, getHeight());
+    }
+  }
+  
   /**
    * The scrollable display for streams.
    * 
@@ -363,6 +389,11 @@ public abstract class StreamsViewer extends JScrollPane {
    */
   protected long absoluteLength = 0;
   
+  /**
+   * Absolute position of the selector marker.
+   */
+  protected long absoluteSelectorPos = -1;
+
   /**
    * The zoom factor applied to the absolute stream positions.
    */

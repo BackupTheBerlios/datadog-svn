@@ -96,7 +96,7 @@ public class TransportStream {
       break;
       
     case ROUND_UP:
-      newPos = (position + (Constants.TS_PACKET_LENGTH-1) / Constants.TS_PACKET_LENGTH) * Constants.TS_PACKET_LENGTH;
+      newPos = ((position + (Constants.TS_PACKET_LENGTH-1)) / Constants.TS_PACKET_LENGTH) * Constants.TS_PACKET_LENGTH;
       break;
       
     case ROUND_INC:

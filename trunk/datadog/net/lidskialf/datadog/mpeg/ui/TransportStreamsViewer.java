@@ -57,11 +57,13 @@ public class TransportStreamsViewer extends StreamsViewer {
     int packetWidth = absoluteLengthToPanelWidth(Constants.TS_PACKET_LENGTH);
 
     try {
-      long minStreamPosition = stream.round(panelXPositionToAbsolutePosition(clip.x), TransportStream.ROUND_DOWN);
-      long maxStreamPosition = stream.round(minStreamPosition + panelWidthToAbsoluteLength(clip.width), TransportStream.ROUND_INC);
-      
+      long minStreamDrawPosition = panelXPositionToAbsolutePosition(clip.x);
+      long maxStreamDrawPosition = minStreamDrawPosition + panelWidthToAbsoluteLength(clip.width);
+      minStreamDrawPosition = stream.round(minStreamDrawPosition, TransportStream.ROUND_DOWN);
+      maxStreamDrawPosition = stream.round(maxStreamDrawPosition, TransportStream.ROUND_UP);
+       
       // render each packet
-      for(long curPos = minStreamPosition; curPos <= maxStreamPosition; curPos+=Constants.TS_PACKET_LENGTH) {
+      for(long curPos = minStreamDrawPosition; curPos <= maxStreamDrawPosition; curPos+=Constants.TS_PACKET_LENGTH) {
         // get the packet
         TransportPacket packet = stream.getPacketAt(curPos);
         if (packet == null) continue;
@@ -80,6 +82,9 @@ public class TransportStreamsViewer extends StreamsViewer {
           g.drawRect(x, y, packetWidth, panelRowHeight);
         }
       }
+      
+      // draw the selector
+      paintSelector(g, minStreamDrawPosition, maxStreamDrawPosition);
     } catch (IOException e) {
       e.printStackTrace();
       JOptionPane.showMessageDialog(this, 
@@ -89,6 +94,26 @@ public class TransportStreamsViewer extends StreamsViewer {
     }
   }
   
+  /* (non-Javadoc)
+   * @see net.lidskialf.datadog.ui.StreamsViewer#blockScrollIncrement(java.awt.Rectangle, int, int)
+   */
+  protected int blockScrollIncrement(Rectangle arg0, int arg1, int arg2) {
+    return 0x100;
+  }
+  
+  /* (non-Javadoc)
+   * @see net.lidskialf.datadog.ui.StreamsViewer#unitScrollIncrement(java.awt.Rectangle, int, int)
+   */
+  protected int unitScrollIncrement(Rectangle arg0, int arg1, int arg2) {
+    return 16;
+  }
+
+  /**
+   * Find/allocate a row for the specified PID.
+   * 
+   * @param pid The PID concerned.
+   * @return A TransportStreamRow structure for that PID.
+   */
   private TransportStreamRow getRowForPid(int pid) {
     
     // retrieve the old version if present
@@ -167,6 +192,9 @@ public class TransportStreamsViewer extends StreamsViewer {
      */
     public int pid;
     
+    /**
+     * Index of the row containing the pid.
+     */
     public int rowIdx;
   }
   
@@ -180,5 +208,8 @@ public class TransportStreamsViewer extends StreamsViewer {
    */
   private Map pidToRowDescriptor = Collections.synchronizedMap(new HashMap());
     
+  /**
+   * Model of the rows of this viewer.
+   */
   private DefaultListModel rowModel; 
 }
