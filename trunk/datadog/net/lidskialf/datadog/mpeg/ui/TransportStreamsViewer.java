@@ -43,7 +43,7 @@ public class TransportStreamsViewer extends StreamsViewer {
     // hardcoded value since packets are always the same length.
     maxZoomFactor = 5;
         
-    setStreamHDimensions(stream.length());
+    setAbsoluteLength(stream.length());
   }
 
   /* (non-Javadoc)
@@ -54,11 +54,11 @@ public class TransportStreamsViewer extends StreamsViewer {
     Rectangle clip = g.getClipBounds();
     int minStreamIdx = windowYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
     int maxStreamIdx = windowYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT);
-    int packetWidth = streamLengthToWindowWidth(Constants.TS_PACKET_LENGTH);
+    int packetWidth = streamLengthToPanelWidth(Constants.TS_PACKET_LENGTH);
 
     try {
-      long minStreamPosition = stream.round(windowXPositionToAbsPosition(clip.x), TransportStream.ROUND_DOWN);
-      long maxStreamPosition = stream.round(minStreamPosition + windowWidthToStreamLength(clip.width), TransportStream.ROUND_INC);
+      long minStreamPosition = stream.round(panelXPositionToAbsPosition(clip.x), TransportStream.ROUND_DOWN);
+      long maxStreamPosition = stream.round(minStreamPosition + panelWidthToStreamLength(clip.width), TransportStream.ROUND_INC);
       
       // render each packet
       for(long curPos = minStreamPosition; curPos <= maxStreamPosition; curPos+=Constants.TS_PACKET_LENGTH) {
@@ -72,12 +72,12 @@ public class TransportStreamsViewer extends StreamsViewer {
         
         // draw it if it is within the bounds
         if ((row.rowIdx >= minStreamIdx) && (row.rowIdx <= maxStreamIdx)) {
-          int x = absPositionToWindowXPosition(curPos);
+          int x = absPositionToPanelXPosition(curPos);
           int y = streamIndexToWindowYPosition(row.rowIdx);
           g.setColor(Color.green);
-          g.fillRect(x, y, packetWidth, windowRowHeight);
+          g.fillRect(x, y, packetWidth, panelRowHeight);
           g.setColor(Color.black);
-          g.drawRect(x, y, packetWidth, windowRowHeight);
+          g.drawRect(x, y, packetWidth, panelRowHeight);
         }
       }
     } catch (IOException e) {

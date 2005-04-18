@@ -29,20 +29,27 @@ public abstract class StreamsViewer extends JScrollPane {
   /**
    * Spaces between streams should be treated as part of the stream above the separator in the display.
    */
-  protected static final int SEPARATOR_PARTOF_STREAM_ABOVE_IT = 0;
+  public static final int SEPARATOR_PARTOF_STREAM_ABOVE_IT = 0;
   
   /**
    * Spaces between streams should be treated as part of the stream below the separator in the display.
    */
-  protected static final int SEPARATOR_PARTOF_STREAM_BELOW_IT = 1;
+  public static final int SEPARATOR_PARTOF_STREAM_BELOW_IT = 1;
   
   /**
    * Spaces between streams should be treated as invalid streams.
    */
-  protected static final int SEPARATOR_INVALID = 2;
+  public static final int SEPARATOR_INVALID = 2;
 
 
+  /**
+   * Zoom factor has changed.
+   */
   protected static final int CHANGED_ZOOM = 0;
+  
+  /**
+   * Absolute length has changed.
+   */
   protected static final int CHANGED_LENGTH = 1;
   
   
@@ -87,7 +94,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @return The Y position of the top of the stream's rendering position.
    */
   public int streamIndexToWindowYPosition(int streamIdx) {
-    return streamIdx * (windowRowHeight + windowRowSeparation);
+    return streamIdx * (panelRowHeight + panelRowSeparation);
   }
   
   /**
@@ -103,14 +110,14 @@ public abstract class StreamsViewer extends JScrollPane {
     // calculate the index
     int tmpIdx = -1;
     if (separatorDisposition == SEPARATOR_PARTOF_STREAM_BELOW_IT) {
-      tmpIdx = (yPos + windowRowSeparation) / (windowRowHeight + windowRowSeparation);
+      tmpIdx = (yPos + panelRowSeparation) / (panelRowHeight + panelRowSeparation);
     } else if (separatorDisposition == SEPARATOR_PARTOF_STREAM_ABOVE_IT) {
       if (yPos < 0) return -1;
-      tmpIdx = yPos / (windowRowHeight + windowRowSeparation);
+      tmpIdx = yPos / (panelRowHeight + panelRowSeparation);
     } else if (separatorDisposition == SEPARATOR_INVALID) {
       if (yPos < 0) return -1;
-      tmpIdx = yPos / (windowRowHeight + windowRowSeparation);
-      if (yPos >= ((tmpIdx * (windowRowHeight + windowRowSeparation)) + windowRowHeight)) return -1;
+      tmpIdx = yPos / (panelRowHeight + panelRowSeparation);
+      if (yPos >= ((tmpIdx * (panelRowHeight + panelRowSeparation)) + panelRowHeight)) return -1;
     }
     
     // watch out for too many streams!
@@ -123,7 +130,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param x The X position.
    * @return The stream position.
    */
-  public long windowXPositionToAbsPosition(int x) {
+  public long panelXPositionToAbsPosition(int x) {
     return (long) ((x << curZoomFactor) + 0.5);
   }
 
@@ -133,7 +140,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param x The X position.
    * @return The stream position.
    */
-  public int absPositionToWindowXPosition(long position) {
+  public int absPositionToPanelXPosition(long position) {
     return (int) ((position) >> curZoomFactor);
   }
   
@@ -143,7 +150,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param width The width.
    * @return The length of the area within the stream..
    */
-  public long windowWidthToStreamLength(int width) {
+  public long panelWidthToStreamLength(int width) {
     return (long) ((width << curZoomFactor) + 0.5);
   }
   
@@ -153,7 +160,7 @@ public abstract class StreamsViewer extends JScrollPane {
    * @param width The width.
    * @return The length of the area within the stream..
    */
-  public int streamLengthToWindowWidth(long length) {
+  public int streamLengthToPanelWidth(long length) {
     return (int) (length >> curZoomFactor);
   }
   
@@ -162,8 +169,8 @@ public abstract class StreamsViewer extends JScrollPane {
    *  
    * @return The width in pixels.
    */
-  public int getTotalWindowWidth() {
-    return windowWidth;
+  public int getTotalPanelWidth() {
+    return panelWidth;
   }
   
   /**
@@ -199,26 +206,6 @@ public abstract class StreamsViewer extends JScrollPane {
   public String renderStreamPosition(long position) {
     return "0x" + Long.toHexString(position);
   }
-
-  /**
-   * Accessor for the current zoom factor of the StreamsWindow.
-   * 
-   * @return The zoom factor.
-   */
-  public int getZoomFactor() {
-    return curZoomFactor;
-  }
-  
-  /**
-   * Accessor for the absolute length of the StreamsWindow.
-   * 
-   * @return The length.
-   */
-  public long getAbsoluteLength() {
-    return absoluteLength;
-  }
-  
-  
   
   
   
@@ -255,11 +242,11 @@ public abstract class StreamsViewer extends JScrollPane {
   }
   
   /**
-   * Set the horizontal dimensions of the stream. Also calculates appropriate minZoomFactor/maxZoomFactors to avoid integer overflow issues.
+   * Set the absolute length of the stream.
    *  
    * @param streamsRealLength The absolute length of the stream.
    */
-  protected void setStreamHDimensions(long absoluteLength) {
+  protected void setAbsoluteLength(long absoluteLength) {
     // update the values
     this.absoluteLength = absoluteLength;
     
@@ -277,13 +264,13 @@ public abstract class StreamsViewer extends JScrollPane {
   }
   
   /**
-   * Update the dimensions of the streams window.
+   * Update the dimensions of the streams window (e.g. when zoom factor changes).
    */
   protected void updateDimensions() {
     // update the width of the panel
-    windowWidth = (int) (absoluteLength >> curZoomFactor);
+    panelWidth = (int) (absoluteLength >> curZoomFactor);
     Dimension curSize = panel.getPreferredSize();
-    curSize.width = windowWidth;
+    curSize.width = panelWidth;
     panel.setPreferredSize(curSize);
     panel.revalidate();
   }
@@ -365,19 +352,19 @@ public abstract class StreamsViewer extends JScrollPane {
   protected int maxZoomFactor = 20;
   
   /**
-   * Width of the panel window in pixels.
+   * Total width of the panel window in pixels.
    */
-  protected int windowWidth = 0;
+  protected int panelWidth = 0;
   
   /**
    * The height of a row in pixels.
    */
-  protected int windowRowHeight = 10;
+  protected int panelRowHeight = 10;
   
   /**
    * The separation between two rows in pixels.
    */
-  protected int windowRowSeparation = 1;
+  protected int panelRowSeparation = 1;
   
   /**
    * Spacing between minor ticks in the column header for the viewer. This is in real stream units.
@@ -394,5 +381,8 @@ public abstract class StreamsViewer extends JScrollPane {
    */
   protected StreamsPanel panel; 
   
-  private java.util.List changeListeners = Collections.synchronizedList(new ArrayList());
+  /**
+   * List of registered StreamViewerChangeListeners.
+   */
+  protected java.util.List changeListeners = Collections.synchronizedList(new ArrayList());
 }

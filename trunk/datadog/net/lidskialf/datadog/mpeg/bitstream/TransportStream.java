@@ -125,18 +125,6 @@ public class TransportStream {
   }
   
   /**
-   * Retrieve the starting position of the stream.
-   * 
-   * @return The starting position.
-   * @throws IOException On error.
-   */
-  public long startPosition() throws IOException {
-    return 0;
-  }
-  
-  
-  
-  /**
    * Probe a Bitstream to see if we support it.
    * 
    * @param bitstream The bitstream to probe.

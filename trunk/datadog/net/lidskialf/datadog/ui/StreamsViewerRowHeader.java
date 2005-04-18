@@ -80,18 +80,18 @@ public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
     // work out what to redraw
     Rectangle clip = g.getClipBounds();
     int minStreamIdx = viewer.windowYPositionToStreamIndex(clip.y, StreamsViewer.SEPARATOR_PARTOF_STREAM_BELOW_IT);
-    int maxStreamIdx = viewer.windowYPositionToStreamIndex(clip.y + clip.height + (viewer.windowRowSeparation + viewer.windowRowHeight-1), StreamsViewer.SEPARATOR_PARTOF_STREAM_ABOVE_IT);
+    int maxStreamIdx = viewer.windowYPositionToStreamIndex(clip.y + clip.height + (viewer.panelRowSeparation + viewer.panelRowHeight-1), StreamsViewer.SEPARATOR_PARTOF_STREAM_ABOVE_IT);
     if (maxStreamIdx >= rowModel.getSize()) maxStreamIdx = rowModel.getSize()-1;
     
     // redraw it!
-    int y = minStreamIdx * (viewer.windowRowSeparation + viewer.windowRowHeight);
+    int y = minStreamIdx * (viewer.panelRowSeparation + viewer.panelRowHeight);
     for(int i=minStreamIdx; i <= maxStreamIdx; i++) {
       g.setColor(rowHeaderColour);
-      g.fillRect(0, y, rowHeaderWidth, viewer.windowRowHeight);
+      g.fillRect(0, y, rowHeaderWidth, viewer.panelRowHeight);
       
       g.setColor(Color.black);
-      g.drawString(rowModel.getElementAt(i).toString(), 1, y + viewer.windowRowHeight);
-      y += viewer.windowRowSeparation + viewer.windowRowHeight;
+      g.drawString(rowModel.getElementAt(i).toString(), 1, y + viewer.panelRowHeight);
+      y += viewer.panelRowSeparation + viewer.panelRowHeight;
     }
   }
   

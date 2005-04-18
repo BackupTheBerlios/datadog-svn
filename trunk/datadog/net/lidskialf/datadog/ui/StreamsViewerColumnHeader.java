@@ -30,6 +30,11 @@ import javax.swing.JPanel;
  */
 public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerChangeListener {
   
+  /**
+   * Constructor.
+   * 
+   * @param viewer The associated StreamsViewer. 
+   */
   public StreamsViewerColumnHeader(StreamsViewer viewer) {
     this.viewer = viewer;
     viewer.addStreamsViewerChangeListener(this);
@@ -38,13 +43,14 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     updateDimensions();
   }
   
+  
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
 
     // calculate what to draw
     Rectangle clip = g.getClipBounds();
-    long minStreamDrawPosition = viewer.windowXPositionToAbsPosition(clip.x); 
-    long maxStreamDrawPosition = minStreamDrawPosition + viewer.windowWidthToStreamLength(clip.width);
+    long minStreamDrawPosition = viewer.panelXPositionToAbsPosition(clip.x); 
+    long maxStreamDrawPosition = minStreamDrawPosition + viewer.panelWidthToStreamLength(clip.width);
     
     // round the min position down to the nearest major tick
     minStreamDrawPosition = (minStreamDrawPosition  / viewer.streamMajorTickSpacing) * viewer.streamMajorTickSpacing;
@@ -55,7 +61,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     // draw the ticks
     g.setColor(Color.black);
     for(long pos = minStreamDrawPosition; pos <= maxStreamDrawPosition; pos+= viewer.streamMinorTickSpacing) {
-      int x = (int) (pos >> viewer.curZoomFactor); // FIXME: use new listener stuff?
+      int x = viewer.absPositionToPanelXPosition(pos);
       
       // determine the kind of tick we need to draw
       if ((pos % viewer.streamMajorTickSpacing) == 0) {
@@ -67,7 +73,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
         int width = g.getFontMetrics().stringWidth(rendered);
         x -= (width/2);
         if (x < 0) x = 0;
-        if (x > viewer.windowWidth) x = viewer.windowWidth - width;
+        if (x > panelWidth) x = panelWidth - width;
         g.drawString(rendered, x, 10);
       } else {
         g.drawLine(x, 15, x, 20);
@@ -93,15 +99,19 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
    * Update the dimensions of the column header.
    */
   protected void updateDimensions() {
+    panelWidth = viewer.getTotalPanelWidth();
     Dimension curSize = getPreferredSize();
-    curSize.width = viewer.getTotalWindowWidth();
+    curSize.width = panelWidth;
     setPreferredSize(curSize);
   }
   
   /**
    * The StreamsViewer we are associated with.
    */
-  protected StreamsViewer viewer; 
+  protected StreamsViewer viewer;
   
-  protected long absoluteLength;
+  /**
+   * The width of the stream panel window in pixels.
+   */
+  protected int panelWidth;
 }
