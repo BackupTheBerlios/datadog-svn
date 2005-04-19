@@ -31,6 +31,7 @@ public class FileBitstream implements Bitstream {
      * 
      * @param filename
      *            The filename of the file to wrap.
+     * @throws IOException if <code>filename</code> could not be opened
      */
     public FileBitstream(String filename) throws IOException {
         this.filename = filename;

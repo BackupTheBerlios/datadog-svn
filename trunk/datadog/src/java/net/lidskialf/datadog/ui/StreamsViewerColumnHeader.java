@@ -36,8 +36,9 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     /**
      * Constructor.
      * 
-     * @param viewer
-     *            The associated StreamsViewer.
+     * @param viewer                   the associated StreamsViewer
+     * @param nominalMinorTickSpacing  spacing between minor ticks
+     * @param nominalMajorTickSpacing  spacing between major ticks
      */
     public StreamsViewerColumnHeader(StreamsViewer viewer, int nominalMinorTickSpacing, int nominalMajorTickSpacing) {
         this.viewer = viewer;

@@ -33,6 +33,11 @@ public class TransportStreamsViewer extends StreamsViewer {
 
     /**
      * Constructor.
+     * 
+     * @param stream   the transport stream
+     * @param rowModel FIXME: missing param comment
+     * @throws IOException if there was a problem determining the length of
+     *      other property of <code>stream</code>
      */
     public TransportStreamsViewer(TransportStream stream, DefaultListModel rowModel) throws IOException {
         super();

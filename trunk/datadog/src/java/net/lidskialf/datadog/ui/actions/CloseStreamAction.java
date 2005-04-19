@@ -43,6 +43,7 @@ public class CloseStreamAction extends AbstractAction {
 
     /**
      * Constructor for an Action to close a specific stream.
+     * @param explorer the stream explorer to close
      */
     public CloseStreamAction(StreamExplorer explorer) {
         this.explorer = explorer;

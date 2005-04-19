@@ -44,6 +44,7 @@ public class HideStreamAction extends AbstractAction {
 
     /**
      * Constructor for an Action to close a specific stream.
+     * @param explorer the stream explorer to hide
      */
     public HideStreamAction(StreamExplorer explorer) {
         this.explorer = explorer;

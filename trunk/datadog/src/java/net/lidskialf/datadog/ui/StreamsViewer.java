@@ -144,7 +144,7 @@ public abstract class StreamsViewer extends JScrollPane {
      * @return The stream position.
      */
     public long panelXPositionToAbsolutePosition(int x) {
-        return (long) (x << curZoomFactor);
+        return x << curZoomFactor;
     }
 
     /**
@@ -168,7 +168,7 @@ public abstract class StreamsViewer extends JScrollPane {
      * @return The length of the area within the stream..
      */
     public long panelWidthToAbsoluteLength(int width) {
-        return (long) (width << curZoomFactor);
+        return width << curZoomFactor;
     }
 
     /**
@@ -327,16 +327,22 @@ public abstract class StreamsViewer extends JScrollPane {
     /**
      * Calculate the current scroll unit increment.
      * 
-     * @return The increment
+     * @param visibleRect the visible rectangle
+     * @param orientation the orientation
+     * @param direction   the direction
+     * @return the increment
      */
-    protected abstract int unitScrollIncrement(Rectangle arg0, int arg1, int arg2);
+    protected abstract int unitScrollIncrement(Rectangle visibleRect, int orientation, int direction);
 
     /**
      * Calculate the current scroll block increment.
      * 
-     * @return The increment
+     * @param visibleRect the visible rectangle
+     * @param orientation the orientation
+     * @param direction   the direction
+     * @return the increment
      */
-    protected abstract int blockScrollIncrement(Rectangle arg0, int arg1, int arg2);
+    protected abstract int blockScrollIncrement(Rectangle visibleRect, int orientation, int direction);
 
     /**
      * Repaint a bit of the streams panel
@@ -347,10 +353,12 @@ public abstract class StreamsViewer extends JScrollPane {
     protected abstract void paintStreamsPanel(Graphics g);
 
     /**
-     * Paint the selector onto a graphics context.
+     * Paint the selector onto a graphics context, as long as it lies within
+     * the specified minimum and maximum values.
      * 
-     * @param g
-     *            The Graphics context to paint onto.
+     * @param g                     the Graphics context to paint onto
+     * @param minStreamDrawPosition the minimum position 
+     * @param maxStreamDrawPosition the maximum position
      */
     protected void paintSelector(Graphics g, long minStreamDrawPosition, long maxStreamDrawPosition) {
         if ((absoluteSelectorPos >= minStreamDrawPosition) && (absoluteSelectorPos <= maxStreamDrawPosition)) {
@@ -386,8 +394,8 @@ public abstract class StreamsViewer extends JScrollPane {
          * @see javax.swing.Scrollable#getScrollableBlockIncrement(java.awt.Rectangle,
          *      int, int)
          */
-        public int getScrollableBlockIncrement(Rectangle arg0, int arg1, int arg2) {
-            return blockScrollIncrement(arg0, arg1, arg2);
+        public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) {
+            return blockScrollIncrement(visibleRect, orientation, direction);
         }
 
         /*

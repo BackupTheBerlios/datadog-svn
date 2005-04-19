@@ -46,6 +46,7 @@ public class TransportStreamExplorer implements StreamExplorer {
      * 
      * @param bitstream
      *            The Bitstream to view.
+     * @throws IOException if there was a problem parsing <code>bitstream</code>
      */
     public TransportStreamExplorer(Bitstream bitstream) throws IOException {
         this.bitstream = bitstream;
@@ -74,7 +75,7 @@ public class TransportStreamExplorer implements StreamExplorer {
         builder.add(toolbar, cc.xy(1, 1, "fill, top"));
         builder.add(viewer, cc.xy(1, 2, "fill, fill"));
         ui = builder.getPanel();
-        
+
         return ui;
     }
 
@@ -110,6 +111,8 @@ public class TransportStreamExplorer implements StreamExplorer {
 
     /**
      * Initialise components used here.
+     * 
+     * @throws IOException if there was a problem initialising any component
      */
     private void initComponents() throws IOException {
         rowModel = new DefaultListModel();

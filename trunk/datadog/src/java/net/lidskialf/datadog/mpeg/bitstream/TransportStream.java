@@ -47,6 +47,7 @@ public class TransportStream {
      * 
      * @param bitstream
      *            The Bitstream to access.
+     * @throws IOException if there was problem probing <code>bitstream</code>
      */
     public TransportStream(Bitstream bitstream) throws IOException {
         // sanity check
