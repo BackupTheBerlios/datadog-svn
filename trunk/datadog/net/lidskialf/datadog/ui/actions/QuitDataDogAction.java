@@ -28,18 +28,20 @@ import javax.swing.Action;
  * @author Andrew de Quincey
  */
 public class QuitDataDogAction extends AbstractAction {
-  
-  /**
-   * Constructor.
-   */
-  public QuitDataDogAction() {
-    putValue(Action.NAME, "Quit");
-  }
 
-  /* (non-Javadoc)
-   * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-   */
-  public void actionPerformed(ActionEvent arg0) {
-    System.exit(0);
-  }
+    /**
+     * Constructor.
+     */
+    public QuitDataDogAction() {
+        putValue(Action.NAME, "Quit");
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    public void actionPerformed(ActionEvent arg0) {
+        System.exit(0);
+    }
 }

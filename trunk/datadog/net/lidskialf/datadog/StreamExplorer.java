@@ -25,21 +25,22 @@ import javax.swing.*;
  * @author Andrew de Quincey
  */
 public interface StreamExplorer {
-  
-  /**
-   * Gets the UI for viewing the stream (only one UI instance per StreamParser).
-   */
-  public JComponent buildUI();
-  
-  /**
-   * Gets the menubar for the stream viewer.
-   * 
-   * @return The JMenuBar instance, or null if no menubar is wanted.
-   */
-  public JMenuBar buildMenuBar();
-  
-  /**
-   * The stream is no longer required - free all resources etc.
-   */
-  public void close();
+
+    /**
+     * Gets the UI for viewing the stream (only one UI instance per
+     * StreamParser).
+     */
+    public JComponent buildUI();
+
+    /**
+     * Gets the menubar for the stream viewer.
+     * 
+     * @return The JMenuBar instance, or null if no menubar is wanted.
+     */
+    public JMenuBar buildMenuBar();
+
+    /**
+     * The stream is no longer required - free all resources etc.
+     */
+    public void close();
 }

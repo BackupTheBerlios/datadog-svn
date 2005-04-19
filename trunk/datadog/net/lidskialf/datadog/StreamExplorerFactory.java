@@ -19,7 +19,6 @@ package net.lidskialf.datadog;
 
 import java.io.*;
 
-
 /**
  * A StreamParserFactory is responsible for probing and creating StreamParsers.
  * 
@@ -27,21 +26,25 @@ import java.io.*;
  */
 public interface StreamExplorerFactory {
 
-  /**
-   * Probe to see if the stream is supported by this StreamParser.
-   * 
-   * @param bitstream The Bitstream to test.
-   * @return True if supported, false if not.
-   * @throws IOException On error.
-   */
-  public boolean probe(Bitstream bitstream) throws IOException;
-  
-  /**
-   * Open a stream.
-   * 
-   * @param bitstream The Bitstream to open.
-   * @return StreamParser StreamParser instance representing this stream. 
-   * @throws IOException On error.
-   */
-  public StreamExplorer open(Bitstream bitstream) throws IOException;
+    /**
+     * Probe to see if the stream is supported by this StreamParser.
+     * 
+     * @param bitstream
+     *            The Bitstream to test.
+     * @return True if supported, false if not.
+     * @throws IOException
+     *             On error.
+     */
+    public boolean probe(Bitstream bitstream) throws IOException;
+
+    /**
+     * Open a stream.
+     * 
+     * @param bitstream
+     *            The Bitstream to open.
+     * @return StreamParser StreamParser instance representing this stream.
+     * @throws IOException
+     *             On error.
+     */
+    public StreamExplorer open(Bitstream bitstream) throws IOException;
 }

@@ -37,99 +37,113 @@ import net.lidskialf.datadog.ui.actions.*;
  */
 public class TransportStreamExplorer implements StreamExplorer {
 
-  public static final int MINOR_TICK_SPACING = 16;
-  public static final int MAJOR_TICK_SPACING = 0x100;
-  
-  /**
-   * Constructor.
-   * 
-   * @param bitstream The Bitstream to view.
-   */
-  public TransportStreamExplorer(Bitstream bitstream) throws IOException {
-    this.bitstream = bitstream;
-    transportStream = new TransportStream(bitstream);
-  }
-   
-  /* (non-Javadoc)
-   * @see net.lidskialf.datadog.StreamParser#GetUI(java.lang.String)
-   */
-  public JComponent buildUI() {
-    if (ui != null) return ui;
-    
-    try {
-      initComponents();
-    } catch (IOException e) {
-      // FIXME: do something with this
+    public static final int MINOR_TICK_SPACING = 16;
+
+    public static final int MAJOR_TICK_SPACING = 0x100;
+
+    /**
+     * Constructor.
+     * 
+     * @param bitstream
+     *            The Bitstream to view.
+     */
+    public TransportStreamExplorer(Bitstream bitstream) throws IOException {
+        this.bitstream = bitstream;
+        transportStream = new TransportStream(bitstream);
     }
-    
-    FormLayout layout = new FormLayout("pref:grow",
-                                       "pref:grow, pref:grow");
-    PanelBuilder builder = new PanelBuilder(layout);
-    CellConstraints cc = new CellConstraints();
 
-    builder.add(toolbar, cc.xy(1, 1, "fill, top"));
-    builder.add(viewer, cc.xy(1, 2, "fill, fill"));
-    ui = builder.getPanel();
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.lidskialf.datadog.StreamParser#GetUI(java.lang.String)
+     */
+    public JComponent buildUI() {
+        if (ui != null)
+            return ui;
 
-    return ui;
-  }
-  
-  /* (non-Javadoc)
-   * @see net.lidskialf.datadog.StreamExplorer#buildMenuBar()
-   */
-  public JMenuBar buildMenuBar() {
-    return null;
-  }
-  
-  /* (non-Javadoc)
-   * @see net.lidskialf.datadog.StreamExplorer#close()
-   */
-  public void close() {
-    try {
-      bitstream.close();
-    } catch (IOException e) {}
-  }
-  
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
-  public String toString() {
-    return "Transport Stream: " + bitstream.toString();
-  }
-  
-  
-  /**
-   * Initialise components used here.
-   */
-  private void initComponents() throws IOException {
-    rowModel = new DefaultListModel();
-    
-    viewer = new TransportStreamsViewer(transportStream, rowModel);
-    viewer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        try {
+            initComponents();
+        } catch (IOException e) {
+            // FIXME: do something with this
+        }
 
-    columnHeader = new StreamsViewerColumnHeader(viewer, MINOR_TICK_SPACING, MAJOR_TICK_SPACING);
-    viewer.setColumnHeaderView(columnHeader);
+        FormLayout layout = new FormLayout("pref:grow", "pref:grow, pref:grow");
+        PanelBuilder builder = new PanelBuilder(layout);
+        CellConstraints cc = new CellConstraints();
 
-    rowHeader = new StreamsViewerRowHeader(viewer, rowModel);
-    viewer.setRowHeaderView(rowHeader);
-    
-    toolbar = new JToolBar();
-    toolbar.setFloatable(false);
-    toolbar.setRollover(true);
-    
-    toolbar.add(new ZoomInAction(viewer));
-    toolbar.add(new ZoomOutAction(viewer));
-  }
+        builder.add(toolbar, cc.xy(1, 1, "fill, top"));
+        builder.add(viewer, cc.xy(1, 2, "fill, fill"));
+        ui = builder.getPanel();
 
-  
-  
-  private Bitstream bitstream;
-  private TransportStream transportStream;
-  private DefaultListModel rowModel;
-  private JToolBar toolbar;
-  
-  private TransportStreamsViewer viewer;
-  private StreamsViewerColumnHeader columnHeader;
-  private StreamsViewerRowHeader rowHeader;
-  private JComponent ui;
+        return ui;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.lidskialf.datadog.StreamExplorer#buildMenuBar()
+     */
+    public JMenuBar buildMenuBar() {
+        return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.lidskialf.datadog.StreamExplorer#close()
+     */
+    public void close() {
+        try {
+            bitstream.close();
+        } catch (IOException e) {
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    public String toString() {
+        return "Transport Stream: " + bitstream.toString();
+    }
+
+    /**
+     * Initialise components used here.
+     */
+    private void initComponents() throws IOException {
+        rowModel = new DefaultListModel();
+
+        viewer = new TransportStreamsViewer(transportStream, rowModel);
+        viewer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+
+        columnHeader = new StreamsViewerColumnHeader(viewer, MINOR_TICK_SPACING, MAJOR_TICK_SPACING);
+        viewer.setColumnHeaderView(columnHeader);
+
+        rowHeader = new StreamsViewerRowHeader(viewer, rowModel);
+        viewer.setRowHeaderView(rowHeader);
+
+        toolbar = new JToolBar();
+        toolbar.setFloatable(false);
+        toolbar.setRollover(true);
+
+        toolbar.add(new ZoomInAction(viewer));
+        toolbar.add(new ZoomOutAction(viewer));
+    }
+
+    private Bitstream bitstream;
+
+    private TransportStream transportStream;
+
+    private DefaultListModel rowModel;
+
+    private JToolBar toolbar;
+
+    private TransportStreamsViewer viewer;
+
+    private StreamsViewerColumnHeader columnHeader;
+
+    private StreamsViewerRowHeader rowHeader;
+
+    private JComponent ui;
 }

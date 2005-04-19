@@ -26,75 +26,88 @@ import java.io.*;
  */
 public class FileBitstream implements Bitstream {
 
-  /**
-   * Constructor.
-   * 
-   * @param filename The filename of the file to wrap.
-   */
-  public FileBitstream(String filename) throws IOException {
-    this.filename = filename;
-    dataFile = new RandomAccessFile(filename, "r");
-  }
-  
-  /* (non-Javadoc)
-   * @see net.lidskialf.datadog.Bitstream#readByte()
-   */
-  public int readByte() throws IOException {
-    return dataFile.read();
-  }
-  
-  /* (non-Javadoc)
-   * @see net.lidskialf.datadog.Bitstream#readBlock(byte[], int, int)
-   */
-  public int readBlock(byte[] dest)
-      throws IOException {
-    return dataFile.read(dest);
-  }
+    /**
+     * Constructor.
+     * 
+     * @param filename
+     *            The filename of the file to wrap.
+     */
+    public FileBitstream(String filename) throws IOException {
+        this.filename = filename;
+        dataFile = new RandomAccessFile(filename, "r");
+    }
 
-  /* (non-Javadoc)
-   * @see net.lidskialf.datadog.Bitstream#readBlock(byte[], int, int)
-   */
-  public int readBlock(byte[] dest, int destPos, int length)
-      throws IOException {
-    return dataFile.read(dest, destPos, length);
-  }
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.lidskialf.datadog.Bitstream#readByte()
+     */
+    public int readByte() throws IOException {
+        return dataFile.read();
+    }
 
-  /* (non-Javadoc)
-   * @see net.lidskialf.datadog.Bitstream#getLength()
-   */
-  public long length() throws IOException {
-    return dataFile.length();
-  }
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.lidskialf.datadog.Bitstream#readBlock(byte[], int, int)
+     */
+    public int readBlock(byte[] dest) throws IOException {
+        return dataFile.read(dest);
+    }
 
-  /* (non-Javadoc)
-   * @see net.lidskialf.datadog.Bitstream#seek(long)
-   */
-  public void seek(long position) throws IOException {
-    dataFile.seek(position);
-  }
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.lidskialf.datadog.Bitstream#readBlock(byte[], int, int)
+     */
+    public int readBlock(byte[] dest, int destPos, int length) throws IOException {
+        return dataFile.read(dest, destPos, length);
+    }
 
-  /* (non-Javadoc)
-   * @see net.lidskialf.datadog.Bitstream#close()
-   */
-  public void close() throws IOException {
-    dataFile.close();
-    dataFile = null;
-  }
-  
-  /* (non-Javadoc)
-   * @see java.lang.Object#toString()
-   */
-  public String toString() {
-    return filename;
-  }
-  
-  /**
-   * The file backing the bitstream.
-   */
-  private RandomAccessFile dataFile;
-  
-  /**
-   * The filename of the file.
-   */
-  private String filename;
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.lidskialf.datadog.Bitstream#getLength()
+     */
+    public long length() throws IOException {
+        return dataFile.length();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.lidskialf.datadog.Bitstream#seek(long)
+     */
+    public void seek(long position) throws IOException {
+        dataFile.seek(position);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see net.lidskialf.datadog.Bitstream#close()
+     */
+    public void close() throws IOException {
+        dataFile.close();
+        dataFile = null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    public String toString() {
+        return filename;
+    }
+
+    /**
+     * The file backing the bitstream.
+     */
+    private RandomAccessFile dataFile;
+
+    /**
+     * The filename of the file.
+     */
+    private String filename;
 }

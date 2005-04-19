@@ -31,39 +31,40 @@ import net.lidskialf.datadog.ui.DataDog;
  * @author Andrew de Quincey
  */
 public class HideStreamAction extends AbstractAction {
-  
-  /**
-   * Constructor for an Action which listens to the currently selected item
-   * on the streams list on the main datadog window.
-   */
-  public HideStreamAction() {
-    this.explorer = null;
-    
-    putValue(Action.NAME, "Hide selected stream");
-  }
-  
-  /**
-   * Constructor for an Action to close a specific stream.
-   */
-  public HideStreamAction(StreamExplorer explorer) {
-    this.explorer = explorer;
-    
-    putValue(Action.NAME, "Hide stream");
-  }
 
-  
-  /* (non-Javadoc)
-   * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-   */
-  public void actionPerformed(ActionEvent arg0) {
-    StreamExplorer tmpexplorer = explorer;
-    if (tmpexplorer == null) {
-      tmpexplorer = DataDog.getApplication().getSelectedStream();
-    }
-    if (tmpexplorer != null) {
-      DataDog.getApplication().setStreamVisibility(tmpexplorer, false);
-    }
-  }
+    /**
+     * Constructor for an Action which listens to the currently selected item on
+     * the streams list on the main datadog window.
+     */
+    public HideStreamAction() {
+        this.explorer = null;
 
-  private StreamExplorer explorer;
+        putValue(Action.NAME, "Hide selected stream");
+    }
+
+    /**
+     * Constructor for an Action to close a specific stream.
+     */
+    public HideStreamAction(StreamExplorer explorer) {
+        this.explorer = explorer;
+
+        putValue(Action.NAME, "Hide stream");
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    public void actionPerformed(ActionEvent arg0) {
+        StreamExplorer tmpexplorer = explorer;
+        if (tmpexplorer == null) {
+            tmpexplorer = DataDog.getApplication().getSelectedStream();
+        }
+        if (tmpexplorer != null) {
+            DataDog.getApplication().setStreamVisibility(tmpexplorer, false);
+        }
+    }
+
+    private StreamExplorer explorer;
 }

@@ -30,24 +30,27 @@ import net.lidskialf.datadog.ui.StreamsViewer;
  * @author Andrew de Quincey
  */
 public class ZoomOutAction extends AbstractAction {
-  
-  /**
-   * Constructor.
-   * 
-   * @param viewer The StreamsViewer concerned.
-   */
-  public ZoomOutAction(StreamsViewer viewer) {
-    this.viewer = viewer;
-    
-    putValue(Action.NAME, "Zoom out");
-  }
 
-  /* (non-Javadoc)
-   * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-   */
-  public void actionPerformed(ActionEvent arg0) {
-    viewer.zoomOut();
-  }
-  
-  private StreamsViewer viewer;
+    /**
+     * Constructor.
+     * 
+     * @param viewer
+     *            The StreamsViewer concerned.
+     */
+    public ZoomOutAction(StreamsViewer viewer) {
+        this.viewer = viewer;
+
+        putValue(Action.NAME, "Zoom out");
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    public void actionPerformed(ActionEvent arg0) {
+        viewer.zoomOut();
+    }
+
+    private StreamsViewer viewer;
 }

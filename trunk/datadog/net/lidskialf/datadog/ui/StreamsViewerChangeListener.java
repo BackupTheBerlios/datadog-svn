@@ -18,25 +18,31 @@
 package net.lidskialf.datadog.ui;
 
 /**
- * Interface implemented by components which are interested in changes to a StreamsViewer.
+ * Interface implemented by components which are interested in changes to a
+ * StreamsViewer.
  * 
  * @author Andrew de Quincey
  */
 public interface StreamsViewerChangeListener {
 
-  /**
-   * Event fired when the zoom factor of the StreamsViewer changes.
-   * 
-   * @param viewer The StreamsViewer concerned.
-   * @param newZoom The new zoom value.
-   */
-  public void zoomChanged(StreamsViewer viewer, int newZoom);
-  
-  /**
-   * Event fired when the length of the stream viewed by the StreamsViewer changes.
-   *
-   * @param viewer The StreamsViewer concerned. 
-   * @param newLength The new length value
-   */
-  public void lengthChanged(StreamsViewer viewer, long newLength);
+    /**
+     * Event fired when the zoom factor of the StreamsViewer changes.
+     * 
+     * @param viewer
+     *            The StreamsViewer concerned.
+     * @param newZoom
+     *            The new zoom value.
+     */
+    public void zoomChanged(StreamsViewer viewer, int newZoom);
+
+    /**
+     * Event fired when the length of the stream viewed by the StreamsViewer
+     * changes.
+     * 
+     * @param viewer
+     *            The StreamsViewer concerned.
+     * @param newLength
+     *            The new length value
+     */
+    public void lengthChanged(StreamsViewer viewer, long newLength);
 }

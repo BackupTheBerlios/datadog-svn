@@ -25,58 +25,70 @@ import java.io.*;
  * @author Andrew de Quincey
  */
 public interface Bitstream {
-  
-  /**
-   * Read a single byte from the bitstream.
-   * 
-   * @return The byte
-   * @throws IOException On error.
-   */
-  public int readByte() throws IOException;
-  
-  /**
-   * Read a block of data from the bitstream.
-   * 
-   * @param dest Destination for the data
-   * @param destPos Position into block to write the data.
-   * @param length Number of bytes to read.
-   * @return The number of bytes actually read.
-   * @throws IOException On error.
-   */
-  public int readBlock(byte[] dest) throws IOException;
-  
-  /**
-   * Read a block of data from the bitstream.
-   * 
-   * @param dest Destination for the data
-   * @param destPos Position into block to write the data.
-   * @param length Number of bytes to read.
-   * @return The number of bytes actually read.
-   * @throws IOException On error.
-   */
-  public int readBlock(byte[] dest, int destPos, int length) throws IOException;
-  
-  /**
-   * Get the length of the bitstream.
-   * 
-   * @return The length.
-   * @throws IOException On error.
-   */
-  public long length() throws IOException;
-  
-  
-  /**
-   * Seek to a position within the bitstream.
-   * 
-   * @param position The position to seek to.
-   * @throws IOException On error.
-   */
-  public void seek(long position) throws IOException;
-  
-  /**
-   * Close the Bitstream when it is no longer required.
-   * 
-   * @throws IOException On error.
-   */
-  public void close() throws IOException;
+
+    /**
+     * Read a single byte from the bitstream.
+     * 
+     * @return The byte
+     * @throws IOException
+     *             On error.
+     */
+    public int readByte() throws IOException;
+
+    /**
+     * Read a block of data from the bitstream.
+     * 
+     * @param dest
+     *            Destination for the data
+     * @param destPos
+     *            Position into block to write the data.
+     * @param length
+     *            Number of bytes to read.
+     * @return The number of bytes actually read.
+     * @throws IOException
+     *             On error.
+     */
+    public int readBlock(byte[] dest) throws IOException;
+
+    /**
+     * Read a block of data from the bitstream.
+     * 
+     * @param dest
+     *            Destination for the data
+     * @param destPos
+     *            Position into block to write the data.
+     * @param length
+     *            Number of bytes to read.
+     * @return The number of bytes actually read.
+     * @throws IOException
+     *             On error.
+     */
+    public int readBlock(byte[] dest, int destPos, int length) throws IOException;
+
+    /**
+     * Get the length of the bitstream.
+     * 
+     * @return The length.
+     * @throws IOException
+     *             On error.
+     */
+    public long length() throws IOException;
+
+    /**
+     * Seek to a position within the bitstream.
+     * 
+     * @param position
+     *            The position to seek to.
+     * @throws IOException
+     *             On error.
+     */
+    public void seek(long position) throws IOException;
+
+    /**
+     * Close the Bitstream when it is no longer required.
+     * 
+     * @throws IOException
+     *             On error.
+     */
+    public void close() throws IOException;
 }

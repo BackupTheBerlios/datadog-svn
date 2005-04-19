@@ -29,18 +29,20 @@ import net.lidskialf.datadog.ui.*;
  * @author Andrew de Quincey
  */
 public class AboutDataDogAction extends AbstractAction {
-  
-  /**
-   * Constructor.
-   */
-  public AboutDataDogAction() {
-    putValue(Action.NAME, "About...");
-  }
-  
-  /* (non-Javadoc)
-   * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-   */
-  public void actionPerformed(ActionEvent arg0) {
-    new AboutBox();
-  }
+
+    /**
+     * Constructor.
+     */
+    public AboutDataDogAction() {
+        putValue(Action.NAME, "About...");
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    public void actionPerformed(ActionEvent arg0) {
+        new AboutBox();
+    }
 }

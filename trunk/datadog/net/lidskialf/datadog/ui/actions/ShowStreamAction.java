@@ -31,39 +31,40 @@ import net.lidskialf.datadog.ui.DataDog;
  * @author Andrew de Quincey
  */
 public class ShowStreamAction extends AbstractAction {
-  
-  /**
-   * Constructor for an Action which listens to the currently selected item
-   * on the streams list on the main datadog window.
-   */
-  public ShowStreamAction() {
-    this.explorer = null;
-    
-    putValue(Action.NAME, "Show selected stream");
-  }
-  
-  /**
-   * Constructor for an Action to close a specific stream.
-   */
-  public ShowStreamAction(StreamExplorer explorer) {
-    this.explorer = explorer;
-    
-    putValue(Action.NAME, "Show stream");
-  }
 
-  
-  /* (non-Javadoc)
-   * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-   */
-  public void actionPerformed(ActionEvent arg0) {
-    StreamExplorer tmpexplorer = explorer;
-    if (tmpexplorer == null) {
-      tmpexplorer = DataDog.getApplication().getSelectedStream();
-    }
-    if (tmpexplorer != null) {
-      DataDog.getApplication().setStreamVisibility(tmpexplorer, true);
-    }
-  }
+    /**
+     * Constructor for an Action which listens to the currently selected item on
+     * the streams list on the main datadog window.
+     */
+    public ShowStreamAction() {
+        this.explorer = null;
 
-  private StreamExplorer explorer;
+        putValue(Action.NAME, "Show selected stream");
+    }
+
+    /**
+     * Constructor for an Action to close a specific stream.
+     */
+    public ShowStreamAction(StreamExplorer explorer) {
+        this.explorer = explorer;
+
+        putValue(Action.NAME, "Show stream");
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    public void actionPerformed(ActionEvent arg0) {
+        StreamExplorer tmpexplorer = explorer;
+        if (tmpexplorer == null) {
+            tmpexplorer = DataDog.getApplication().getSelectedStream();
+        }
+        if (tmpexplorer != null) {
+            DataDog.getApplication().setStreamVisibility(tmpexplorer, true);
+        }
+    }
+
+    private StreamExplorer explorer;
 }

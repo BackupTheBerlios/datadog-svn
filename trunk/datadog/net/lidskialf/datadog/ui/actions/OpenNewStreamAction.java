@@ -29,49 +29,48 @@ import net.lidskialf.datadog.ui.DataDog;
  * @author Andrew de Quincey
  */
 public class OpenNewStreamAction extends AbstractAction {
-  
-  /**
-   * Constructor.
-   */
-  public OpenNewStreamAction() {
-    putValue(Action.NAME, "Open new stream...");
-  }
 
-  /* (non-Javadoc)
-   * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-   */
-  public void actionPerformed(ActionEvent arg0) {
-    JFileChooser chooser = new JFileChooser();
-    int result = chooser.showOpenDialog(DataDog.getApplication().getFrame());
-    if (result == JFileChooser.APPROVE_OPTION) {
-      String filename = chooser.getSelectedFile().getName();
-      String pathname = chooser.getSelectedFile().getAbsolutePath();
-      
-      // try each parser in turn until we get one which matches. FIXME: this could probably be made a lot smarter
-      try {
-        Bitstream stream = new FileBitstream(pathname);
-        for(int i=0; i< DataDog.streamExplorerFactories.length; i++) {
-          if (DataDog.streamExplorerFactories[i].probe(stream)) {
-            StreamExplorer explorer = DataDog.streamExplorerFactories[i].open(stream);
-            
-            DataDog.getApplication().addNewStream(explorer);
-            return;
-          }
-        }
-      } catch (Throwable t) {
-        t.printStackTrace();
-        JOptionPane.showMessageDialog(DataDog.getApplication().getFrame(), 
-            "An error during stream probing (" + t.getMessage() + ")", 
-            "Error", 
-            JOptionPane.ERROR_MESSAGE);
-        return;
-      }
-      
-      // if we get here, nothing matched
-      JOptionPane.showMessageDialog(DataDog.getApplication().getFrame(), 
-          "Sorry, the stream \"" + filename + "\" is unsupported.", 
-          "Unsupported stream", 
-          JOptionPane.WARNING_MESSAGE);
+    /**
+     * Constructor.
+     */
+    public OpenNewStreamAction() {
+        putValue(Action.NAME, "Open new stream...");
     }
-  }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+     */
+    public void actionPerformed(ActionEvent arg0) {
+        JFileChooser chooser = new JFileChooser();
+        int result = chooser.showOpenDialog(DataDog.getApplication().getFrame());
+        if (result == JFileChooser.APPROVE_OPTION) {
+            String filename = chooser.getSelectedFile().getName();
+            String pathname = chooser.getSelectedFile().getAbsolutePath();
+
+            // try each parser in turn until we get one which matches. FIXME:
+            // this could probably be made a lot smarter
+            try {
+                Bitstream stream = new FileBitstream(pathname);
+                for (int i = 0; i < DataDog.streamExplorerFactories.length; i++) {
+                    if (DataDog.streamExplorerFactories[i].probe(stream)) {
+                        StreamExplorer explorer = DataDog.streamExplorerFactories[i].open(stream);
+
+                        DataDog.getApplication().addNewStream(explorer);
+                        return;
+                    }
+                }
+            } catch (Throwable t) {
+                t.printStackTrace();
+                JOptionPane.showMessageDialog(DataDog.getApplication().getFrame(), "An error during stream probing (" + t.getMessage() + ")", "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // if we get here, nothing matched
+            JOptionPane.showMessageDialog(DataDog.getApplication().getFrame(), "Sorry, the stream \"" + filename + "\" is unsupported.", "Unsupported stream",
+                    JOptionPane.WARNING_MESSAGE);
+        }
+    }
 }

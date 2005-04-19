@@ -32,99 +32,114 @@ import javax.swing.event.ListDataListener;
  * @author Andrew de Quincey
  */
 public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
-  
-  /**
-   * Constructor.
-   * 
-   * @param viewer The StreamsViewer we are associated with.
-   * @param rowModel The model of the rows.
-   */
-  public StreamsViewerRowHeader(StreamsViewer viewer, ListModel rowModel) {
-    this.viewer = viewer;
-    this.rowModel = rowModel;
 
-    // FIXME: remove this when a full implementation is done
-    rowHeaderColour = new Color(207, 212, 255);
+    /**
+     * Constructor.
+     * 
+     * @param viewer
+     *            The StreamsViewer we are associated with.
+     * @param rowModel
+     *            The model of the rows.
+     */
+    public StreamsViewerRowHeader(StreamsViewer viewer, ListModel rowModel) {
+        this.viewer = viewer;
+        this.rowModel = rowModel;
 
-    setPreferredSize(new Dimension(20, 0));
-    rowModel.addListDataListener(this);
-  }
-  
-  /* (non-Javadoc)
-   * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
-   */
-  public void contentsChanged(ListDataEvent arg0) {
-    updateRowHeaderDimensions();
-  }
-  
-  /* (non-Javadoc)
-   * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
-   */
-  public void intervalAdded(ListDataEvent arg0) {
-    updateRowHeaderDimensions();
-  }
-  
-  /* (non-Javadoc)
-   * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
-   */
-  public void intervalRemoved(ListDataEvent arg0) {
-    updateRowHeaderDimensions();
-  }
-  
-  /* (non-Javadoc)
-   * @see javax.swing.JComponent#print(java.awt.Graphics)
-   */
-  protected void paintComponent(Graphics g) {
-    super.paintComponent(g);
+        // FIXME: remove this when a full implementation is done
+        rowHeaderColour = new Color(207, 212, 255);
 
-    // work out what to redraw
-    Rectangle clip = g.getClipBounds();
-    int minStreamIdx = viewer.windowYPositionToStreamIndex(clip.y, StreamsViewer.SEPARATOR_PARTOF_STREAM_BELOW_IT);
-    int maxStreamIdx = viewer.windowYPositionToStreamIndex(clip.y + clip.height + (viewer.panelRowSeparation + viewer.panelRowHeight-1), StreamsViewer.SEPARATOR_PARTOF_STREAM_ABOVE_IT);
-    if (maxStreamIdx >= rowModel.getSize()) maxStreamIdx = rowModel.getSize()-1;
-    
-    // redraw it!
-    int y = minStreamIdx * (viewer.panelRowSeparation + viewer.panelRowHeight);
-    for(int i=minStreamIdx; i <= maxStreamIdx; i++) {
-      g.setColor(rowHeaderColour);
-      g.fillRect(0, y, rowHeaderWidth, viewer.panelRowHeight);
-      
-      g.setColor(Color.black);
-      g.drawString(rowModel.getElementAt(i).toString(), 1, y + viewer.panelRowHeight);
-      y += viewer.panelRowSeparation + viewer.panelRowHeight;
+        setPreferredSize(new Dimension(20, 0));
+        rowModel.addListDataListener(this);
     }
-  }
-  
-  
-  /**
-   * Update the dimensions of the row header when the list of rows changes.
-   */
-  private void updateRowHeaderDimensions() {
-    rowHeaderWidth = -1;
-    if (getGraphics() == null) return;
-    
-    // work out the minimum width
-    int minWidth = 0;
-    FontMetrics fontMetrics = getGraphics().getFontMetrics();
-    for(int i=0; i < rowModel.getSize(); i++) {
-      String str = rowModel.getElementAt(i).toString();
-      int curWidth = fontMetrics.stringWidth(str) + 2;
-      if (curWidth > minWidth) {
-        minWidth = curWidth;
-      }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
+     */
+    public void contentsChanged(ListDataEvent arg0) {
+        updateRowHeaderDimensions();
     }
-    rowHeaderWidth = minWidth;
-    
-    // set the width
-    Dimension curSize = getPreferredSize();
-    curSize.width = rowHeaderWidth;
-    setPreferredSize(curSize);
-    revalidate();
-    repaint();
-  }
-  
-  protected int rowHeaderWidth = -1; 
-  protected ListModel rowModel;
-  protected Color rowHeaderColour;
-  protected StreamsViewer viewer;
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
+     */
+    public void intervalAdded(ListDataEvent arg0) {
+        updateRowHeaderDimensions();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
+     */
+    public void intervalRemoved(ListDataEvent arg0) {
+        updateRowHeaderDimensions();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see javax.swing.JComponent#print(java.awt.Graphics)
+     */
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        // work out what to redraw
+        Rectangle clip = g.getClipBounds();
+        int minStreamIdx = viewer.windowYPositionToStreamIndex(clip.y, StreamsViewer.SEPARATOR_PARTOF_STREAM_BELOW_IT);
+        int maxStreamIdx = viewer.windowYPositionToStreamIndex(clip.y + clip.height + (viewer.panelRowSeparation + viewer.panelRowHeight - 1),
+                StreamsViewer.SEPARATOR_PARTOF_STREAM_ABOVE_IT);
+        if (maxStreamIdx >= rowModel.getSize())
+            maxStreamIdx = rowModel.getSize() - 1;
+
+        // redraw it!
+        int y = minStreamIdx * (viewer.panelRowSeparation + viewer.panelRowHeight);
+        for (int i = minStreamIdx; i <= maxStreamIdx; i++) {
+            g.setColor(rowHeaderColour);
+            g.fillRect(0, y, rowHeaderWidth, viewer.panelRowHeight);
+
+            g.setColor(Color.black);
+            g.drawString(rowModel.getElementAt(i).toString(), 1, y + viewer.panelRowHeight);
+            y += viewer.panelRowSeparation + viewer.panelRowHeight;
+        }
+    }
+
+    /**
+     * Update the dimensions of the row header when the list of rows changes.
+     */
+    private void updateRowHeaderDimensions() {
+        rowHeaderWidth = -1;
+        if (getGraphics() == null)
+            return;
+
+        // work out the minimum width
+        int minWidth = 0;
+        FontMetrics fontMetrics = getGraphics().getFontMetrics();
+        for (int i = 0; i < rowModel.getSize(); i++) {
+            String str = rowModel.getElementAt(i).toString();
+            int curWidth = fontMetrics.stringWidth(str) + 2;
+            if (curWidth > minWidth) {
+                minWidth = curWidth;
+            }
+        }
+        rowHeaderWidth = minWidth;
+
+        // set the width
+        Dimension curSize = getPreferredSize();
+        curSize.width = rowHeaderWidth;
+        setPreferredSize(curSize);
+        revalidate();
+        repaint();
+    }
+
+    protected int rowHeaderWidth = -1;
+
+    protected ListModel rowModel;
+
+    protected Color rowHeaderColour;
+
+    protected StreamsViewer viewer;
 }
