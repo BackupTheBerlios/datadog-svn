@@ -149,7 +149,7 @@ public abstract class StreamsViewer extends JScrollPane {
      * Convert a real position within the stream into an X position in the
      * window.
      * 
-     * @param x
+     * @param position
      *            The X position.
      * @return The stream position.
      */
@@ -179,9 +179,9 @@ public abstract class StreamsViewer extends JScrollPane {
      *            The width.
      * @return The length of the area within the stream..
      */
-    public int absoluteLengthToPanelWidth(long length) {
+    public int absoluteLengthToPanelWidth(long width) {
         // FIXME: accuracy
-        return (int) (length >> curZoomFactor);
+        return (int) (width >> curZoomFactor);
     }
 
     /**
@@ -282,7 +282,7 @@ public abstract class StreamsViewer extends JScrollPane {
     /**
      * Set the absolute length of the stream.
      * 
-     * @param streamsRealLength
+     * @param absoluteLength
      *            The absolute length of the stream.
      */
     protected void setAbsoluteLength(long absoluteLength) {
@@ -303,7 +303,7 @@ public abstract class StreamsViewer extends JScrollPane {
     }
 
     /**
-     * Update the dimensions of the streams window (e.g. when zoom factor
+     * Update the dimensions of the streams window (for example when zoom factor
      * changes).
      */
     protected void updateDimensions() {

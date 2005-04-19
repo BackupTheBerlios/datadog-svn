@@ -26,7 +26,7 @@ import net.lidskialf.datadog.StreamExplorer;
 import net.lidskialf.datadog.ui.DataDog;
 
 /**
- * Action to show (i.e. unhide) a stream.
+ * Action to show (unhide) a stream.
  * 
  * @author Andrew de Quincey
  */

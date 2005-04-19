@@ -176,12 +176,12 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     protected int panelWidth;
 
     /**
-     * Nominal (i.e. at 1:1 zoom) spacing between minor ticks.
+     * Nominal (at 1:1 zoom) spacing between minor ticks.
      */
     protected long nominalMinorTickSpacing;
 
     /**
-     * Nominal (i.e. at 1:1 zoom) spacing between major ticks.
+     * Nominal (at 1:1 zoom) spacing between major ticks.
      */
     protected long nominalMajorTickSpacing;
 

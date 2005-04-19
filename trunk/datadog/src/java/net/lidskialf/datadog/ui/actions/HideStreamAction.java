@@ -26,7 +26,7 @@ import net.lidskialf.datadog.StreamExplorer;
 import net.lidskialf.datadog.ui.DataDog;
 
 /**
- * Action to hide (i.e. make non-visible, but NOT close) a stream.
+ * Action to hide (make non-visible, but NOT close) a stream.
  * 
  * @author Andrew de Quincey
  */

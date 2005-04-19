@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<project name="project" default="compile">
+    <description>Build file for DataDog</description>
+
+	<!-- Project layout properties. -->
+	<property name="src.java.dir" value="src/java"/>
+	<property name="lib.dir" value="lib"/>
+	<property name="build.dir" value="build"/>
+	<property name="build.classes.dir" value="${build.dir}/classes"/>
+	<property name="build.dist.dir" value="${build.dir}/dist"/>
+	<property name="build.jars.dir" value="${build.dir}/jars"/>
+	<property name="build.javadoc.dir" value="${build.dir}/javadoc"/>
+	
+	<!-- Build and run classpaths. -->
+	<path id="src.classpath">
+		<fileset dir="${lib.dir}" includes="*.jar"/>
+	</path>
+	<path id="run.classpath">
+		<path refid="src.classpath"/>
+		<pathelement path="${build.classes.dir}"/>
+	</path>
+	
+	<!-- Application entry point. -->
+	<property name="main.class" value="net.lidskialf.datadog.ui.DataDog"/>
+
+	
+	<!-- =============================================================== -->
+	
+	<target name="init">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${build.classes.dir}"/>
+		<mkdir dir="${build.javadoc.dir}"/>
+		<mkdir dir="${build.jars.dir}"/>
+		<mkdir dir="${build.dist.dir}"/>
+	</target>
+	
+	<target name="clean" description="Removes generated files">
+		<delete dir="${build.dir}"/>
+	</target>
+	
+	<target name="compile" depends="init" description="Compiles Java classes">
+		<javac srcdir="${src.java.dir}"
+        		destdir="${build.classes.dir}"
+         		classpathref="src.classpath"
+         		debug="on"/>
+		<!-- Make sure non-Java files get through too. -->
+		<copy todir="${build.classes.dir}">
+			<fileset dir="${src.java.dir}">
+				<include name="**/*.properties"/>
+				<include name="**/*.xml"/>
+				<include name="**/*.gif"/>
+				<include name="**/*.png"/>
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="javadoc" depends="init" description="Builds JavaDoc for DataDog">
+		<javadoc sourcepath="${src.java.dir}"
+				classpathref="src.classpath"
+				packagenames="*" 
+				destdir="${build.javadoc.dir}"
+				header="DataDog"
+				doctitle="DataDog"
+				author="true"
+				overview="${src.java.dir}/overview.html"
+		/>
+	</target>
+	
+	<target name="run" depends="compile" description="Runs DataDog">
+		<java classname="${main.class}"
+				classpathref="run.classpath"
+				fork="true"/>
+	</target>
+	
+	<target name="jar" depends="compile" description="Builds a JAR containing DataDog">
+		<jar destfile="${build.jars.dir}/datadog.jar" basedir="${build.classes.dir}">
+		</jar>
+	</target>
+		
+	<target name="dist" depends="jar,javadoc" description="Builds a full distribution zip">
+		<zip destfile="${build.dist.dir}/datadog.zip">
+			<zipfileset dir=".">
+				<include name="build.xml"/>
+				<include name="src/**"/>
+				<include name="lib/**"/>
+				<include name="build/jars/**"/>
+				<include name="build/javadoc/**"/>
+			</zipfileset>
+		</zip>
+	</target>
+		
+</project>
+

@@ -40,10 +40,6 @@ public interface Bitstream {
      * 
      * @param dest
      *            Destination for the data
-     * @param destPos
-     *            Position into block to write the data.
-     * @param length
-     *            Number of bytes to read.
      * @return The number of bytes actually read.
      * @throws IOException
      *             On error.
