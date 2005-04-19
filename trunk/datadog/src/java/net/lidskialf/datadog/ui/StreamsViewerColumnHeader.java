@@ -94,6 +94,8 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
             if (oldSelectorPos != -1)
                 repaint(viewer.absolutePositionToPanelXPosition(oldSelectorPos), 0, 1, getHeight());
             repaint(viewer.absolutePositionToPanelXPosition(absoluteSelectorPos), 0, 1, getHeight());
+            
+            setToolTipText(viewer.renderStreamPosition(newSelectorPos));
 
             viewer.updateSelector(absoluteSelectorPos);
         }
