@@ -52,6 +52,7 @@ public class TransportStreamsViewer extends StreamsViewer {
      *      int, int, long, long)
      */
     protected void paintStreamsPanel(Graphics g) {
+        
         // calculate which area of the stream we need to redraw
         Rectangle clip = g.getClipBounds();
         int minStreamIdx = windowYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);

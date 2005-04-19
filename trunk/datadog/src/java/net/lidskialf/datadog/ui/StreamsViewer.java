@@ -62,7 +62,10 @@ public abstract class StreamsViewer extends JScrollPane {
         panel = new StreamsPanel();
         getViewport().add(panel);
         panel.setBackground(Color.white);
-
+        panel.setBorder(null);
+        
+        setBorder(null);
+        setViewportBorder(null);
         setPreferredSize(new Dimension(600, 200));
     }
 

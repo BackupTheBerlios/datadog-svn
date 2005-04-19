@@ -74,7 +74,7 @@ public class TransportStreamExplorer implements StreamExplorer {
         builder.add(toolbar, cc.xy(1, 1, "fill, top"));
         builder.add(viewer, cc.xy(1, 2, "fill, fill"));
         ui = builder.getPanel();
-
+        
         return ui;
     }
 

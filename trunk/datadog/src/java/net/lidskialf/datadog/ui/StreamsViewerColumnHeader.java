@@ -108,7 +108,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      */
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        
         // calculate what to draw
         Rectangle clip = g.getClipBounds();
         long minStreamDrawPosition = viewer.panelXPositionToAbsolutePosition(clip.x);
