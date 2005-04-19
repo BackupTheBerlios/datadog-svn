@@ -55,8 +55,8 @@ public class TransportStreamsViewer extends StreamsViewer {
         
         // calculate which area of the stream we need to redraw
         Rectangle clip = g.getClipBounds();
-        int minStreamIdx = windowYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
-        int maxStreamIdx = windowYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT);
+        int minStreamIdx = panelYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
+        int maxStreamIdx = panelYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT);
 
         try {
             long minStreamDrawPosition = panelXPositionToAbsolutePosition(clip.x);
@@ -79,9 +79,9 @@ public class TransportStreamsViewer extends StreamsViewer {
                 if ((row.rowIdx >= minStreamIdx) && (row.rowIdx <= maxStreamIdx)) {
                     int x = absolutePositionToPanelXPosition(curPos);
                     int x2 = absolutePositionToPanelXPosition(curPos + Constants.TS_PACKET_LENGTH);
-                    int y = streamIndexToWindowYPosition(row.rowIdx);
+                    int y = streamIndexToPanelYPosition(row.rowIdx);
                     g.setColor(Color.green);
-                    g.fillRect(x, y, x2 - x, panelRowHeight);
+                    g.fillRect(x+1, y+1, x2 - x - 1, panelRowHeight-1);
                     g.setColor(Color.black);
                     g.drawRect(x, y, x2 - x, panelRowHeight);
                 }

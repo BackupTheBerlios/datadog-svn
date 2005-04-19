@@ -89,8 +89,8 @@ public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
 
         // work out what to redraw
         Rectangle clip = g.getClipBounds();
-        int minStreamIdx = viewer.windowYPositionToStreamIndex(clip.y, StreamsViewer.SEPARATOR_PARTOF_STREAM_BELOW_IT);
-        int maxStreamIdx = viewer.windowYPositionToStreamIndex(clip.y + clip.height + (viewer.panelRowSeparation + viewer.panelRowHeight - 1),
+        int minStreamIdx = viewer.panelYPositionToStreamIndex(clip.y, StreamsViewer.SEPARATOR_PARTOF_STREAM_BELOW_IT);
+        int maxStreamIdx = viewer.panelYPositionToStreamIndex(clip.y + clip.height + (viewer.panelRowSeparation + viewer.panelRowHeight - 1),
                 StreamsViewer.SEPARATOR_PARTOF_STREAM_ABOVE_IT);
         if (maxStreamIdx >= rowModel.getSize())
             maxStreamIdx = rowModel.getSize() - 1;

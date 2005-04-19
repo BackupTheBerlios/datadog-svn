@@ -99,7 +99,7 @@ public abstract class StreamsViewer extends JScrollPane {
      *            The index of the stream.
      * @return The Y position of the top of the stream's rendering position.
      */
-    public int streamIndexToWindowYPosition(int streamIdx) {
+    public int streamIndexToPanelYPosition(int streamIdx) {
         return streamIdx * (panelRowHeight + panelRowSeparation);
     }
 
@@ -113,7 +113,7 @@ public abstract class StreamsViewer extends JScrollPane {
      *            between the streams are treated.
      * @return The stream index, or -1 for an invalid y position.
      */
-    public int windowYPositionToStreamIndex(int yPos, int separatorDisposition) {
+    public int panelYPositionToStreamIndex(int yPos, int separatorDisposition) {
 
         // calculate the index
         int tmpIdx = -1;
@@ -253,7 +253,7 @@ public abstract class StreamsViewer extends JScrollPane {
     }
     
     /**
-     * Centre the viewport's view about an absolute stream position.
+     * Centre the view about an absolute stream position.
      * 
      * @param position The new position.
      */
@@ -264,7 +264,6 @@ public abstract class StreamsViewer extends JScrollPane {
         pos.x = absolutePositionToPanelXPosition(position - panelWidthToAbsoluteLength(d.width/2));
         getViewport().setViewPosition(pos);
     }
-    
 
     /**
      * Fires all change listener events for the given changeType.
