@@ -208,8 +208,12 @@ public abstract class StreamsViewer extends JScrollPane {
         if (curZoomFactor == minZoomFactor)
             return;
 
+        Rectangle viewRect = getViewport().getViewRect();
+        long midPosition = panelXPositionToAbsolutePosition(viewRect.x + (viewRect.width/2));
+        
         curZoomFactor--;
         updateDimensions();
+        centreView(midPosition);
         panel.repaint();
         fireChangeListeners(CHANGED_ZOOM);
     }
@@ -220,9 +224,13 @@ public abstract class StreamsViewer extends JScrollPane {
     public void zoomOut() {
         if (curZoomFactor == maxZoomFactor)
             return;
+        
+        Rectangle viewRect = getViewport().getViewRect();
+        long midPosition = panelXPositionToAbsolutePosition(viewRect.x + (viewRect.width/2));
 
         curZoomFactor++;
         updateDimensions();
+        centreView(midPosition);
         panel.repaint();
         fireChangeListeners(CHANGED_ZOOM);
     }
@@ -243,6 +251,20 @@ public abstract class StreamsViewer extends JScrollPane {
             panel.repaint(absolutePositionToPanelXPosition(absoluteSelectorPos), 0, 1, getHeight());
         }
     }
+    
+    /**
+     * Centre the viewport's view about an absolute stream position.
+     * 
+     * @param position The new position.
+     */
+    public void centreView(long position) {
+        Dimension d = getViewport().getExtentSize();
+        Point pos = getViewport().getViewPosition();
+        
+        pos.x = absolutePositionToPanelXPosition(position - panelWidthToAbsoluteLength(d.width/2));
+        getViewport().setViewPosition(pos);
+    }
+    
 
     /**
      * Fires all change listener events for the given changeType.
