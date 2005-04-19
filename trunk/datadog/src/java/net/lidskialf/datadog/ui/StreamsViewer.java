@@ -141,8 +141,7 @@ public abstract class StreamsViewer extends JScrollPane {
      * @return The stream position.
      */
     public long panelXPositionToAbsolutePosition(int x) {
-        // FIXME: accuracy
-        return (long) ((x << curZoomFactor) + 0.5);
+        return (long) (x << curZoomFactor);
     }
 
     /**
@@ -154,7 +153,6 @@ public abstract class StreamsViewer extends JScrollPane {
      * @return The stream position.
      */
     public int absolutePositionToPanelXPosition(long position) {
-        // FIXME: accuracy
         return (int) ((position) >> curZoomFactor);
     }
 
@@ -167,8 +165,7 @@ public abstract class StreamsViewer extends JScrollPane {
      * @return The length of the area within the stream..
      */
     public long panelWidthToAbsoluteLength(int width) {
-        // FIXME: accuracy
-        return (long) ((width << curZoomFactor) + 0.5);
+        return (long) (width << curZoomFactor);
     }
 
     /**
@@ -180,7 +177,6 @@ public abstract class StreamsViewer extends JScrollPane {
      * @return The length of the area within the stream..
      */
     public int absoluteLengthToPanelWidth(long width) {
-        // FIXME: accuracy
         return (int) (width >> curZoomFactor);
     }
 

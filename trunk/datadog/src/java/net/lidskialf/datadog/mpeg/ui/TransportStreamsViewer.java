@@ -56,7 +56,6 @@ public class TransportStreamsViewer extends StreamsViewer {
         Rectangle clip = g.getClipBounds();
         int minStreamIdx = windowYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
         int maxStreamIdx = windowYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT);
-        int packetWidth = absoluteLengthToPanelWidth(Constants.TS_PACKET_LENGTH);
 
         try {
             long minStreamDrawPosition = panelXPositionToAbsolutePosition(clip.x);
@@ -78,11 +77,12 @@ public class TransportStreamsViewer extends StreamsViewer {
                 // draw it if it is within the bounds
                 if ((row.rowIdx >= minStreamIdx) && (row.rowIdx <= maxStreamIdx)) {
                     int x = absolutePositionToPanelXPosition(curPos);
+                    int x2 = absolutePositionToPanelXPosition(curPos + Constants.TS_PACKET_LENGTH);
                     int y = streamIndexToWindowYPosition(row.rowIdx);
                     g.setColor(Color.green);
-                    g.fillRect(x, y, packetWidth, panelRowHeight);
+                    g.fillRect(x, y, x2 - x, panelRowHeight);
                     g.setColor(Color.black);
-                    g.drawRect(x, y, packetWidth, panelRowHeight);
+                    g.drawRect(x, y, x2 - x, panelRowHeight);
                 }
             }
 
