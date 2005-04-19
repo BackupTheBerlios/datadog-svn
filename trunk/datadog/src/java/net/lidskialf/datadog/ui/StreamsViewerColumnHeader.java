@@ -95,7 +95,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
                 repaint(viewer.absolutePositionToPanelXPosition(oldSelectorPos), 0, 1, getHeight());
             repaint(viewer.absolutePositionToPanelXPosition(absoluteSelectorPos), 0, 1, getHeight());
             
-            setToolTipText(viewer.renderStreamPosition(newSelectorPos));
+            setToolTipText(renderStreamPosition(newSelectorPos));
 
             viewer.updateSelector(absoluteSelectorPos);
         }
@@ -131,7 +131,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
                 g.drawLine(x, 11, x, 20);
 
                 // render the position string and draw it somewhere
-                String rendered = viewer.renderStreamPosition(pos);
+                String rendered = renderStreamPosition(pos);
                 int width = g.getFontMetrics().stringWidth(rendered);
                 x -= (width / 2);
                 if (x < 0)
@@ -165,6 +165,17 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
         curMajorTickSpacing = nominalMajorTickSpacing << viewer.getCurZoomFactor();
 
         repaint();
+    }
+
+    /**
+     * Render a position within the stream for display to the user.
+     * 
+     * @param position
+     *            The position to render.
+     * @return The string to display.
+     */
+    protected String renderStreamPosition(long position) {
+        return "0x" + Long.toHexString(position);
     }
 
     /**

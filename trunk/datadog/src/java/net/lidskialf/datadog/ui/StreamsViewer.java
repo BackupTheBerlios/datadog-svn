@@ -225,17 +225,6 @@ public abstract class StreamsViewer extends JScrollPane {
     }
 
     /**
-     * Render a position within the stream for display to the user.
-     * 
-     * @param position
-     *            The position to render.
-     * @return The string to display.
-     */
-    public String renderStreamPosition(long position) {
-        return "0x" + Long.toHexString(position);
-    }
-
-    /**
      * Update the position of the selector.
      * 
      * @param newSelectorPos
