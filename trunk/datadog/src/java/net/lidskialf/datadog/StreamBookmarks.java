@@ -36,9 +36,9 @@ public class StreamBookmarks {
     /**
      * Get all bookmarks.
      *
-     * @return Ascendingly ordered Iterator of bookmarks (by absolute position of bookmark).
+     * @return Ascendingly ordered Iterator of Long objects, each giving the absolute stream position of a bookmark.
      */
-    public Iterator get() {
+    public Iterator getKeys() {
         return bookmarks.values().iterator();
     }
 
@@ -47,10 +47,10 @@ public class StreamBookmarks {
      *
      * @param start Starting position.
      * @param end Ending position (inclusive).
-     * @return Ascendingly ordered Iterator of bookmarks (by absolute position of bookmark).
+     * @return Ascendingly ordered Iterator of Long objects, each giving the absolute stream position of a bookmark.
      */
-    public Iterator get(long start, long end) {
-        return bookmarks.subMap(new Long(start), new Long(end)).values().iterator();
+    public Iterator getKeys(long start, long end) {
+        return bookmarks.subMap(new Long(start), new Long(end)).keySet().iterator();
     }
 
     /**

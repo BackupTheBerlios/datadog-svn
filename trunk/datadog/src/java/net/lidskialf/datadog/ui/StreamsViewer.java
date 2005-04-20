@@ -17,6 +17,7 @@
  */
 package net.lidskialf.datadog.ui;
 
+import net.lidskialf.datadog.*;
 import java.awt.*;
 import java.util.*;
 import javax.swing.*;
@@ -57,9 +58,12 @@ public abstract class StreamsViewer extends JScrollPane {
 
     /**
      * Constructor.
+     *
+     * @param bookmarks StreamBookmarks instance for this stream, or null if no implementation desired.
      */
-    public StreamsViewer() {
+    public StreamsViewer(StreamBookmarks bookmarks) {
         super(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        this.bookmarks = bookmarks;
 
         panel = new StreamsPanel();
         getViewport().add(panel);
@@ -268,6 +272,28 @@ public abstract class StreamsViewer extends JScrollPane {
     }
 
     /**
+     * Does this viewer support bookmarks?
+     *
+     * @return True if it does, false if not.
+     */
+    public boolean bookmarksSupported() {
+        return bookmarks != null;
+    }
+
+    /**
+     * Get the keys of bookmarks between two absolute stream positions.
+     *
+     * @param minAbsolutePos Minimum position.
+     * @param maxAbsolutePos Maximum position (inclusively).
+     * @return Iterator of Long objects, each giving the absolute stream position of a bookmark.
+     */
+    public Iterator getBookmarkKeys(long minAbsolutePos, long maxAbsolutePos) {
+        return bookmarks.getKeys(minAbsolutePos, maxAbsolutePos);
+    }
+
+
+
+    /**
      * Fires all change listener events for the given changeType.
      *
      * @param changeType
@@ -355,18 +381,30 @@ public abstract class StreamsViewer extends JScrollPane {
     protected abstract void paintStreamsPanel(Graphics g);
 
     /**
-     * Paint the selector onto a graphics context, as long as it lies within
-     * the specified minimum and maximum values.
+     * Paint the generic bits of the StreamsPanel onto a graphics context, as long as it lies within
+     * the specified minimum and maximum values. Should be called after any stream-specific painting.
      *
-     * @param g                     the Graphics context to paint onto
-     * @param minStreamDrawPosition the minimum position 
-     * @param maxStreamDrawPosition the maximum position
+     * @param g                       the Graphics context to paint onto.
+     * @param minAbsoluteDrawPosition the minimum absolute stream position.
+     * @param maxAbsoluteDrawPosition the maximum absolute stream position (inclusively).
      */
-    protected void paintSelector(Graphics g, long minStreamDrawPosition, long maxStreamDrawPosition) {
-        if ((absoluteSelectorPos >= minStreamDrawPosition) && (absoluteSelectorPos <= maxStreamDrawPosition)) {
+    protected void paintStreamsPanel(Graphics g, long minAbsoluteStreamPosition, long maxAbsoluteStreamPosition) {
+        // paint the selector
+        if ((absoluteSelectorPos >= minAbsoluteStreamPosition) && (absoluteSelectorPos <= maxAbsoluteStreamPosition)) {
             int xpos = absolutePositionToPanelXPosition(absoluteSelectorPos);
             g.setColor(Color.blue);
             g.drawLine(xpos, 0, xpos, getHeight());
+        }
+
+        // paint the bookmarks if they're supported
+        if (bookmarks != null) {
+            Iterator it = bookmarks.getKeys(minAbsoluteStreamPosition, maxAbsoluteStreamPosition);
+            while(it.hasNext()) {
+                Long curBookmark = (Long) it.next();
+                int xpos = absolutePositionToPanelXPosition(curBookmark.longValue());
+                g.setColor(Color.orange);
+                g.drawLine(xpos, 0, xpos, getHeight());
+            }
         }
     }
 
@@ -479,4 +517,9 @@ public abstract class StreamsViewer extends JScrollPane {
      * List of registered StreamViewerChangeListeners.
      */
     protected java.util.List changeListeners = Collections.synchronizedList(new ArrayList());
+
+    /**
+     * Bookmarks known to this stream.
+     */
+    protected StreamBookmarks bookmarks;
 }

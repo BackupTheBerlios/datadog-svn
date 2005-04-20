@@ -17,6 +17,7 @@
  */
 package net.lidskialf.datadog.mpeg.ui;
 
+import net.lidskialf.datadog.*;
 import net.lidskialf.datadog.ui.*;
 import net.lidskialf.datadog.mpeg.bitstream.*;
 
@@ -34,14 +35,14 @@ public class TransportStreamsViewer extends StreamsViewer {
 
     /**
      * Constructor.
-     * 
+     *
      * @param stream   the transport stream
      * @param rowModel FIXME: missing param comment
      * @throws IOException if there was a problem determining the length of
      *      other property of <code>stream</code>
      */
-    public TransportStreamsViewer(TransportStream stream, DefaultListModel rowModel) throws IOException {
-        super();
+    public TransportStreamsViewer(TransportStream stream, DefaultListModel rowModel, StreamBookmarks bookmarks) throws IOException {
+        super(bookmarks);
         this.rowModel = rowModel;
         this.stream = stream;
 
@@ -93,8 +94,8 @@ public class TransportStreamsViewer extends StreamsViewer {
                 }
             }
 
-            // draw the selector
-            paintSelector(g, minStreamDrawPosition, maxStreamDrawPosition);
+            // draw the generic bits of the streams panel
+            super.paintStreamsPanel(g, minStreamDrawPosition, maxStreamDrawPosition);
         } catch (IOException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "An error during stream rendering (" + e.getMessage() + ")", "Error", JOptionPane.ERROR_MESSAGE);

@@ -23,6 +23,7 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.util.Iterator;
 
 import javax.swing.JPanel;
 
@@ -150,6 +151,17 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
             int xpos = viewer.absolutePositionToPanelXPosition(absoluteSelectorPos);
             g.setColor(Color.blue);
             g.drawLine(xpos, 0, xpos, getHeight());
+        }
+
+        // paint the bookmarks if they're supported
+        if (viewer.bookmarksSupported()) {
+            Iterator it = viewer.getBookmarkKeys(minStreamDrawPosition, maxStreamDrawPosition);
+            while(it.hasNext()) {
+                Long curBookmark = (Long) it.next();
+                int xpos = viewer.absolutePositionToPanelXPosition(curBookmark.longValue());
+                g.setColor(Color.orange);
+                g.fillOval(xpos-5, 10, 10, 10);
+            }
         }
     }
 

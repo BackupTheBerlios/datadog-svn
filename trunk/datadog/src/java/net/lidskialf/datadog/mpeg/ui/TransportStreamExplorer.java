@@ -111,13 +111,17 @@ public class TransportStreamExplorer implements StreamExplorer {
 
     /**
      * Initialise components used here.
-     * 
+     *
      * @throws IOException if there was a problem initialising any component
      */
     private void initComponents() throws IOException {
         rowModel = new DefaultListModel();
 
-        viewer = new TransportStreamsViewer(transportStream, rowModel);
+        bookmarks = new StreamBookmarks();
+        bookmarks.add(200, "hi"); // FIXME: hack!!
+        bookmarks.add(400, "hi2"); // FIXME: hack!!
+
+        viewer = new TransportStreamsViewer(transportStream, rowModel, bookmarks);
         viewer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
         columnHeader = new StreamsViewerColumnHeader(viewer, MINOR_TICK_SPACING, MAJOR_TICK_SPACING);
@@ -149,4 +153,6 @@ public class TransportStreamExplorer implements StreamExplorer {
     private StreamsViewerRowHeader rowHeader;
 
     private JComponent ui;
+
+    private StreamBookmarks bookmarks;
 }
