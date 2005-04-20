@@ -47,16 +47,6 @@ public abstract class StreamsViewer extends JScrollPane {
     public static final int SEPARATOR_INVALID = 2;
 
     /**
-     * Zoom factor has changed.
-     */
-    protected static final int CHANGED_ZOOM = 0;
-
-    /**
-     * Absolute length has changed.
-     */
-    protected static final int CHANGED_LENGTH = 1;
-
-    /**
      * Constructor.
      *
      * @param bookmarks StreamBookmarks instance for this stream, or null if no implementation desired.
@@ -221,7 +211,7 @@ public abstract class StreamsViewer extends JScrollPane {
         updateDimensions();
         centreView(midPosition);
         panel.repaint();
-        fireChangeListeners(CHANGED_ZOOM);
+        fireChangeListeners(StreamsViewerChangeEvent.zoomChanged(this, curZoomFactor));
     }
 
     /**
@@ -238,7 +228,7 @@ public abstract class StreamsViewer extends JScrollPane {
         updateDimensions();
         centreView(midPosition);
         panel.repaint();
-        fireChangeListeners(CHANGED_ZOOM);
+        fireChangeListeners(StreamsViewerChangeEvent.zoomChanged(this, curZoomFactor));
     }
 
     /**
@@ -291,26 +281,47 @@ public abstract class StreamsViewer extends JScrollPane {
         return bookmarks.getKeys(minAbsolutePos, maxAbsolutePos);
     }
 
+    /**
+     * Move a bookmark from curPosition to newPosition.
+     *
+     * @param curPosition The current position of the bookmark.
+     * @param newPosition The new position of the bookmark.
+     */
+    public void moveBookmark(long curPosition, long newPosition) {
+        // only redraw if the move is successful.
+        if (bookmarks.move(curPosition, newPosition)) {
+            int oldX = absolutePositionToPanelXPosition(curPosition);
+            int newX = absolutePositionToPanelXPosition(newPosition);
+
+            repaint(oldX, 0, 1, getHeight());
+            repaint(newX, 0, 1, getHeight());
+
+            fireChangeListeners(StreamsViewerChangeEvent.bookmarkMoved(this, curPosition, newPosition));
+        }
+    }
+
 
 
     /**
      * Fires all change listener events for the given changeType.
      *
-     * @param changeType
-     *            The type of change that occured (One of CHANGED_*).
      */
-    protected void fireChangeListeners(int changeType) {
+    protected void fireChangeListeners(StreamsViewerChangeEvent e) {
         Iterator it = changeListeners.iterator();
         while (it.hasNext()) {
             StreamsViewerChangeListener curListener = (StreamsViewerChangeListener) it.next();
 
-            switch (changeType) {
-            case CHANGED_ZOOM:
-                curListener.zoomChanged(this, curZoomFactor);
+            switch (e.changeType) {
+            case StreamsViewerChangeEvent.CHANGED_ZOOM:
+                curListener.zoomChanged(e);
                 break;
 
-            case CHANGED_LENGTH:
-                curListener.lengthChanged(this, absoluteLength);
+            case StreamsViewerChangeEvent.CHANGED_LENGTH:
+                curListener.lengthChanged(e);
+                break;
+
+            case StreamsViewerChangeEvent.CHANGED_MOVEBOOKMARK:
+                curListener.bookmarkMoved(e);
                 break;
             }
         }
@@ -336,7 +347,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
         // update everything else
         updateDimensions();
-        fireChangeListeners(CHANGED_LENGTH);
+        fireChangeListeners(StreamsViewerChangeEvent.lengthChanged(this, absoluteLength));
     }
 
     /**

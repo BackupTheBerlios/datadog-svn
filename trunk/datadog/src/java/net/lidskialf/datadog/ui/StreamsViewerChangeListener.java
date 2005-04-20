@@ -28,21 +28,25 @@ public interface StreamsViewerChangeListener {
     /**
      * Event fired when the zoom factor of the StreamsViewer changes.
      *
-     * @param viewer
-     *            The StreamsViewer concerned.
-     * @param newZoom
-     *            The new zoom value.
+     * @param e
+     *            The StreamsViewerChangeEvent describing the event.
      */
-    public void zoomChanged(StreamsViewer viewer, int newZoom);
+    public void zoomChanged(StreamsViewerChangeEvent e);
 
     /**
      * Event fired when the length of the stream viewed by the StreamsViewer
      * changes.
      *
-     * @param viewer
-     *            The StreamsViewer concerned.
-     * @param newLength
-     *            The new length value
+     * @param e
+     *            The StreamsViewerChangeEvent describing the event.
      */
-    public void lengthChanged(StreamsViewer viewer, long newLength);
+    public void lengthChanged(StreamsViewerChangeEvent e);
+
+    /**
+     * A bookmark was moved from oldAbsolutePosition to newAbsolutePosition.
+     *
+     * @param e
+     *            The StreamsViewerChangeEvent describing the event.
+     */
+    public void bookmarkMoved(StreamsViewerChangeEvent e);
 }

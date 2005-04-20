@@ -89,6 +89,27 @@ public class StreamBookmarks {
     }
 
     /**
+     * Move a bookmark existing at curAbsolutePosition to newAbsolutePosition.
+     *
+     * @param curAbsolutePosition Current position of the bookmark.
+     * @param newAbsolutePosition New position of the bookmark.
+     * @return True on success (i.e. there was a bookmark at curAbsolutePosition),
+     * false on failure (i.e. nothing was changed).
+     */
+    public boolean move(long curAbsolutePosition, long newAbsolutePosition) {
+        // if the bookmark really exists, move it
+        Object tmp = bookmarks.get(new Long(curAbsolutePosition));
+        if (tmp != null) {
+            bookmarks.remove(new Long(curAbsolutePosition));
+            bookmarks.put(new Long(newAbsolutePosition), tmp);
+            return true;
+        }
+
+        // there was no such bookmark anyway.
+        return false;
+    }
+
+    /**
      * The bookmarks themselves.
      */
     protected SortedMap bookmarks;

@@ -17,22 +17,17 @@
  */
 package net.lidskialf.datadog.ui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
-import java.util.Iterator;
-
-import javax.swing.JPanel;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import javax.swing.*;
 
 /**
  * A generic ColumnHeader for a StreamsViewer.
  *
  * @author Andrew de Quincey
  */
-public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerChangeListener, MouseMotionListener {
+public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerChangeListener, MouseListener, MouseMotionListener {
 
     /**
      * Constructor.
@@ -47,6 +42,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
         this.nominalMajorTickSpacing = nominalMajorTickSpacing;
         viewer.addStreamsViewerChangeListener(this);
 
+        addMouseListener(this);
         addMouseMotionListener(this);
 
         setPreferredSize(new Dimension(0, 20));
@@ -59,7 +55,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#lengthChanged(net.lidskialf.datadog.ui.StreamsViewer,
      *      long)
      */
-    public void lengthChanged(StreamsViewer viewer, long newLength) {
+    public void lengthChanged(StreamsViewerChangeEvent e) {
         updateDimensions();
     }
 
@@ -69,8 +65,18 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#zoomChanged(net.lidskialf.datadog.ui.StreamsViewer,
      *      int)
      */
-    public void zoomChanged(StreamsViewer viewer, int newZoom) {
+    public void zoomChanged(StreamsViewerChangeEvent e) {
         updateDimensions();
+    }
+
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#bookmarkMoved(long, long)
+     */
+    public void bookmarkMoved(StreamsViewerChangeEvent e) {
+        int oldX = viewer.absolutePositionToPanelXPosition(e.oldBookmarkPosition);
+        int newX = viewer.absolutePositionToPanelXPosition(e.bookmarkPosition);
+        repaint(oldX - bookmarkRadius, 0, bookmarkRadius<<1, getHeight());
+        repaint(newX - bookmarkRadius, 0, bookmarkRadius<<1, getHeight());
     }
 
     /*
@@ -79,6 +85,59 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
      */
     public void mouseDragged(MouseEvent arg0) {
+        if (selectedBookmark != -1) {
+            long newPosition = viewer.panelXPositionToAbsolutePosition(arg0.getX());
+            viewer.moveBookmark(selectedBookmark, newPosition);
+            selectedBookmark = newPosition;
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+     */
+    public void mouseClicked(MouseEvent arg0) {
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+     */
+    public void mouseEntered(MouseEvent arg0) {
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+     */
+    public void mouseExited(MouseEvent arg0) {
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+     */
+    public void mousePressed(MouseEvent arg0) {
+        long minAbsolutePosition = viewer.panelXPositionToAbsolutePosition(arg0.getX() - bookmarkRadius);
+        long maxAbsolutePosition = viewer.panelXPositionToAbsolutePosition(arg0.getX() + bookmarkRadius);
+
+        // try all possibilities
+        Iterator it = viewer.getBookmarkKeys(minAbsolutePosition, maxAbsolutePosition);
+        while(it.hasNext()) {
+            long curBookmark = ((Long) it.next()).longValue();
+
+            // this this bookmark within range of the click?
+            if ((minAbsolutePosition <= curBookmark) && (maxAbsolutePosition >= curBookmark)) {
+                selectedBookmark = curBookmark;
+                return;
+            }
+        }
+
+        // no bookmark is selected
+        selectedBookmark = -1;
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+     */
+    public void mouseReleased(MouseEvent arg0) {
+        selectedBookmark = -1;
     }
 
     /*
@@ -89,7 +148,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     public void mouseMoved(MouseEvent arg0) {
         long newSelectorPos = viewer.panelXPositionToAbsolutePosition(arg0.getX());
 
-        if (newSelectorPos != absoluteSelectorPos) {
+        if ((selectedBookmark == -1) && (newSelectorPos != absoluteSelectorPos)) {
             long oldSelectorPos = absoluteSelectorPos;
             absoluteSelectorPos = newSelectorPos;
 
@@ -160,7 +219,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
                 Long curBookmark = (Long) it.next();
                 int xpos = viewer.absolutePositionToPanelXPosition(curBookmark.longValue());
                 g.setColor(Color.orange);
-                g.fillOval(xpos-5, 10, 10, 10);
+                g.fillOval(xpos-bookmarkRadius, 10, bookmarkRadius<<1, bookmarkRadius<<1);
             }
         }
     }
@@ -225,4 +284,14 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      * Current absolute position of the selector marker.
      */
     protected long absoluteSelectorPos = -1;
+
+    /**
+     * Radius in pixels of a bookmark.
+     */
+    protected int bookmarkRadius = 5;
+
+    /**
+     * The currently selected bookmark or -1 if none.
+     */
+    protected long selectedBookmark = -1;
 }
