@@ -558,7 +558,7 @@ public abstract class StreamsViewer extends JScrollPane {
     protected StreamBookmarks bookmarks;
 
     /**
-     * Flag indicating a bookmark is being moved, to affect the display during it.
+     * Flag indicating a bookmark is being moved.
      */
-    protected boolean movingBookmark;
+    protected boolean movingBookmark = false;
 }

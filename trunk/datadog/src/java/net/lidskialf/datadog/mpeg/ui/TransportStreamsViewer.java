@@ -37,7 +37,7 @@ public class TransportStreamsViewer extends StreamsViewer {
      * Constructor.
      *
      * @param stream   the transport stream
-     * @param rowModel FIXME: missing param comment
+     * @param rowModel The rows to display with this Transport stream.
      * @throws IOException if there was a problem determining the length of
      *      other property of <code>stream</code>
      */
