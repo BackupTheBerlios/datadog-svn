@@ -282,7 +282,7 @@ public abstract class StreamsViewer extends JScrollPane {
     }
 
     /**
-     * Move a bookmark from curPosition to newPosition.
+     * Move the bookmark at curPosition to newPosition.
      *
      * @param curPosition The current position of the bookmark.
      * @param newPosition The new position of the bookmark.
@@ -300,6 +300,15 @@ public abstract class StreamsViewer extends JScrollPane {
         }
     }
 
+    /**
+     * Set the flag to indicate a bookmark is being moved, so the display can be changed during it.
+     *
+     * @param moving True if one is being moved, false if not.
+     */
+    public void setMovingBookmark(boolean moving) {
+        movingBookmark = moving;
+    }
+
 
 
     /**
@@ -312,15 +321,15 @@ public abstract class StreamsViewer extends JScrollPane {
             StreamsViewerChangeListener curListener = (StreamsViewerChangeListener) it.next();
 
             switch (e.changeType) {
-            case StreamsViewerChangeEvent.CHANGED_ZOOM:
+            case StreamsViewerChangeEvent.CHANGE_ZOOM:
                 curListener.zoomChanged(e);
                 break;
 
-            case StreamsViewerChangeEvent.CHANGED_LENGTH:
+            case StreamsViewerChangeEvent.CHANGE_LENGTH:
                 curListener.lengthChanged(e);
                 break;
 
-            case StreamsViewerChangeEvent.CHANGED_MOVEBOOKMARK:
+            case StreamsViewerChangeEvent.CHANGE_MOVEBOOKMARK:
                 curListener.bookmarkMoved(e);
                 break;
             }
@@ -403,7 +412,11 @@ public abstract class StreamsViewer extends JScrollPane {
         // paint the selector
         if ((absoluteSelectorPos >= minAbsoluteStreamPosition) && (absoluteSelectorPos <= maxAbsoluteStreamPosition)) {
             int xpos = absolutePositionToPanelXPosition(absoluteSelectorPos);
-            g.setColor(Color.blue);
+            if (!movingBookmark) {
+                g.setColor(Color.blue);
+            } else {
+                g.setColor(Color.orange);
+            }
             g.drawLine(xpos, 0, xpos, getHeight());
         }
 
@@ -533,4 +546,9 @@ public abstract class StreamsViewer extends JScrollPane {
      * Bookmarks known to this stream.
      */
     protected StreamBookmarks bookmarks;
+
+    /**
+     * Flag indicating a bookmark is being moved, to affect the display during it.
+     */
+    protected boolean movingBookmark;
 }

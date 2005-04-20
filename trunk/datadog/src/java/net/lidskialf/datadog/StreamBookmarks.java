@@ -110,6 +110,16 @@ public class StreamBookmarks {
     }
 
     /**
+     * Does a bookmark exist at the given position.
+     *
+     * @param position Position to check.
+     * @return True if there does, false if not.
+     */
+    public boolean contains(long position) {
+        return bookmarks.containsKey(new Long(position));
+    }
+
+    /**
      * The bookmarks themselves.
      */
     protected SortedMap bookmarks;

@@ -27,17 +27,17 @@ public class StreamsViewerChangeEvent {
     /**
      * Zoom factor has changed.
      */
-    public static final int CHANGED_ZOOM = 0;
+    public static final int CHANGE_ZOOM = 0;
 
     /**
      * Absolute length has changed.
      */
-    public static final int CHANGED_LENGTH = 1;
+    public static final int CHANGE_LENGTH = 1;
 
     /**
      * A bookmark was moved.
      */
-    public static final int CHANGED_MOVEBOOKMARK = 2;
+    public static final int CHANGE_MOVEBOOKMARK = 2;
 
 
     /**
@@ -90,7 +90,7 @@ public class StreamsViewerChangeEvent {
      * @return Appropriately initialised StreamsViewerChangeEvent instance.
      */
     public static StreamsViewerChangeEvent zoomChanged(StreamsViewer viewer, int zoomFactor) {
-        StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGED_ZOOM);
+        StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_ZOOM);
         tmp.zoomFactor = zoomFactor;
         return tmp;
     }
@@ -102,7 +102,7 @@ public class StreamsViewerChangeEvent {
      * @return Appropriately initialised StreamsViewerChangeEvent instance.
      */
     public static StreamsViewerChangeEvent lengthChanged(StreamsViewer viewer, long length) {
-        StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGED_LENGTH);
+        StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_LENGTH);
         tmp.length = length;
         return tmp;
     }
@@ -114,7 +114,7 @@ public class StreamsViewerChangeEvent {
      * @return Appropriately initialised StreamsViewerChangeEvent instance.
      */
     public static StreamsViewerChangeEvent bookmarkMoved(StreamsViewer viewer, long oldPosition, long newPosition) {
-        StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGED_MOVEBOOKMARK);
+        StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_MOVEBOOKMARK);
         tmp.oldBookmarkPosition = oldPosition;
         tmp.bookmarkPosition = newPosition;
         return tmp;

@@ -75,6 +75,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     public void bookmarkMoved(StreamsViewerChangeEvent e) {
         int oldX = viewer.absolutePositionToPanelXPosition(e.oldBookmarkPosition);
         int newX = viewer.absolutePositionToPanelXPosition(e.bookmarkPosition);
+
         repaint(oldX - bookmarkRadius, 0, bookmarkRadius<<1, getHeight());
         repaint(newX - bookmarkRadius, 0, bookmarkRadius<<1, getHeight());
     }
@@ -87,8 +88,11 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     public void mouseDragged(MouseEvent arg0) {
         if (selectedBookmark != -1) {
             long newPosition = viewer.panelXPositionToAbsolutePosition(arg0.getX());
-            viewer.moveBookmark(selectedBookmark, newPosition);
-            selectedBookmark = newPosition;
+
+            movingBookmark = true;
+
+            viewer.setMovingBookmark(true);
+            updateSelector(arg0);
         }
     }
 
@@ -137,7 +141,14 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
      */
     public void mouseReleased(MouseEvent arg0) {
-        selectedBookmark = -1;
+        if (selectedBookmark != -1) {
+            long newPosition = viewer.panelXPositionToAbsolutePosition(arg0.getX());
+
+            viewer.moveBookmark(selectedBookmark, newPosition);
+            selectedBookmark = -1;
+            movingBookmark = false;
+            viewer.setMovingBookmark(false);
+        }
     }
 
     /*
@@ -146,15 +157,31 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
      */
     public void mouseMoved(MouseEvent arg0) {
+        updateSelector(arg0);
+    }
+
+
+    /**
+     * Update the selector line (causes it to be redrawn).
+     *
+     * @param arg0 MouseEvent describing the change.
+     */
+    protected void updateSelector(MouseEvent arg0) {
         long newSelectorPos = viewer.panelXPositionToAbsolutePosition(arg0.getX());
 
-        if ((selectedBookmark == -1) && (newSelectorPos != absoluteSelectorPos)) {
+        if (newSelectorPos != absoluteSelectorPos) {
             long oldSelectorPos = absoluteSelectorPos;
             absoluteSelectorPos = newSelectorPos;
 
-            if (oldSelectorPos != -1)
-                repaint(viewer.absolutePositionToPanelXPosition(oldSelectorPos), 0, 1, getHeight());
-            repaint(viewer.absolutePositionToPanelXPosition(absoluteSelectorPos), 0, 1, getHeight());
+            if (!movingBookmark) {
+                if (oldSelectorPos != -1)
+                    repaint(viewer.absolutePositionToPanelXPosition(oldSelectorPos), 0, 1, getHeight());
+                repaint(viewer.absolutePositionToPanelXPosition(absoluteSelectorPos), 0, 1, getHeight());
+            } else {
+                if (oldSelectorPos != -1)
+                    repaint(viewer.absolutePositionToPanelXPosition(oldSelectorPos) - bookmarkRadius, 0, bookmarkRadius<<1, getHeight());
+                repaint(viewer.absolutePositionToPanelXPosition(absoluteSelectorPos) - bookmarkRadius, 0, bookmarkRadius<<1, getHeight());
+            }
 
             setToolTipText(renderStreamPosition(newSelectorPos));
 
@@ -208,8 +235,14 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
         // draw the selector.
         if ((minStreamDrawPosition <= absoluteSelectorPos) && (maxStreamDrawPosition >= absoluteSelectorPos)) {
             int xpos = viewer.absolutePositionToPanelXPosition(absoluteSelectorPos);
-            g.setColor(Color.blue);
-            g.drawLine(xpos, 0, xpos, getHeight());
+
+            if (!movingBookmark) {
+                g.setColor(Color.blue);
+                g.drawLine(xpos, 0, xpos, getHeight());
+            } else {
+                g.setColor(Color.orange);
+                g.fillOval(xpos-bookmarkRadius, 10, bookmarkRadius<<1, bookmarkRadius<<1);
+            }
         }
 
         // paint the bookmarks if they're supported
@@ -294,4 +327,6 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      * The currently selected bookmark or -1 if none.
      */
     protected long selectedBookmark = -1;
+
+    protected boolean movingBookmark = false;
 }
