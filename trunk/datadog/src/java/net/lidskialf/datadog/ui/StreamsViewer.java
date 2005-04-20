@@ -288,6 +288,16 @@ public abstract class StreamsViewer extends JScrollPane {
      * @param newPosition The new position of the bookmark.
      */
     public void moveBookmark(long curPosition, long newPosition) {
+        // if we're going to clobber one, ask the user first!
+        if (bookmarks.contains(newPosition)) {
+            if (JOptionPane.showConfirmDialog(null,
+                                              "Moving this bookmark here will remove the existing bookmark at this position. Are you sure you wish to do this?",
+                                              "Move bookmark?",
+                                              JOptionPane.OK_CANCEL_OPTION) != JOptionPane.OK_OPTION) {
+                return;
+            }
+        }
+
         // only redraw if the move is successful.
         if (bookmarks.move(curPosition, newPosition)) {
             int oldX = absolutePositionToPanelXPosition(curPosition);
