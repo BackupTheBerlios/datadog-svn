@@ -22,7 +22,7 @@ import net.lidskialf.datadog.*;
 
 /**
  * This implements MPEG2 transport streams.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class TransportStream {
@@ -44,7 +44,7 @@ public class TransportStream {
 
     /**
      * Construct a parser for an mpeg2 transport stream.
-     * 
+     *
      * @param bitstream
      *            The Bitstream to access.
      * @throws IOException if there was problem probing <code>bitstream</code>
@@ -60,7 +60,7 @@ public class TransportStream {
 
     /**
      * Retrieve the nearest transport packet to the given position.
-     * 
+     *
      * @param position
      *            The position concerned.
      * @return The packet, or null if unavailable (i.e. end of stream).
@@ -86,7 +86,7 @@ public class TransportStream {
 
     /**
      * Round a given position within the stream to a transport packet.
-     * 
+     *
      * @param position
      *            The original position.
      * @param roundOp
@@ -124,7 +124,7 @@ public class TransportStream {
 
     /**
      * Retrieve the length of the stream.
-     * 
+     *
      * @return The length.
      * @throws IOException
      *             On error.
@@ -135,7 +135,7 @@ public class TransportStream {
 
     /**
      * Probe a Bitstream to see if we support it.
-     * 
+     *
      * @param bitstream
      *            The bitstream to probe.
      * @return True if we support it, false if not.

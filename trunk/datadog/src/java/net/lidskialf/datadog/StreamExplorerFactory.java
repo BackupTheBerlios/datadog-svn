@@ -21,14 +21,14 @@ import java.io.*;
 
 /**
  * A StreamParserFactory is responsible for probing and creating StreamParsers.
- * 
+ *
  * @author Andrew de Quincey
  */
 public interface StreamExplorerFactory {
 
     /**
      * Probe to see if the stream is supported by this StreamParser.
-     * 
+     *
      * @param bitstream
      *            The Bitstream to test.
      * @return True if supported, false if not.
@@ -39,7 +39,7 @@ public interface StreamExplorerFactory {
 
     /**
      * Open a stream.
-     * 
+     *
      * @param bitstream
      *            The Bitstream to open.
      * @return StreamParser StreamParser instance representing this stream.

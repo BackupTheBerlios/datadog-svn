@@ -19,7 +19,7 @@ package net.lidskialf.datadog.mpeg.bitstream;
 
 /**
  * Miscellaneous mpeg related constants.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class Constants {

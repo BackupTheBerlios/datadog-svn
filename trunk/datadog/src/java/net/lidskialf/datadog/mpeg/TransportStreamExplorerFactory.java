@@ -25,14 +25,14 @@ import net.lidskialf.datadog.mpeg.ui.TransportStreamExplorer;
 
 /**
  * The StreamParserFactory for Transport Streams.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class TransportStreamExplorerFactory implements StreamExplorerFactory {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.StreamParser#Probe(java.lang.String)
      */
     public boolean probe(Bitstream bitstream) throws IOException {
@@ -41,7 +41,7 @@ public class TransportStreamExplorerFactory implements StreamExplorerFactory {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.StreamParser#OpenUI(java.lang.String)
      */
     public StreamExplorer open(Bitstream bitstream) throws IOException {

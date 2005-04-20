@@ -58,7 +58,7 @@ public class TransportPacket {
 
     /**
      * Is the transport error flag set?
-     * 
+     *
      * @return True if it is.
      */
     public boolean transport_error_indicator() {
@@ -67,7 +67,7 @@ public class TransportPacket {
 
     /**
      * Is this a payload start?
-     * 
+     *
      * @return True if it is.
      */
     public boolean payload_unit_start_indicator() {
@@ -76,7 +76,7 @@ public class TransportPacket {
 
     /**
      * Is the transport priority bit set?
-     * 
+     *
      * @return True if it is.
      */
     public boolean transport_priority() {
@@ -85,7 +85,7 @@ public class TransportPacket {
 
     /**
      * The pid of this packet.
-     * 
+     *
      * @return The pid.
      */
     public int pid() {
@@ -94,7 +94,7 @@ public class TransportPacket {
 
     /**
      * The transport scrambling control field.
-     * 
+     *
      * @return The two bit field..
      */
     public int transport_scrambling_control() {
@@ -103,7 +103,7 @@ public class TransportPacket {
 
     /**
      * Packet continuity counter.
-     * 
+     *
      * @return The 4 bit continuity counter.
      */
     public int continuity_counter() {
@@ -112,7 +112,7 @@ public class TransportPacket {
 
     /**
      * The adaptation_field_length value.
-     * 
+     *
      * @return The value.
      */
     public int adaptation_field_length() {
@@ -123,7 +123,7 @@ public class TransportPacket {
 
     /**
      * adaptation_field flags byte.
-     * 
+     *
      * @return The flags byte.
      */
     public int adaptation_flags() {
@@ -136,7 +136,7 @@ public class TransportPacket {
 
     /**
      * Does the packet have a payload?
-     * 
+     *
      * @return True if it does.
      */
     public boolean hasPayload() {
@@ -145,7 +145,7 @@ public class TransportPacket {
 
     /**
      * Does the packet have an adaptation field?
-     * 
+     *
      * @return True if it does.
      */
     public boolean hasAdaptation() {
@@ -154,7 +154,7 @@ public class TransportPacket {
 
     /**
      * Does the packet have an adaptation_extension?
-     * 
+     *
      * @return True if it does.
      */
     public boolean hasAdaptationExtension() {
@@ -165,7 +165,7 @@ public class TransportPacket {
 
     /**
      * Flags from the adaptation_extension field.
-     * 
+     *
      * @return The flags (including the 5 bit reserved values).
      */
     public int adaptation_extension_flags() {
@@ -181,7 +181,7 @@ public class TransportPacket {
 
     /**
      * PCR of this packet.
-     * 
+     *
      * @return The PCR.
      */
     public long PCR() {
@@ -203,7 +203,7 @@ public class TransportPacket {
 
     /**
      * OPCR of this packet.
-     * 
+     *
      * @return The OPCR.
      */
     public long OPCR() {
@@ -225,7 +225,7 @@ public class TransportPacket {
 
     /**
      * Splice countdown value.
-     * 
+     *
      * @return Value of the splice countdown field.
      */
     public int splice_countdown() {
@@ -238,7 +238,7 @@ public class TransportPacket {
 
     /**
      * The private data from the adaptation field.
-     * 
+     *
      * @return The data.
      */
     public byte[] private_data() {
@@ -254,7 +254,7 @@ public class TransportPacket {
 
     /**
      * The ltw_offset field.
-     * 
+     *
      * @return >=0 if valid, -1 if not.
      */
     public int ltw_offset() {
@@ -269,7 +269,7 @@ public class TransportPacket {
 
     /**
      * The piecewise rate field.
-     * 
+     *
      * @return The value.
      */
     public int piecewise_rate() {
@@ -282,7 +282,7 @@ public class TransportPacket {
 
     /**
      * Seamless splice type.
-     * 
+     *
      * @return The type.
      */
     public int seamless_splice_type() {
@@ -295,7 +295,7 @@ public class TransportPacket {
 
     /**
      * DTS_next_AU field.
-     * 
+     *
      * @return The value.
      */
     public long DTS_next_AU() {
@@ -314,7 +314,7 @@ public class TransportPacket {
 
     /**
      * Accessor for any reserved bytes following the adaptation extension field.
-     * 
+     *
      * @return The array of bytes
      */
     public byte[] reserved_bytes() {
@@ -336,7 +336,7 @@ public class TransportPacket {
 
     /**
      * Accessor for the stuffing bytes at the end of the adaptation field.
-     * 
+     *
      * @return The byte array.
      */
     public byte[] stuffing_bytes() {
@@ -354,7 +354,7 @@ public class TransportPacket {
 
     /**
      * Get the size of the payload of this packet.
-     * 
+     *
      * @return The payload size in bytes.
      */
     public int payloadSize() {
@@ -363,7 +363,7 @@ public class TransportPacket {
 
     /**
      * Retrieve a chunk of payload data from this packet.
-     * 
+     *
      * @param payloadOff
      *            Offset into the payload.
      * @param dest
@@ -379,7 +379,7 @@ public class TransportPacket {
 
     /**
      * Calculate an offset into the adaptation field.
-     * 
+     *
      * @param flags
      *            Bitmask of the values to skip if present.
      * @return Position of the field after those skipped.
@@ -410,7 +410,7 @@ public class TransportPacket {
 
     /**
      * Calculate an offset into the adaptation extension field.
-     * 
+     *
      * @param flags
      *            Bitmask of the values to skip if present.
      * @return Position of the field after those skipped.

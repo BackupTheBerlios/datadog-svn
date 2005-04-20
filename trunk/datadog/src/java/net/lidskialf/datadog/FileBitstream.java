@@ -21,14 +21,14 @@ import java.io.*;
 
 /**
  * A Bitstream which acts directly on a file on disk.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class FileBitstream implements Bitstream {
 
     /**
      * Constructor.
-     * 
+     *
      * @param filename
      *            The filename of the file to wrap.
      * @throws IOException if <code>filename</code> could not be opened
@@ -40,7 +40,7 @@ public class FileBitstream implements Bitstream {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.Bitstream#readByte()
      */
     public int readByte() throws IOException {
@@ -49,7 +49,7 @@ public class FileBitstream implements Bitstream {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.Bitstream#readBlock(byte[], int, int)
      */
     public int readBlock(byte[] dest) throws IOException {
@@ -58,7 +58,7 @@ public class FileBitstream implements Bitstream {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.Bitstream#readBlock(byte[], int, int)
      */
     public int readBlock(byte[] dest, int destPos, int length) throws IOException {
@@ -67,7 +67,7 @@ public class FileBitstream implements Bitstream {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.Bitstream#getLength()
      */
     public long length() throws IOException {
@@ -76,7 +76,7 @@ public class FileBitstream implements Bitstream {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.Bitstream#seek(long)
      */
     public void seek(long position) throws IOException {
@@ -85,7 +85,7 @@ public class FileBitstream implements Bitstream {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.Bitstream#close()
      */
     public void close() throws IOException {
@@ -95,7 +95,7 @@ public class FileBitstream implements Bitstream {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     public String toString() {

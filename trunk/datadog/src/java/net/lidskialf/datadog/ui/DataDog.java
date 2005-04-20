@@ -32,7 +32,7 @@ import com.jgoodies.looks.plastic.theme.*;
 
 /**
  * @author Andrew de Quincey
- *  
+ *
  */
 public class DataDog {
 
@@ -76,7 +76,7 @@ public class DataDog {
 
     /**
      * Build the panel/layout components.
-     * 
+     *
      * @return The completed JComponent
      */
     private JComponent buildPanel() {
@@ -93,7 +93,7 @@ public class DataDog {
 
     /**
      * Build the menu bar.
-     * 
+     *
      * @return The menu bar
      */
     private JMenuBar buildMenuBar() {
@@ -117,7 +117,7 @@ public class DataDog {
 
     /**
      * Get the main JFrame for the application.
-     * 
+     *
      * @return The JFrame.
      */
     public JFrame getFrame() {
@@ -126,7 +126,7 @@ public class DataDog {
 
     /**
      * Add a new stream to the central list.
-     * 
+     *
      * @param explorer
      *            The StreamExplorer instance to add.
      */
@@ -150,7 +150,7 @@ public class DataDog {
 
     /**
      * Get the currently selected stream.
-     * 
+     *
      * @return The StreamExplorer instance, or null if nothing is selected.
      */
     public StreamExplorer getSelectedStream() {
@@ -159,7 +159,7 @@ public class DataDog {
 
     /**
      * Close a stream.
-     * 
+     *
      * @param explorer
      *            The StreamExplorer to close.
      */
@@ -177,7 +177,7 @@ public class DataDog {
 
     /**
      * Set the visibility of a particular stream's explorer.
-     * 
+     *
      * @param explorer
      *            The StreamExplorer in question.
      * @param visible
@@ -192,7 +192,7 @@ public class DataDog {
 
     /**
      * The entry point!
-     * 
+     *
      * @param args
      *            Command line arguments
      */
@@ -212,7 +212,7 @@ public class DataDog {
 
     /**
      * Get the instance of the DataDog application.
-     * 
+     *
      * @return The application instance.
      */
     public static DataDog getApplication() {

@@ -28,14 +28,14 @@ import javax.swing.JPanel;
 
 /**
  * A generic ColumnHeader for a StreamsViewer.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerChangeListener, MouseMotionListener {
 
     /**
      * Constructor.
-     * 
+     *
      * @param viewer                   the associated StreamsViewer
      * @param nominalMinorTickSpacing  spacing between minor ticks
      * @param nominalMajorTickSpacing  spacing between major ticks
@@ -54,7 +54,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#lengthChanged(net.lidskialf.datadog.ui.StreamsViewer,
      *      long)
      */
@@ -64,7 +64,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#zoomChanged(net.lidskialf.datadog.ui.StreamsViewer,
      *      int)
      */
@@ -74,7 +74,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
      */
     public void mouseDragged(MouseEvent arg0) {
@@ -82,7 +82,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
      */
     public void mouseMoved(MouseEvent arg0) {
@@ -95,7 +95,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
             if (oldSelectorPos != -1)
                 repaint(viewer.absolutePositionToPanelXPosition(oldSelectorPos), 0, 1, getHeight());
             repaint(viewer.absolutePositionToPanelXPosition(absoluteSelectorPos), 0, 1, getHeight());
-            
+
             setToolTipText(renderStreamPosition(newSelectorPos));
 
             viewer.updateSelector(absoluteSelectorPos);
@@ -104,12 +104,12 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
      */
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        
+
         // calculate what to draw
         Rectangle clip = g.getClipBounds();
         long minStreamDrawPosition = viewer.panelXPositionToAbsolutePosition(clip.x);
@@ -170,7 +170,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
 
     /**
      * Render a position within the stream for display to the user.
-     * 
+     *
      * @param position
      *            The position to render.
      * @return The string to display.

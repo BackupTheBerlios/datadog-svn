@@ -24,7 +24,7 @@ import com.jgoodies.forms.layout.*;
 
 /**
  * @author Andrew de Quincey
- *  
+ *
  */
 public class AboutBox {
 
@@ -65,7 +65,7 @@ public class AboutBox {
 
     /**
      * Build the panel/layout components.
-     * 
+     *
      * @return The completed JComponent
      */
     private JComponent buildPanel() {

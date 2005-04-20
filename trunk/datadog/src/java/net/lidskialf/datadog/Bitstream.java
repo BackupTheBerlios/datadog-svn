@@ -21,14 +21,14 @@ import java.io.*;
 
 /**
  * Abstract representation of a bitstream.
- * 
+ *
  * @author Andrew de Quincey
  */
 public interface Bitstream {
 
     /**
      * Read a single byte from the bitstream.
-     * 
+     *
      * @return The byte
      * @throws IOException
      *             On error.
@@ -37,7 +37,7 @@ public interface Bitstream {
 
     /**
      * Read a block of data from the bitstream.
-     * 
+     *
      * @param dest
      *            Destination for the data
      * @return The number of bytes actually read.
@@ -48,7 +48,7 @@ public interface Bitstream {
 
     /**
      * Read a block of data from the bitstream.
-     * 
+     *
      * @param dest
      *            Destination for the data
      * @param destPos
@@ -63,7 +63,7 @@ public interface Bitstream {
 
     /**
      * Get the length of the bitstream.
-     * 
+     *
      * @return The length.
      * @throws IOException
      *             On error.
@@ -72,7 +72,7 @@ public interface Bitstream {
 
     /**
      * Seek to a position within the bitstream.
-     * 
+     *
      * @param position
      *            The position to seek to.
      * @throws IOException
@@ -82,7 +82,7 @@ public interface Bitstream {
 
     /**
      * Close the Bitstream when it is no longer required.
-     * 
+     *
      * @throws IOException
      *             On error.
      */

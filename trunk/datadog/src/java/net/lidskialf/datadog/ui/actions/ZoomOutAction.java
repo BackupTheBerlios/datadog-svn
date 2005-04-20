@@ -26,14 +26,14 @@ import net.lidskialf.datadog.ui.StreamsViewer;
 
 /**
  * An Action allowing the user to zoom out from a StreamsViewer.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class ZoomOutAction extends AbstractAction {
 
     /**
      * Constructor.
-     * 
+     *
      * @param viewer
      *            The StreamsViewer concerned.
      */
@@ -45,7 +45,7 @@ public class ZoomOutAction extends AbstractAction {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent arg0) {

@@ -26,8 +26,9 @@ import java.io.*;
 import javax.swing.*;
 
 /**
+ * StreamsViewer implementation customised for Transport Streams.
+ *
  * @author Andrew de Quincey
- *  
  */
 public class TransportStreamsViewer extends StreamsViewer {
 
@@ -52,12 +53,12 @@ public class TransportStreamsViewer extends StreamsViewer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.ui.StreamWidget#paintStreamsPanel(java.awt.Graphics,
      *      int, int, long, long)
      */
     protected void paintStreamsPanel(Graphics g) {
-        
+
         // calculate which area of the stream we need to redraw
         Rectangle clip = g.getClipBounds();
         int minStreamIdx = panelYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
@@ -102,7 +103,7 @@ public class TransportStreamsViewer extends StreamsViewer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.ui.StreamsViewer#blockScrollIncrement(java.awt.Rectangle,
      *      int, int)
      */
@@ -112,7 +113,7 @@ public class TransportStreamsViewer extends StreamsViewer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.ui.StreamsViewer#unitScrollIncrement(java.awt.Rectangle,
      *      int, int)
      */
@@ -122,7 +123,7 @@ public class TransportStreamsViewer extends StreamsViewer {
 
     /**
      * Find/allocate a row for the specified PID.
-     * 
+     *
      * @param pid
      *            The PID concerned.
      * @return A TransportStreamRow structure for that PID.
@@ -171,14 +172,14 @@ public class TransportStreamsViewer extends StreamsViewer {
 
     /**
      * A Row tailored for transport streams.
-     * 
+     *
      * @author Andrew de Quincey
      */
     private class TransportStreamRow {
 
         /**
          * Constructor.
-         * 
+         *
          * @param pid
          *            PID this row is representing.
          */
@@ -193,7 +194,7 @@ public class TransportStreamsViewer extends StreamsViewer {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see java.lang.Object#toString()
          */
         public String toString() {

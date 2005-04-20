@@ -32,7 +32,7 @@ import net.lidskialf.datadog.ui.actions.*;
 
 /**
  * The StreamExplorer for Transport Streams.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class TransportStreamExplorer implements StreamExplorer {
@@ -43,7 +43,7 @@ public class TransportStreamExplorer implements StreamExplorer {
 
     /**
      * Constructor.
-     * 
+     *
      * @param bitstream
      *            The Bitstream to view.
      * @throws IOException if there was a problem parsing <code>bitstream</code>
@@ -55,7 +55,7 @@ public class TransportStreamExplorer implements StreamExplorer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.StreamParser#GetUI(java.lang.String)
      */
     public JComponent buildUI() {
@@ -81,7 +81,7 @@ public class TransportStreamExplorer implements StreamExplorer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.StreamExplorer#buildMenuBar()
      */
     public JMenuBar buildMenuBar() {
@@ -90,7 +90,7 @@ public class TransportStreamExplorer implements StreamExplorer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see net.lidskialf.datadog.StreamExplorer#close()
      */
     public void close() {
@@ -102,7 +102,7 @@ public class TransportStreamExplorer implements StreamExplorer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     public String toString() {

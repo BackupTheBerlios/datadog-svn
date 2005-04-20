@@ -22,6 +22,8 @@ import java.util.*;
 import javax.swing.*;
 
 /**
+ * The base StreamsViewer implementation.
+ *
  * @author Andrew de Quincey
  */
 public abstract class StreamsViewer extends JScrollPane {
@@ -63,7 +65,7 @@ public abstract class StreamsViewer extends JScrollPane {
         getViewport().add(panel);
         panel.setBackground(Color.white);
         panel.setBorder(null);
-        
+
         setBorder(null);
         setViewportBorder(null);
         setPreferredSize(new Dimension(600, 200));
@@ -72,7 +74,7 @@ public abstract class StreamsViewer extends JScrollPane {
     /**
      * Add a StreamsViewerChangeListener to receive events from this
      * StreamsViewer.
-     * 
+     *
      * @param listener
      *            The listener to add.
      */
@@ -83,7 +85,7 @@ public abstract class StreamsViewer extends JScrollPane {
     /**
      * Remove a StreamsViewerChangeListener so it no longer receives events from
      * this StreamsViewer.
-     * 
+     *
      * @param listener
      *            The listener to remove.
      */
@@ -94,7 +96,7 @@ public abstract class StreamsViewer extends JScrollPane {
     /**
      * Determine the Y position a stream with index streamIdx will be displayed
      * at.
-     * 
+     *
      * @param streamIdx
      *            The index of the stream.
      * @return The Y position of the top of the stream's rendering position.
@@ -105,7 +107,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
     /**
      * Determine the streamIdx that a y position corresponds to.
-     * 
+     *
      * @param yPos
      *            The y position.
      * @param separatorDisposition
@@ -138,7 +140,7 @@ public abstract class StreamsViewer extends JScrollPane {
     /**
      * Convert an X position in the window into a real position within the
      * stream.
-     * 
+     *
      * @param x
      *            The X position.
      * @return The stream position.
@@ -150,7 +152,7 @@ public abstract class StreamsViewer extends JScrollPane {
     /**
      * Convert a real position within the stream into an X position in the
      * window.
-     * 
+     *
      * @param position
      *            The X position.
      * @return The stream position.
@@ -162,7 +164,7 @@ public abstract class StreamsViewer extends JScrollPane {
     /**
      * Convert an width in the window into a real length of an area within the
      * stream.
-     * 
+     *
      * @param width
      *            The width.
      * @return The length of the area within the stream..
@@ -174,7 +176,7 @@ public abstract class StreamsViewer extends JScrollPane {
     /**
      * Convert a real length of an area within the stream into a width in the
      * window.
-     * 
+     *
      * @param width
      *            The width.
      * @return The length of the area within the stream..
@@ -185,7 +187,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
     /**
      * The total width of the entire StreamsViewer panel.
-     * 
+     *
      * @return The width in pixels.
      */
     public int getTotalPanelWidth() {
@@ -194,7 +196,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
     /**
      * Accessor for the current zoom factor.
-     * 
+     *
      * @return The current zoom factor.
      */
     public int getCurZoomFactor() {
@@ -210,7 +212,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
         Rectangle viewRect = getViewport().getViewRect();
         long midPosition = panelXPositionToAbsolutePosition(viewRect.x + (viewRect.width/2));
-        
+
         curZoomFactor--;
         updateDimensions();
         centreView(midPosition);
@@ -224,7 +226,7 @@ public abstract class StreamsViewer extends JScrollPane {
     public void zoomOut() {
         if (curZoomFactor == maxZoomFactor)
             return;
-        
+
         Rectangle viewRect = getViewport().getViewRect();
         long midPosition = panelXPositionToAbsolutePosition(viewRect.x + (viewRect.width/2));
 
@@ -237,7 +239,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
     /**
      * Update the position of the selector.
-     * 
+     *
      * @param newSelectorPos
      *            The absolute new position of the selector.
      */
@@ -251,23 +253,23 @@ public abstract class StreamsViewer extends JScrollPane {
             panel.repaint(absolutePositionToPanelXPosition(absoluteSelectorPos), 0, 1, getHeight());
         }
     }
-    
+
     /**
      * Centre the view about an absolute stream position.
-     * 
+     *
      * @param position The new position.
      */
     public void centreView(long position) {
         Dimension d = getViewport().getExtentSize();
         Point pos = getViewport().getViewPosition();
-        
+
         pos.x = absolutePositionToPanelXPosition(position - panelWidthToAbsoluteLength(d.width/2));
         getViewport().setViewPosition(pos);
     }
 
     /**
      * Fires all change listener events for the given changeType.
-     * 
+     *
      * @param changeType
      *            The type of change that occured (One of CHANGED_*).
      */
@@ -290,7 +292,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
     /**
      * Set the absolute length of the stream.
-     * 
+     *
      * @param absoluteLength
      *            The absolute length of the stream.
      */
@@ -326,7 +328,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
     /**
      * Calculate the current scroll unit increment.
-     * 
+     *
      * @param visibleRect the visible rectangle
      * @param orientation the orientation
      * @param direction   the direction
@@ -336,7 +338,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
     /**
      * Calculate the current scroll block increment.
-     * 
+     *
      * @param visibleRect the visible rectangle
      * @param orientation the orientation
      * @param direction   the direction
@@ -346,7 +348,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
     /**
      * Repaint a bit of the streams panel
-     * 
+     *
      * @param g
      *            The Graphics context.
      */
@@ -355,7 +357,7 @@ public abstract class StreamsViewer extends JScrollPane {
     /**
      * Paint the selector onto a graphics context, as long as it lies within
      * the specified minimum and maximum values.
-     * 
+     *
      * @param g                     the Graphics context to paint onto
      * @param minStreamDrawPosition the minimum position 
      * @param maxStreamDrawPosition the maximum position
@@ -370,7 +372,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
     /**
      * The scrollable display for streams.
-     * 
+     *
      * @author Andrew de Quincey
      */
     protected class StreamsPanel extends JPanel implements Scrollable {
@@ -381,7 +383,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see javax.swing.Scrollable#getPreferredScrollableViewportSize()
          */
         public Dimension getPreferredScrollableViewportSize() {
@@ -390,7 +392,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see javax.swing.Scrollable#getScrollableBlockIncrement(java.awt.Rectangle,
          *      int, int)
          */
@@ -400,7 +402,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see javax.swing.Scrollable#getScrollableTracksViewportHeight()
          */
         public boolean getScrollableTracksViewportHeight() {
@@ -409,7 +411,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see javax.swing.Scrollable#getScrollableTracksViewportWidth()
          */
         public boolean getScrollableTracksViewportWidth() {
@@ -418,7 +420,7 @@ public abstract class StreamsViewer extends JScrollPane {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see javax.swing.Scrollable#getScrollableUnitIncrement(java.awt.Rectangle,
          *      int, int)
          */

@@ -25,7 +25,7 @@ import net.lidskialf.datadog.ui.DataDog;
 
 /**
  * Action to open a new stream from disk.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class OpenNewStreamAction extends AbstractAction {
@@ -39,7 +39,7 @@ public class OpenNewStreamAction extends AbstractAction {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent arg0) {

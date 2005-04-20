@@ -21,7 +21,7 @@ import javax.swing.*;
 
 /**
  * Interface implemented by a stream parser.
- * 
+ *
  * @author Andrew de Quincey
  */
 public interface StreamExplorer {
@@ -36,7 +36,7 @@ public interface StreamExplorer {
 
     /**
      * Gets the menubar for the stream viewer.
-     * 
+     *
      * @return The JMenuBar instance, or null if no menubar is wanted.
      */
     public JMenuBar buildMenuBar();

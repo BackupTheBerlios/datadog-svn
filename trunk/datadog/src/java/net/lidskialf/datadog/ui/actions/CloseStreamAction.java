@@ -26,7 +26,7 @@ import net.lidskialf.datadog.ui.*;
 
 /**
  * Action to close a stream.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class CloseStreamAction extends AbstractAction {
@@ -53,7 +53,7 @@ public class CloseStreamAction extends AbstractAction {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent arg0) {

@@ -28,14 +28,14 @@ import javax.swing.event.ListDataListener;
 
 /**
  * Generic Row Header for the StreamViewer.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
 
     /**
      * Constructor.
-     * 
+     *
      * @param viewer
      *            The StreamsViewer we are associated with.
      * @param rowModel
@@ -54,7 +54,7 @@ public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
      */
     public void contentsChanged(ListDataEvent arg0) {
@@ -63,7 +63,7 @@ public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
      */
     public void intervalAdded(ListDataEvent arg0) {
@@ -72,7 +72,7 @@ public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
      */
     public void intervalRemoved(ListDataEvent arg0) {
@@ -81,7 +81,7 @@ public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see javax.swing.JComponent#print(java.awt.Graphics)
      */
     protected void paintComponent(Graphics g) {

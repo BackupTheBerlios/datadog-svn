@@ -21,33 +21,33 @@ import java.util.*;
 
 /**
  * Bookmarks for a stream.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class StreamBookmarks {
-    
+
     /**
      * Constructor.
      */
     public StreamBookmarks() {
         bookmarks = Collections.synchronizedSortedMap(new TreeMap());
     }
-    
+
     /**
      * Get all bookmarks.
-     * 
-     * @return Ascendingly ordered Iterator of bookmarks (by absolute position of bookmark). 
+     *
+     * @return Ascendingly ordered Iterator of bookmarks (by absolute position of bookmark).
      */
     public Iterator get() {
         return bookmarks.values().iterator();
     }
-    
+
     /**
      * Get bookmarks between two points.
-     * 
+     *
      * @param start Starting position.
      * @param end Ending position (inclusive).
-     * @return Ascendingly ordered Iterator of bookmarks (by absolute position of bookmark). 
+     * @return Ascendingly ordered Iterator of bookmarks (by absolute position of bookmark).
      */
     public Iterator get(long start, long end) {
         return bookmarks.subMap(new Long(start), new Long(end)).values().iterator();
@@ -55,39 +55,39 @@ public class StreamBookmarks {
 
     /**
      * Add a bookmark.
-     * 
+     *
      * @param absolutePosition Position of the bookmark.
      * @param bookmark The bookmark instance.
      */
     public void add(long absolutePosition, Object bookmark) {
         bookmarks.put(new Long(absolutePosition), bookmark);
     }
-    
+
     /**
      * Remove a bookmark by object.
-     * 
+     *
      * @param bookmark The bookmark instance to remove.
      */
     public void remove(Object bookmark) {
         Iterator i = bookmarks.keySet().iterator();
         while(i.hasNext()) {
             Long key = (Long) i.next();
-            
+
             if (bookmarks.get(key) == bookmark) {
                 bookmarks.remove(key);
             }
         }
     }
-    
+
     /**
      * Remove a bookmark by absolute position.
-     * 
-     * @param absolutePosition The position at which to remove all bookmarks. 
+     *
+     * @param absolutePosition The position at which to remove all bookmarks.
      */
     public void remove(long absolutePosition) {
-        bookmarks.remove(new Long(absolutePosition));        
+        bookmarks.remove(new Long(absolutePosition));
     }
-    
+
     /**
      * The bookmarks themselves.
      */

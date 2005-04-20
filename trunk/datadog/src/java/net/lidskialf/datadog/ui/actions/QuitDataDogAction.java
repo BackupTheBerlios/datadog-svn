@@ -24,7 +24,7 @@ import javax.swing.Action;
 
 /**
  * Action to quit DataDog.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class QuitDataDogAction extends AbstractAction {
@@ -38,7 +38,7 @@ public class QuitDataDogAction extends AbstractAction {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent arg0) {

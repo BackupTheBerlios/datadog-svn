@@ -27,7 +27,7 @@ import net.lidskialf.datadog.ui.DataDog;
 
 /**
  * Action to show (unhide) a stream.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class ShowStreamAction extends AbstractAction {
@@ -54,7 +54,7 @@ public class ShowStreamAction extends AbstractAction {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent arg0) {

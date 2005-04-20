@@ -25,7 +25,7 @@ import net.lidskialf.datadog.ui.*;
 
 /**
  * Action to display the About Box.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class AboutDataDogAction extends AbstractAction {
@@ -39,7 +39,7 @@ public class AboutDataDogAction extends AbstractAction {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent arg0) {

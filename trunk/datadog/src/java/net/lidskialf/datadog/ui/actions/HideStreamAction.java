@@ -27,7 +27,7 @@ import net.lidskialf.datadog.ui.DataDog;
 
 /**
  * Action to hide (make non-visible, but NOT close) a stream.
- * 
+ *
  * @author Andrew de Quincey
  */
 public class HideStreamAction extends AbstractAction {
@@ -54,7 +54,7 @@ public class HideStreamAction extends AbstractAction {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
      */
     public void actionPerformed(ActionEvent arg0) {
