@@ -245,6 +245,31 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
         // round the max position up to the nearest major tick
         maxStreamDrawPosition = ((maxStreamDrawPosition + curMajorTickSpacing) / curMajorTickSpacing) * curMajorTickSpacing;
 
+
+        // paint the bookmarks if they're supported
+        if (viewer.bookmarksSupported()) {
+            Iterator it = viewer.getBookmarkKeys(minStreamDrawPosition, maxStreamDrawPosition);
+            while(it.hasNext()) {
+                Long curBookmark = (Long) it.next();
+                int xpos = viewer.absolutePositionToPanelXPosition(curBookmark.longValue());
+                g.setColor(Color.orange);
+                g.fillOval(xpos-bookmarkRadius, 10, bookmarkRadius<<1, bookmarkRadius<<1);
+            }
+        }
+
+        // draw the selector.
+        if ((minStreamDrawPosition <= absoluteSelectorPos) && (maxStreamDrawPosition >= absoluteSelectorPos)) {
+            int xpos = viewer.absolutePositionToPanelXPosition(absoluteSelectorPos);
+
+            if (!movingBookmark) {
+                g.setColor(Color.blue);
+                g.drawLine(xpos, 0, xpos, getHeight());
+            } else {
+                g.setColor(Color.orange);
+                g.fillOval(xpos-bookmarkRadius, 10, bookmarkRadius<<1, bookmarkRadius<<1);
+            }
+        }
+
         // draw the ticks
         g.setColor(Color.black);
         for (long pos = minStreamDrawPosition; pos <= maxStreamDrawPosition; pos += curMinorTickSpacing) {
@@ -266,30 +291,6 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
                 g.drawString(rendered, x, 10);
             } else {
                 g.drawLine(x, 15, x, 20);
-            }
-        }
-
-        // draw the selector.
-        if ((minStreamDrawPosition <= absoluteSelectorPos) && (maxStreamDrawPosition >= absoluteSelectorPos)) {
-            int xpos = viewer.absolutePositionToPanelXPosition(absoluteSelectorPos);
-
-            if (!movingBookmark) {
-                g.setColor(Color.blue);
-                g.drawLine(xpos, 0, xpos, getHeight());
-            } else {
-                g.setColor(Color.orange);
-                g.fillOval(xpos-bookmarkRadius, 10, bookmarkRadius<<1, bookmarkRadius<<1);
-            }
-        }
-
-        // paint the bookmarks if they're supported
-        if (viewer.bookmarksSupported()) {
-            Iterator it = viewer.getBookmarkKeys(minStreamDrawPosition, maxStreamDrawPosition);
-            while(it.hasNext()) {
-                Long curBookmark = (Long) it.next();
-                int xpos = viewer.absolutePositionToPanelXPosition(curBookmark.longValue());
-                g.setColor(Color.orange);
-                g.fillOval(xpos-bookmarkRadius, 10, bookmarkRadius<<1, bookmarkRadius<<1);
             }
         }
     }
