@@ -17,7 +17,6 @@
  */
 package net.lidskialf.datadog.mpeg.ui;
 
-import java.awt.*;
 import javax.swing.*;
 
 import com.jgoodies.forms.builder.PanelBuilder;

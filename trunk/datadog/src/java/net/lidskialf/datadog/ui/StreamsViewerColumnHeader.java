@@ -240,16 +240,18 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
             popupMenuActions.update();
             popupMenu.show(this, arg0.getX(), arg0.getY());
         } else if (arg0.getButton() == MouseEvent.BUTTON1) {
-            movingBookmark = true;
-            viewer.setMovingBookmark(selectedBookmark);
+            if (selectedBookmark != null) {
+                movingBookmark = true;
+                viewer.setMovingBookmark(selectedBookmark);
 
-            ToolTipManager manager = ToolTipManager.sharedInstance();
-            tipDismissDelay = manager.getDismissDelay();
-            tipInitialDelay = manager.getInitialDelay();
-            tipReshowDelay = manager.getReshowDelay();
-            manager.setDismissDelay(1000*60*60*24);
-            manager.setInitialDelay(0);
-            manager.setReshowDelay(0);
+                ToolTipManager manager = ToolTipManager.sharedInstance();
+                tipDismissDelay = manager.getDismissDelay();
+                tipInitialDelay = manager.getInitialDelay();
+                tipReshowDelay = manager.getReshowDelay();
+                manager.setDismissDelay(1000*60*60*24);
+                manager.setInitialDelay(0);
+                manager.setReshowDelay(0);
+            }
         }
     }
 
