@@ -282,6 +282,13 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      */
     public void mouseMoved(MouseEvent arg0) {
         updateSelector(arg0);
+
+        // update the tooltip
+        long position = findNearestBookmark(arg0);
+        if (position != -1) {
+            StreamBookmark bookmark = viewer.getBookmark(position);
+            setToolTipText(bookmark.toString());
+        }
     }
 
     /* (non-Javadoc)
@@ -364,11 +371,12 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     }
 
     /**
-     * Update the currently selected bookmark (if any).
+     * Find the bookmark near a position.
      *
-     * @param arg0 MouseEvent concerned
+     * @param arg0 MouseEvent concerned.
+     * @return The position of the bookmark, or -1 if none in range.
      */
-    protected void updateSelectedBookmark(MouseEvent arg0) {
+    protected long findNearestBookmark(MouseEvent arg0) {
         long minAbsolutePosition = viewer.panelXPositionToAbsolutePosition(arg0.getX() - bookmarkRadius);
         long maxAbsolutePosition = viewer.panelXPositionToAbsolutePosition(arg0.getX() + bookmarkRadius);
 
@@ -379,15 +387,29 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
 
             // this this bookmark within range of the click?
             if ((minAbsolutePosition <= curBookmark) && (maxAbsolutePosition >= curBookmark)) {
-                selectedPosition = curBookmark;
-                selectedBookmark = viewer.getBookmark(selectedPosition);
-                return;
+                return curBookmark;
             }
         }
 
-        // no bookmark is selected
-        selectedPosition = viewer.panelXPositionToAbsolutePosition(arg0.getX());
-        selectedBookmark = null;
+        // no bookmark available
+        return -1;
+    }
+
+    /**
+     * Update the currently selected bookmark (if any).
+     *
+     * @param arg0 MouseEvent concerned
+     */
+    protected void updateSelectedBookmark(MouseEvent arg0) {
+        long bookmarkPosition = findNearestBookmark(arg0);
+
+        if (bookmarkPosition != -1) {
+            selectedPosition = bookmarkPosition;
+            selectedBookmark = viewer.getBookmark(bookmarkPosition);
+        } else {
+            selectedPosition = viewer.panelXPositionToAbsolutePosition(arg0.getX());
+            selectedBookmark = null;
+        }
     }
 
     /*
