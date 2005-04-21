@@ -119,8 +119,6 @@ public class TransportStreamExplorer implements StreamExplorer {
         rowModel = new DefaultListModel();
 
         bookmarks = new StreamBookmarks();
-        bookmarks.add(200, new StreamBookmark("hi", Color.orange)); // FIXME: hack!!
-        bookmarks.add(400, new StreamBookmark("hi2", Color.cyan)); // FIXME: hack!!
 
         viewer = new TransportStreamsViewer(transportStream, rowModel, bookmarks);
         viewer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
