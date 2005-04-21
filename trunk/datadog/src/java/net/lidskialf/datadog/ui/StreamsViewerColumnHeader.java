@@ -260,6 +260,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
         if ((selectedBookmark != null) && movingBookmark) {
             long newPosition = viewer.panelXPositionToAbsolutePosition(arg0.getX());
             if (newPosition < 0) newPosition = 0;
+            if (newPosition >= viewer.getStreamLength()) newPosition = viewer.getStreamLength();
 
             viewer.moveBookmark(selectedPosition, newPosition);
             selectedPosition = -1;
@@ -340,6 +341,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     protected void updateSelector(MouseEvent arg0) {
         long newSelectorPos = viewer.panelXPositionToAbsolutePosition(arg0.getX());
         if (newSelectorPos < 0) newSelectorPos = 0;
+        if (newSelectorPos >= viewer.getStreamLength()) newSelectorPos = viewer.getStreamLength();
 
         if (newSelectorPos != absoluteSelectorPos) {
             long oldSelectorPos = absoluteSelectorPos;

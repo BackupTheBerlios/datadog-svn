@@ -262,6 +262,16 @@ public abstract class StreamsViewer extends JScrollPane {
         return curZoomFactor;
     }
 
+
+    /**
+     * Accessor for the total stream length.
+     *
+     * @return The length.
+     */
+    public long getStreamLength() {
+        return absoluteLength;
+    }
+
     /**
      * Tell the StreamsViewer to zoom in one step.
      */
@@ -402,7 +412,6 @@ public abstract class StreamsViewer extends JScrollPane {
 
         fireChangeListeners(StreamsViewerChangeEvent.bookmarkRemoved(this, position));
     }
-
 
     /**
      * Add the bookmark at a given position.

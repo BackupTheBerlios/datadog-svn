@@ -97,9 +97,7 @@ public class BookmarkEditor {
      */
     protected void initComponents() {
 
-        // FIXME: the max value of the spinner should be retrieved from the StreamViewer!
-
-        SpinnerModel model = new SpinnerNumberModel(new Long(position), new Long(0), new Long(Long.MAX_VALUE), new Long(1));
+        SpinnerModel model = new SpinnerNumberModel(new Long(position), new Long(0), new Long(viewer.getStreamLength()), new Long(1));
         positionField = new JSpinner(model);
 
         descriptionField = new JTextField(bookmark.getDescription());
