@@ -39,6 +39,21 @@ public class StreamsViewerChangeEvent {
      */
     public static final int CHANGE_MOVEBOOKMARK = 2;
 
+    /**
+     * A bookmark was changed (but not moved).
+     */
+    public static final int CHANGE_CHANGEBOOKMARK = 3;
+
+    /**
+     * A bookmark was removed.
+     */
+    public static final int CHANGE_REMOVEBOOKMARK = 4;
+
+    /**
+     * A bookmark was added.
+     */
+    public static final int CHANGE_ADDBOOKMARK = 5;
+
 
     /**
      * The StreamsViewer which this event concerns.
@@ -117,6 +132,42 @@ public class StreamsViewerChangeEvent {
         StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_MOVEBOOKMARK);
         tmp.oldBookmarkPosition = oldPosition;
         tmp.bookmarkPosition = newPosition;
+        return tmp;
+    }
+
+    /**
+     * Create an object indicating a bookmark was moved.
+     *
+     * @param zoomFactor The new zoom factor.
+     * @return Appropriately initialised StreamsViewerChangeEvent instance.
+     */
+    public static StreamsViewerChangeEvent bookmarkChanged(StreamsViewer viewer, long position) {
+        StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_CHANGEBOOKMARK);
+        tmp.bookmarkPosition = position;
+        return tmp;
+    }
+
+    /**
+     * Create an object indicating a bookmark was removed.
+     *
+     * @param zoomFactor The new zoom factor.
+     * @return Appropriately initialised StreamsViewerChangeEvent instance.
+     */
+    public static StreamsViewerChangeEvent bookmarkRemoved(StreamsViewer viewer, long position) {
+        StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_REMOVEBOOKMARK);
+        tmp.bookmarkPosition = position;
+        return tmp;
+    }
+
+    /**
+     * Create an object indicating a bookmark was added.
+     *
+     * @param zoomFactor The new zoom factor.
+     * @return Appropriately initialised StreamsViewerChangeEvent instance.
+     */
+    public static StreamsViewerChangeEvent bookmarkAdded(StreamsViewer viewer, long position) {
+        StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_ADDBOOKMARK);
+        tmp.bookmarkPosition = position;
         return tmp;
     }
 }

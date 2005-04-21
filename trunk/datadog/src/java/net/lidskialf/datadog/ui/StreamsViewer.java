@@ -46,6 +46,71 @@ public abstract class StreamsViewer extends JScrollPane {
      */
     public static final int SEPARATOR_INVALID = 2;
 
+
+    /**
+     * The absolute length of the stream.
+     */
+    protected long absoluteLength = 0;
+
+    /**
+     * Absolute position of the selector marker.
+     */
+    protected long absoluteSelectorPos = -1;
+
+    /**
+     * The zoom factor applied to the absolute stream positions.
+     */
+    protected int curZoomFactor = 0;
+
+    /**
+     * The minimum permitted zoom factor (chosen to avoid integer overflows for
+     * very long streams).
+     */
+    protected int minZoomFactor = 0;
+
+    /**
+     * The maximum permitted zoom factor.
+     */
+    protected int maxZoomFactor = 20;
+
+    /**
+     * Total width of the panel window in pixels.
+     */
+    protected int panelWidth = 0;
+
+    /**
+     * The height of a row in pixels.
+     */
+    protected int panelRowHeight = 10;
+
+    /**
+     * The separation between two rows in pixels.
+     */
+    protected int panelRowSeparation = 1;
+
+    /**
+     * The stream viewer component instance.
+     */
+    protected StreamsPanel panel;
+
+    /**
+     * List of registered StreamViewerChangeListeners.
+     */
+    protected java.util.List changeListeners = Collections.synchronizedList(new ArrayList());
+
+    /**
+     * Bookmarks known to this stream.
+     */
+    protected StreamBookmarks bookmarks;
+
+    /**
+     * Flag indicating a bookmark is being moved.
+     */
+    protected StreamBookmark movingBookmark = null;
+
+
+
+
     /**
      * Constructor.
      *
@@ -303,20 +368,75 @@ public abstract class StreamsViewer extends JScrollPane {
             int oldX = absolutePositionToPanelXPosition(curPosition);
             int newX = absolutePositionToPanelXPosition(newPosition);
 
-            repaint(oldX, 0, 1, getHeight());
-            repaint(newX, 0, 1, getHeight());
+            panel.repaint(oldX, 0, 1, getHeight());
+            panel.repaint(newX, 0, 1, getHeight());
 
             fireChangeListeners(StreamsViewerChangeEvent.bookmarkMoved(this, curPosition, newPosition));
         }
     }
 
     /**
-     * Set the flag to indicate a bookmark is being moved, so the display can be changed during it.
+     * Get the bookmark at a given position.
      *
-     * @param moving True if one is being moved, false if not.
+     * @param position The position.
+     * @return The StreamBookmark, or null if no bookmark was present.
      */
-    public void setMovingBookmark(boolean moving) {
-        movingBookmark = moving;
+    public StreamBookmark getBookmark(long position) {
+        return bookmarks.get(position);
+    }
+
+    /**
+     * Remove the bookmark at a given position.
+     *
+     * @param position The position.
+     */
+    public void removeBookmark(long position) {
+        int x = absolutePositionToPanelXPosition(position);
+
+        bookmarks.remove(position);
+
+        panel.repaint(x, 0, 1, getHeight());
+
+        fireChangeListeners(StreamsViewerChangeEvent.bookmarkRemoved(this, position));
+    }
+
+
+    /**
+     * Add the bookmark at a given position.
+     *
+     * @param position The position.
+     * @param bookmark The bookmark.
+     */
+    public void addBookmark(long position, StreamBookmark bookmark) {
+        int x = absolutePositionToPanelXPosition(position);
+
+        bookmarks.add(position, bookmark);
+
+        panel.repaint(x, 0, 1, getHeight());
+
+        fireChangeListeners(StreamsViewerChangeEvent.bookmarkAdded(this, position));
+    }
+
+    /**
+     * Set the flag to indicate a bookmark is being moved.
+     *
+     * @param bookmark The StreamBookmark if moving in progress, or null when move is finished.
+     */
+    public void setMovingBookmark(StreamBookmark bookmark) {
+        movingBookmark = bookmark;
+    }
+
+    /**
+     * Informs the viewer that the contents of a bookmark have changed.
+     *
+     * @param position Position of the bookmark which has changed.
+     */
+    public void bookmarkModified(long position) {
+        int x = absolutePositionToPanelXPosition(position);
+
+        panel.repaint(x, 0, 1, getHeight());
+
+        fireChangeListeners(StreamsViewerChangeEvent.bookmarkChanged(this, position));
     }
 
 
@@ -341,6 +461,18 @@ public abstract class StreamsViewer extends JScrollPane {
 
             case StreamsViewerChangeEvent.CHANGE_MOVEBOOKMARK:
                 curListener.bookmarkMoved(e);
+                break;
+
+            case StreamsViewerChangeEvent.CHANGE_CHANGEBOOKMARK:
+                curListener.bookmarkChanged(e);
+                break;
+
+            case StreamsViewerChangeEvent.CHANGE_REMOVEBOOKMARK:
+                curListener.bookmarkRemoved(e);
+                break;
+
+            case StreamsViewerChangeEvent.CHANGE_ADDBOOKMARK:
+                curListener.bookmarkAdded(e);
                 break;
             }
         }
@@ -422,10 +554,10 @@ public abstract class StreamsViewer extends JScrollPane {
         // paint the selector
         if ((absoluteSelectorPos >= minAbsoluteStreamPosition) && (absoluteSelectorPos <= maxAbsoluteStreamPosition)) {
             int xpos = absolutePositionToPanelXPosition(absoluteSelectorPos);
-            if (!movingBookmark) {
+            if (movingBookmark == null) {
                 g.setColor(Color.blue);
             } else {
-                g.setColor(Color.orange);
+                g.setColor(movingBookmark.getColour());
             }
             g.drawLine(xpos, 0, xpos, getHeight());
         }
@@ -434,9 +566,10 @@ public abstract class StreamsViewer extends JScrollPane {
         if (bookmarks != null) {
             Iterator it = bookmarks.getKeys(minAbsoluteStreamPosition, maxAbsoluteStreamPosition);
             while(it.hasNext()) {
-                Long curBookmark = (Long) it.next();
-                int xpos = absolutePositionToPanelXPosition(curBookmark.longValue());
-                g.setColor(Color.orange);
+                Long position = (Long) it.next();
+                StreamBookmark curBookmark = bookmarks.get(position.longValue());
+                int xpos = absolutePositionToPanelXPosition(position.longValue());
+                g.setColor(curBookmark.getColour());
                 g.drawLine(xpos, 0, xpos, getHeight());
             }
         }
@@ -500,65 +633,4 @@ public abstract class StreamsViewer extends JScrollPane {
             return unitScrollIncrement(arg0, arg1, arg2);
         }
     }
-
-    /**
-     * The absolute length of the stream.
-     */
-    protected long absoluteLength = 0;
-
-    /**
-     * Absolute position of the selector marker.
-     */
-    protected long absoluteSelectorPos = -1;
-
-    /**
-     * The zoom factor applied to the absolute stream positions.
-     */
-    protected int curZoomFactor = 0;
-
-    /**
-     * The minimum permitted zoom factor (chosen to avoid integer overflows for
-     * very long streams).
-     */
-    protected int minZoomFactor = 0;
-
-    /**
-     * The maximum permitted zoom factor.
-     */
-    protected int maxZoomFactor = 20;
-
-    /**
-     * Total width of the panel window in pixels.
-     */
-    protected int panelWidth = 0;
-
-    /**
-     * The height of a row in pixels.
-     */
-    protected int panelRowHeight = 10;
-
-    /**
-     * The separation between two rows in pixels.
-     */
-    protected int panelRowSeparation = 1;
-
-    /**
-     * The stream viewer component instance.
-     */
-    protected StreamsPanel panel;
-
-    /**
-     * List of registered StreamViewerChangeListeners.
-     */
-    protected java.util.List changeListeners = Collections.synchronizedList(new ArrayList());
-
-    /**
-     * Bookmarks known to this stream.
-     */
-    protected StreamBookmarks bookmarks;
-
-    /**
-     * Flag indicating a bookmark is being moved.
-     */
-    protected boolean movingBookmark = false;
 }

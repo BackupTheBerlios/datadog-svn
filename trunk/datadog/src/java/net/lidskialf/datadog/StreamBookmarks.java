@@ -59,7 +59,7 @@ public class StreamBookmarks {
      * @param absolutePosition Position of the bookmark.
      * @param bookmark The bookmark instance.
      */
-    public void add(long absolutePosition, Object bookmark) {
+    public void add(long absolutePosition, StreamBookmark bookmark) {
         bookmarks.put(new Long(absolutePosition), bookmark);
     }
 
@@ -117,6 +117,16 @@ public class StreamBookmarks {
      */
     public boolean contains(long position) {
         return bookmarks.containsKey(new Long(position));
+    }
+
+    /**
+     * Get the bookmark at the given position.
+     *
+     * @param position The position concerned.
+     * @return The StreamBookmark instance, or null if there was no bookmark.
+     */
+    public StreamBookmark get(long position) {
+        return (StreamBookmark) bookmarks.get(new Long(position));
     }
 
     /**

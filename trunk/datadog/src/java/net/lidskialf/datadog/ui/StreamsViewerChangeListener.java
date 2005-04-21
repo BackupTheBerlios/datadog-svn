@@ -49,4 +49,28 @@ public interface StreamsViewerChangeListener {
      *            The StreamsViewerChangeEvent describing the event.
      */
     public void bookmarkMoved(StreamsViewerChangeEvent e);
+
+    /**
+     * A bookmark was changed somehow (but not moved).
+     *
+     * @param e
+     *            The StreamsViewerChangeEvent describing the event.
+     */
+    public void bookmarkChanged(StreamsViewerChangeEvent e);
+
+    /**
+     * A bookmark was removed.
+     *
+     * @param e
+     *            The StreamsViewerChangeEvent describing the event.
+     */
+    public void bookmarkRemoved(StreamsViewerChangeEvent e);
+
+    /**
+     * A bookmark was added.
+     *
+     * @param e
+     *            The StreamsViewerChangeEvent describing the event.
+     */
+    public void bookmarkAdded(StreamsViewerChangeEvent e);
 }

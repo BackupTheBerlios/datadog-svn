@@ -17,6 +17,7 @@
  */
 package net.lidskialf.datadog.mpeg.ui;
 
+import java.awt.*;
 import javax.swing.*;
 
 import com.jgoodies.forms.builder.PanelBuilder;
@@ -118,8 +119,8 @@ public class TransportStreamExplorer implements StreamExplorer {
         rowModel = new DefaultListModel();
 
         bookmarks = new StreamBookmarks();
-        bookmarks.add(200, "hi"); // FIXME: hack!!
-        bookmarks.add(400, "hi2"); // FIXME: hack!!
+        bookmarks.add(200, new StreamBookmark("hi", Color.orange)); // FIXME: hack!!
+        bookmarks.add(400, new StreamBookmark("hi2", Color.cyan)); // FIXME: hack!!
 
         viewer = new TransportStreamsViewer(transportStream, rowModel, bookmarks);
         viewer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);

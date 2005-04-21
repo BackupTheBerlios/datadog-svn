@@ -22,12 +22,97 @@ import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
 
+import net.lidskialf.datadog.*;
+import net.lidskialf.datadog.ui.actions.*;
+
 /**
  * A generic ColumnHeader for a StreamsViewer.
  *
  * @author Andrew de Quincey
  */
-public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerChangeListener, MouseListener, MouseMotionListener {
+public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerChangeListener, MouseListener, MouseMotionListener, ActionInformationSource {
+
+    /**
+     * The StreamsViewer we are associated with.
+     */
+    protected StreamsViewer viewer;
+
+    /**
+     * The width of the stream panel window in pixels.
+     */
+    protected int panelWidth;
+
+    /**
+     * Nominal (at 1:1 zoom) spacing between minor ticks.
+     */
+    protected long nominalMinorTickSpacing;
+
+    /**
+     * Nominal (at 1:1 zoom) spacing between major ticks.
+     */
+    protected long nominalMajorTickSpacing;
+
+    /**
+     * Minor tick spacing at current zoom level.
+     */
+    protected long curMinorTickSpacing;
+
+    /**
+     * Major tick spacing at current zoom level.
+     */
+    protected long curMajorTickSpacing;
+
+    /**
+     * Current absolute position of the selector marker.
+     */
+    protected long absoluteSelectorPos = -1;
+
+    /**
+     * Radius in pixels of a bookmark.
+     */
+    protected int bookmarkRadius = 5;
+
+    /**
+     * The currently selected position or -1 if none.
+     */
+    protected long selectedPosition = -1;
+
+    /**
+     * The currently selected bookmark or null if none.
+     */
+    protected StreamBookmark selectedBookmark;
+
+    /**
+     * Flag indicating a bookmark is currently being dragged.
+     */
+    protected boolean movingBookmark = false;
+
+    /**
+     * Cache of the default TooltipManager initial delay.
+     */
+    protected int tipInitialDelay;
+
+    /**
+     * Cache of the default TooltipManager dismiss delay.
+     */
+    protected int tipDismissDelay;
+
+    /**
+     * Cache of the default TooltipManager reshow delay.
+     */
+    protected int tipReshowDelay;
+
+    /**
+     * The popup menu.
+     */
+    protected JPopupMenu popupMenu;
+
+    /**
+     * The group of actions for the popup menu.
+     */
+    protected ActionGroup popupMenuActions;
+
+
 
     /**
      * Constructor.
@@ -47,6 +132,8 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
 
         setPreferredSize(new Dimension(0, 20));
         updateDimensions();
+
+        createPopupMenu();
     }
 
     /*
@@ -80,6 +167,28 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
         repaint(newX - bookmarkRadius, 0, bookmarkRadius<<1, getHeight());
     }
 
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#bookmarkChanged(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void bookmarkChanged(StreamsViewerChangeEvent e) {
+        int x = viewer.absolutePositionToPanelXPosition(e.bookmarkPosition);
+        repaint(x - bookmarkRadius, 0, bookmarkRadius<<1, getHeight());
+    }
+
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#bookmarkRemoved(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void bookmarkRemoved(StreamsViewerChangeEvent e) {
+        bookmarkChanged(e);
+    }
+
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#bookmarkAdded(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void bookmarkAdded(StreamsViewerChangeEvent e) {
+        bookmarkChanged(e);
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -88,25 +197,12 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     public void mouseDragged(MouseEvent arg0) {
 
         // update the bookmark
-        if (selectedBookmark != -1) {
+        if ((selectedBookmark != null) && movingBookmark) {
             // generate a fake mouse event so the tooltip updates
             MouseEvent fakeMoveEvent = new MouseEvent(arg0.getComponent(), MouseEvent.MOUSE_MOVED, arg0.getWhen(), arg0.getModifiers(), arg0.getX(), arg0.getY(), arg0.getClickCount(), arg0.isPopupTrigger());
             processMouseMotionEvent(fakeMoveEvent);
 
             long newPosition = viewer.panelXPositionToAbsolutePosition(arg0.getX());
-
-            if (!movingBookmark) {
-                movingBookmark = true;
-                viewer.setMovingBookmark(true);
-
-                ToolTipManager manager = ToolTipManager.sharedInstance();
-                tipDismissDelay = manager.getDismissDelay();
-                tipInitialDelay = manager.getInitialDelay();
-                tipReshowDelay = manager.getReshowDelay();
-                manager.setDismissDelay(1000*60*60*24);
-                manager.setInitialDelay(0);
-                manager.setReshowDelay(0);
-            }
             updateSelector(arg0);
         }
     }
@@ -115,6 +211,11 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
      */
     public void mouseClicked(MouseEvent arg0) {
+        if (arg0.isPopupTrigger()) {
+            updateSelectedBookmark(arg0);
+            popupMenuActions.update();
+            popupMenu.show(this, arg0.getX(), arg0.getY());
+        }
     }
 
     /* (non-Javadoc)
@@ -133,36 +234,37 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
      */
     public void mousePressed(MouseEvent arg0) {
-        long minAbsolutePosition = viewer.panelXPositionToAbsolutePosition(arg0.getX() - bookmarkRadius);
-        long maxAbsolutePosition = viewer.panelXPositionToAbsolutePosition(arg0.getX() + bookmarkRadius);
+        updateSelectedBookmark(arg0);
 
-        // try all possibilities
-        Iterator it = viewer.getBookmarkKeys(minAbsolutePosition, maxAbsolutePosition);
-        while(it.hasNext()) {
-            long curBookmark = ((Long) it.next()).longValue();
+        if (arg0.isPopupTrigger()) {
+            popupMenuActions.update();
+            popupMenu.show(this, arg0.getX(), arg0.getY());
+        } else if (arg0.getButton() == MouseEvent.BUTTON1) {
+            movingBookmark = true;
+            viewer.setMovingBookmark(selectedBookmark);
 
-            // this this bookmark within range of the click?
-            if ((minAbsolutePosition <= curBookmark) && (maxAbsolutePosition >= curBookmark)) {
-                selectedBookmark = curBookmark;
-                return;
-            }
+            ToolTipManager manager = ToolTipManager.sharedInstance();
+            tipDismissDelay = manager.getDismissDelay();
+            tipInitialDelay = manager.getInitialDelay();
+            tipReshowDelay = manager.getReshowDelay();
+            manager.setDismissDelay(1000*60*60*24);
+            manager.setInitialDelay(0);
+            manager.setReshowDelay(0);
         }
-
-        // no bookmark is selected
-        selectedBookmark = -1;
     }
 
     /* (non-Javadoc)
      * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
      */
     public void mouseReleased(MouseEvent arg0) {
-        if (selectedBookmark != -1) {
+        if ((selectedBookmark != null) && movingBookmark) {
             long newPosition = viewer.panelXPositionToAbsolutePosition(arg0.getX());
 
-            viewer.moveBookmark(selectedBookmark, newPosition);
-            selectedBookmark = -1;
+            viewer.moveBookmark(selectedPosition, newPosition);
+            selectedPosition = -1;
+            selectedBookmark = null;
             movingBookmark = false;
-            viewer.setMovingBookmark(false);
+            viewer.setMovingBookmark(null);
 
             ToolTipManager manager = ToolTipManager.sharedInstance();
             manager.setDismissDelay(tipDismissDelay);
@@ -180,8 +282,39 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
         updateSelector(arg0);
     }
 
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.ActionInformationSource#getParameter(java.lang.String)
+     */
+    public Object getActionParameter(String name) {
+        // return what it asks for
+        if (name == "bookmarkPosition") {
+            if (selectedPosition == -1) return null;
+            return new Long(selectedPosition);
+        } else if (name == "bookmark") {
+            return selectedBookmark;
+        }
 
+        // unknown
+        return null;
+    }
 
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.ActionInformationSource#isEnabled(java.lang.String)
+     */
+    public boolean isActionEnabled(String action) {
+
+        // return appropriate value for the requested action
+        if (action == "AddBookmarkAction") {
+            if (selectedBookmark == null) return true;
+        } else if (action == "EditBookmarkAction") {
+            if (selectedBookmark != null) return true;
+        } else if (action == "RemoveBookmarkAction") {
+            if (selectedBookmark  != null) return true;
+        }
+
+        // default is disabled.
+        return false;
+    }
 
     /* (non-Javadoc)
      * @see javax.swing.JComponent#processMouseEvent(java.awt.event.MouseEvent)
@@ -226,6 +359,33 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
         }
     }
 
+    /**
+     * Update the currently selected bookmark (if any).
+     *
+     * @param arg0 MouseEvent concerned
+     */
+    protected void updateSelectedBookmark(MouseEvent arg0) {
+        long minAbsolutePosition = viewer.panelXPositionToAbsolutePosition(arg0.getX() - bookmarkRadius);
+        long maxAbsolutePosition = viewer.panelXPositionToAbsolutePosition(arg0.getX() + bookmarkRadius);
+
+        // try all possibilities
+        Iterator it = viewer.getBookmarkKeys(minAbsolutePosition, maxAbsolutePosition);
+        while(it.hasNext()) {
+            long curBookmark = ((Long) it.next()).longValue();
+
+            // this this bookmark within range of the click?
+            if ((minAbsolutePosition <= curBookmark) && (maxAbsolutePosition >= curBookmark)) {
+                selectedPosition = curBookmark;
+                selectedBookmark = viewer.getBookmark(selectedPosition);
+                return;
+            }
+        }
+
+        // no bookmark is selected
+        selectedPosition = viewer.panelXPositionToAbsolutePosition(arg0.getX());
+        selectedBookmark = null;
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -250,9 +410,10 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
         if (viewer.bookmarksSupported()) {
             Iterator it = viewer.getBookmarkKeys(minStreamDrawPosition, maxStreamDrawPosition);
             while(it.hasNext()) {
-                Long curBookmark = (Long) it.next();
-                int xpos = viewer.absolutePositionToPanelXPosition(curBookmark.longValue());
-                g.setColor(Color.orange);
+                Long position = (Long) it.next();
+                StreamBookmark curBookmark = viewer.getBookmark(position.longValue());
+                int xpos = viewer.absolutePositionToPanelXPosition(position.longValue());
+                g.setColor(curBookmark.getColour());
                 g.fillOval(xpos-bookmarkRadius, 10, bookmarkRadius<<1, bookmarkRadius<<1);
             }
         }
@@ -265,7 +426,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
                 g.setColor(Color.blue);
                 g.drawLine(xpos, 0, xpos, getHeight());
             } else {
-                g.setColor(Color.orange);
+                g.setColor(selectedBookmark.getColour());
                 g.fillOval(xpos-bookmarkRadius, 10, bookmarkRadius<<1, bookmarkRadius<<1);
             }
         }
@@ -322,56 +483,16 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     }
 
     /**
-     * The StreamsViewer we are associated with.
+     * Create the popup menu.
      */
-    protected StreamsViewer viewer;
+    protected void createPopupMenu() {
+        if (popupMenu != null) return;
 
-    /**
-     * The width of the stream panel window in pixels.
-     */
-    protected int panelWidth;
+        popupMenu = new JPopupMenu();
+        popupMenuActions = new ActionGroup();
 
-    /**
-     * Nominal (at 1:1 zoom) spacing between minor ticks.
-     */
-    protected long nominalMinorTickSpacing;
-
-    /**
-     * Nominal (at 1:1 zoom) spacing between major ticks.
-     */
-    protected long nominalMajorTickSpacing;
-
-    /**
-     * Minor tick spacing at current zoom level.
-     */
-    protected long curMinorTickSpacing;
-
-    /**
-     * Major tick spacing at current zoom level.
-     */
-    protected long curMajorTickSpacing;
-
-    /**
-     * Current absolute position of the selector marker.
-     */
-    protected long absoluteSelectorPos = -1;
-
-    /**
-     * Radius in pixels of a bookmark.
-     */
-    protected int bookmarkRadius = 5;
-
-    /**
-     * The currently selected bookmark or -1 if none.
-     */
-    protected long selectedBookmark = -1;
-
-    /**
-     * Flag indicating a bookmark is currently being dragged.
-     */
-    protected boolean movingBookmark = false;
-
-    protected int tipInitialDelay;
-    protected int tipDismissDelay;
-    protected int tipReshowDelay;
+        popupMenu.add(popupMenuActions.add(new AddBookmarkAction(viewer, this)));
+        popupMenu.add(popupMenuActions.add(new EditBookmarkAction(viewer, this)));
+        popupMenu.add(popupMenuActions.add(new RemoveBookmarkAction(viewer, this)));
+    }
 }
