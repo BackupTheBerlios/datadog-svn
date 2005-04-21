@@ -86,12 +86,26 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
      */
     public void mouseDragged(MouseEvent arg0) {
+
+        // update the bookmark
         if (selectedBookmark != -1) {
+            // generate a fake mouse event so the tooltip updates
+            MouseEvent fakeMoveEvent = new MouseEvent(arg0.getComponent(), MouseEvent.MOUSE_MOVED, arg0.getWhen(), arg0.getModifiers(), arg0.getX(), arg0.getY(), arg0.getClickCount(), arg0.isPopupTrigger());
+            processMouseMotionEvent(fakeMoveEvent);
+
             long newPosition = viewer.panelXPositionToAbsolutePosition(arg0.getX());
 
             if (!movingBookmark) {
                 movingBookmark = true;
                 viewer.setMovingBookmark(true);
+
+                ToolTipManager manager = ToolTipManager.sharedInstance();
+                tipDismissDelay = manager.getDismissDelay();
+                tipInitialDelay = manager.getInitialDelay();
+                tipReshowDelay = manager.getReshowDelay();
+                manager.setDismissDelay(1000*60*60*24);
+                manager.setInitialDelay(0);
+                manager.setReshowDelay(0);
             }
             updateSelector(arg0);
         }
@@ -149,6 +163,11 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
             selectedBookmark = -1;
             movingBookmark = false;
             viewer.setMovingBookmark(false);
+
+            ToolTipManager manager = ToolTipManager.sharedInstance();
+            manager.setDismissDelay(tipDismissDelay);
+            manager.setInitialDelay(tipInitialDelay);
+            manager.setReshowDelay(tipReshowDelay);
         }
     }
 
@@ -161,6 +180,23 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
         updateSelector(arg0);
     }
 
+
+
+
+    /* (non-Javadoc)
+     * @see javax.swing.JComponent#processMouseEvent(java.awt.event.MouseEvent)
+     */
+    protected void processMouseEvent(MouseEvent e) {
+        // only send mouse pressed events to the current component - to avoid
+        // sending them to the toolip manager since it refuses to show tooltips ever again once
+        // it sees a mouse press.
+        if (e.getID() == MouseEvent.MOUSE_PRESSED) {
+            mousePressed(e);
+            return;
+        }
+
+        super.processMouseEvent(e);
+    }
 
     /**
      * Update the selector position.
@@ -333,4 +369,8 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      * Flag indicating a bookmark is currently being dragged.
      */
     protected boolean movingBookmark = false;
+
+    protected int tipInitialDelay;
+    protected int tipDismissDelay;
+    protected int tipReshowDelay;
 }
