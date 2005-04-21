@@ -353,6 +353,9 @@ public abstract class StreamsViewer extends JScrollPane {
      * @param newPosition The new position of the bookmark.
      */
     public void moveBookmark(long curPosition, long newPosition) {
+        // don't bother if the bookmark was left where it started
+        if (curPosition == newPosition) return;
+
         // if we're going to clobber one, ask the user first!
         if (bookmarks.contains(newPosition)) {
             if (JOptionPane.showConfirmDialog(null,

@@ -201,8 +201,6 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
             // generate a fake mouse event so the tooltip updates
             MouseEvent fakeMoveEvent = new MouseEvent(arg0.getComponent(), MouseEvent.MOUSE_MOVED, arg0.getWhen(), arg0.getModifiers(), arg0.getX(), arg0.getY(), arg0.getClickCount(), arg0.isPopupTrigger());
             processMouseMotionEvent(fakeMoveEvent);
-
-            long newPosition = viewer.panelXPositionToAbsolutePosition(arg0.getX());
             updateSelector(arg0);
         }
     }
@@ -261,6 +259,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     public void mouseReleased(MouseEvent arg0) {
         if ((selectedBookmark != null) && movingBookmark) {
             long newPosition = viewer.panelXPositionToAbsolutePosition(arg0.getX());
+            if (newPosition < 0) newPosition = 0;
 
             viewer.moveBookmark(selectedPosition, newPosition);
             selectedPosition = -1;
@@ -340,6 +339,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
      */
     protected void updateSelector(MouseEvent arg0) {
         long newSelectorPos = viewer.panelXPositionToAbsolutePosition(arg0.getX());
+        if (newSelectorPos < 0) newSelectorPos = 0;
 
         if (newSelectorPos != absoluteSelectorPos) {
             long oldSelectorPos = absoluteSelectorPos;
