@@ -267,6 +267,11 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             selectorIndex = viewer.panelYPositionToStreamIndex(e.getY());
+            if (selectorIndex >= viewer.substreamsCount()) {
+                selectorIndex = -1;
+                return;
+            }
+
             movingRow = selectorIndex;
             repaintSelector();
         }
