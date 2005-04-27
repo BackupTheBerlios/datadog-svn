@@ -27,14 +27,28 @@ import javax.swing.Icon;
  */
 public abstract class GroupableAction extends AbstractAction {
 
+    /**
+     * Constructor.
+     */
     public GroupableAction() {
+
         super();
     }
 
+    /**
+     * Constructor.
+     * @param name Name of action.
+     * @param icon Icon for the action.
+     */
     public GroupableAction(String name, Icon icon) {
         super(name, icon);
     }
 
+    /**
+     * Constructor.
+     *
+     * @param name Name of action.
+     */
     public GroupableAction(String name) {
         super(name);
     }

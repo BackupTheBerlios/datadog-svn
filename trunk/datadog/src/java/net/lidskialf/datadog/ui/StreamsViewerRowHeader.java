@@ -17,66 +17,49 @@
  */
 package net.lidskialf.datadog.ui;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Rectangle;
+import java.util.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.geom.*;
 import javax.swing.*;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
+
+import net.lidskialf.datadog.Substream;
 
 /**
  * Generic Row Header for the StreamViewer.
  *
  * @author Andrew de Quincey
  */
-public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
+public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChangeListener, MouseMotionListener, MouseListener {
+
+    /**
+     * The StreamsViewer instance we are associated with.
+     */
+    protected StreamsViewer viewer;
+
+    /**
+     * Index of the selector when dragging a row.
+     */
+    protected int selectorIndex = -1;
+
+
 
     /**
      * Constructor.
      *
      * @param viewer
      *            The StreamsViewer we are associated with.
-     * @param rowModel
-     *            The model of the rows.
      */
-    public StreamsViewerRowHeader(StreamsViewer viewer, ListModel rowModel) {
+    public StreamsViewerRowHeader(StreamsViewer viewer) {
         this.viewer = viewer;
-        this.rowModel = rowModel;
 
-        // FIXME: remove this when a full implementation is done
-        rowHeaderColour = new Color(207, 212, 255);
+        viewer.addStreamsViewerChangeListener(this);
+        addMouseMotionListener(this);
+        addMouseListener(this);
 
         setPreferredSize(new Dimension(20, 0));
-        rowModel.addListDataListener(this);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see javax.swing.event.ListDataListener#contentsChanged(javax.swing.event.ListDataEvent)
-     */
-    public void contentsChanged(ListDataEvent arg0) {
-        updateRowHeaderDimensions();
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see javax.swing.event.ListDataListener#intervalAdded(javax.swing.event.ListDataEvent)
-     */
-    public void intervalAdded(ListDataEvent arg0) {
-        updateRowHeaderDimensions();
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see javax.swing.event.ListDataListener#intervalRemoved(javax.swing.event.ListDataEvent)
-     */
-    public void intervalRemoved(ListDataEvent arg0) {
-        updateRowHeaderDimensions();
     }
 
     /*
@@ -87,59 +70,194 @@ public class StreamsViewerRowHeader extends JPanel implements ListDataListener {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        // dimensions
+        int rowHeight = viewer.substreamHeight();
+        int rowWidth = getWidth() - 2;
+
         // work out what to redraw
         Rectangle clip = g.getClipBounds();
-        int minStreamIdx = viewer.panelYPositionToStreamIndex(clip.y, StreamsViewer.SEPARATOR_PARTOF_STREAM_BELOW_IT);
-        int maxStreamIdx = viewer.panelYPositionToStreamIndex(clip.y + clip.height + (viewer.panelRowSeparation + viewer.panelRowHeight - 1),
-                StreamsViewer.SEPARATOR_PARTOF_STREAM_ABOVE_IT);
-        if (maxStreamIdx >= rowModel.getSize())
-            maxStreamIdx = rowModel.getSize() - 1;
+        int minStreamIdx = viewer.panelYPositionToStreamIndex(clip.y);
+        int maxStreamIdx = viewer.panelYPositionToStreamIndex(clip.y + clip.height + (rowHeight - 1));
 
         // redraw it!
-        int y = minStreamIdx * (viewer.panelRowSeparation + viewer.panelRowHeight);
+        int y = minStreamIdx * rowHeight;
         for (int i = minStreamIdx; i <= maxStreamIdx; i++) {
-            g.setColor(rowHeaderColour);
-            g.fillRect(0, y, rowHeaderWidth, viewer.panelRowHeight);
+            // get the Substream instance if it exists
+            Substream substream = viewer.getSubstream(i);
+            if (substream == null) {
+                continue;
+            }
 
+            // draw the cell
+            g.setColor(substream.getColour());
+            g.fillRect(1, y+1, rowWidth-1, rowHeight-1);
             g.setColor(Color.black);
-            g.drawString(rowModel.getElementAt(i).toString(), 1, y + viewer.panelRowHeight);
-            y += viewer.panelRowSeparation + viewer.panelRowHeight;
+            g.drawRect(0, y, rowWidth, rowHeight);
+
+            // draw the text
+            g.drawString(substream.getLabel(), 1, y + rowHeight-1);
+
+            // next row
+            y += rowHeight;
+        }
+
+        // draw the selector if present
+        if ((selectorIndex != -1) && (minStreamIdx <= selectorIndex) && (maxStreamIdx >= selectorIndex)) {
+            g.setColor(Color.blue);
+            g.drawLine(0, selectorIndex * rowHeight, rowWidth, selectorIndex * rowHeight);
         }
     }
 
     /**
      * Update the dimensions of the row header when the list of rows changes.
      */
-    private void updateRowHeaderDimensions() {
-        rowHeaderWidth = -1;
-        if (getGraphics() == null)
+    private void updateDimensions() {
+        Graphics g = getGraphics();
+        if (g == null)
             return;
 
         // work out the minimum width
         int minWidth = 0;
-        FontMetrics fontMetrics = getGraphics().getFontMetrics();
-        for (int i = 0; i < rowModel.getSize(); i++) {
-            String str = rowModel.getElementAt(i).toString();
-            int curWidth = fontMetrics.stringWidth(str) + 2;
-            if (curWidth > minWidth) {
-                minWidth = curWidth;
+        FontMetrics fontMetrics = g.getFontMetrics();
+        Iterator it = viewer.getSubstreams();
+        while(it.hasNext()) {
+            Substream substream = (Substream) it.next();
+
+            Rectangle2D bounds = fontMetrics.getStringBounds(substream.getLabel(), g);
+            if (bounds.getWidth() > minWidth) {
+                minWidth = (int) Math.round(bounds.getWidth());
             }
         }
-        rowHeaderWidth = minWidth;
+
+        // set the row height
+        viewer.setSubstreamHeight(13); // FIXME: hardcoded just now 'cos fontmetrics return ridiculously large values for font height
 
         // set the width
         Dimension curSize = getPreferredSize();
-        curSize.width = rowHeaderWidth;
+        curSize.width = minWidth + 3;
         setPreferredSize(curSize);
         revalidate();
         repaint();
     }
 
-    protected int rowHeaderWidth = -1;
 
-    protected ListModel rowModel;
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#bookmarkAdded(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void bookmarkAdded(StreamsViewerChangeEvent e) {
+    }
 
-    protected Color rowHeaderColour;
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#bookmarkChanged(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void bookmarkChanged(StreamsViewerChangeEvent e) {
+    }
 
-    protected StreamsViewer viewer;
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#bookmarkMoved(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void bookmarkMoved(StreamsViewerChangeEvent e) {
+    }
+
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#bookmarkRemoved(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void bookmarkRemoved(StreamsViewerChangeEvent e) {
+    }
+
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#lengthChanged(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void lengthChanged(StreamsViewerChangeEvent e) {
+    }
+
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#zoomChanged(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void zoomChanged(StreamsViewerChangeEvent e) {
+    }
+
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#substreamAdded(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void substreamAdded(StreamsViewerChangeEvent e) {
+        updateDimensions();
+    }
+
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#substreamChanged(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void substreamChanged(StreamsViewerChangeEvent e) {
+        updateDimensions();
+    }
+
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#substreamRemoved(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void substreamRemoved(StreamsViewerChangeEvent e) {
+        updateDimensions();
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
+     */
+    public void mouseDragged(MouseEvent e) {
+        if (selectorIndex != -1) {
+            selectorIndex = viewer.panelYPositionToStreamIndex(e.getY());
+            // FIXME: redraw
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
+     */
+    public void mouseMoved(MouseEvent e) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+     */
+    public void mouseClicked(MouseEvent e) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+     */
+    public void mouseEntered(MouseEvent e) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+     */
+    public void mouseExited(MouseEvent e) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+     */
+    public void mousePressed(MouseEvent e) {
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            selectorIndex = viewer.panelYPositionToStreamIndex(e.getY());
+            // FIXME: redraw
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+     */
+    public void mouseReleased(MouseEvent e) {
+        if (selectorIndex != -1) {
+            // FIXME: move stream
+
+            selectorIndex = -1;
+        }
+    }
 }

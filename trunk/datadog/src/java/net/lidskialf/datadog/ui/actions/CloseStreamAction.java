@@ -31,6 +31,8 @@ import net.lidskialf.datadog.ui.*;
  */
 public class CloseStreamAction extends AbstractAction {
 
+    private StreamExplorer explorer;
+
     /**
      * Constructor for an Action which listens to the currently selected item on
      * the streams list on the main datadog window.
@@ -65,6 +67,4 @@ public class CloseStreamAction extends AbstractAction {
             DataDog.getApplication().closeStream(tmpexplorer);
         }
     }
-
-    private StreamExplorer explorer;
 }

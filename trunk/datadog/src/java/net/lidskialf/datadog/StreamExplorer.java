@@ -29,8 +29,8 @@ public interface StreamExplorer {
     /**
      * Gets the UI for viewing the stream (only one UI instance per
      * StreamParser).
-     * 
-     * @return the UI for viewing the stream
+     *
+     * @return the UI for viewing the stream, or null if it could not be created.
      */
     public JComponent buildUI();
 

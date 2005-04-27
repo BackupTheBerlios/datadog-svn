@@ -189,6 +189,24 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
         bookmarkChanged(e);
     }
 
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#substreamAdded(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void substreamAdded(StreamsViewerChangeEvent e) {
+    }
+
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#substreamChanged(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void substreamChanged(StreamsViewerChangeEvent e) {
+    }
+
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#substreamRemoved(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void substreamRemoved(StreamsViewerChangeEvent e) {
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -366,7 +384,7 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
 
             setToolTipText(renderStreamPosition(newSelectorPos));
 
-            viewer.updateSelector(absoluteSelectorPos);
+            viewer.setSelectorPosition(absoluteSelectorPos);
         }
     }
 

@@ -31,11 +31,43 @@ import com.jgoodies.looks.plastic.*;
 import com.jgoodies.looks.plastic.theme.*;
 
 /**
- * @author Andrew de Quincey
+ * The main dataDog application.
  *
+ * @author Andrew de Quincey
  */
 public class DataDog {
 
+    /**
+     * The application instance.
+     */
+    private static DataDog application;
+
+    /**
+     * The version of the application.
+     */
+    public static final String version = "0.01";
+
+    /**
+     * The list of known stream explorer factories.
+     */
+    public static final StreamExplorerFactory[] streamExplorerFactories = new StreamExplorerFactory[] { new net.lidskialf.datadog.mpeg.TransportStreamExplorerFactory() };
+
+
+
+    private JFrame frame;
+    private JList streamsList;
+    private JScrollPane streamsListScrollPane;
+    private Action quitAction;
+    private Action showStreamAction;
+    private DefaultListModel openedStreams;
+    private Map openedStreamsUis = Collections.synchronizedMap(new HashMap());
+
+
+
+    /**
+     * Constructor.
+     *
+     */
     public DataDog() {
         frame = new JFrame();
         frame.setTitle("DataDog");
@@ -53,7 +85,7 @@ public class DataDog {
     }
 
     /**
-     * Initialise components used here.
+     * Initialise UI components.
      */
     private void initComponents() {
         openedStreams = new DefaultListModel();
@@ -131,12 +163,15 @@ public class DataDog {
      *            The StreamExplorer instance to add.
      */
     public void addNewStream(StreamExplorer explorer) {
-        openedStreams.addElement(explorer);
-
         JFrame explorerFrame = new JFrame(explorer.toString());
         JComponent explorerUi = explorer.buildUI();
+        if (explorerUi == null) {
+            explorerFrame.dispose();
+            return;
+        }
         explorerFrame.getContentPane().add(explorerUi);
 
+        openedStreams.addElement(explorer);
         openedStreamsUis.put(explorer, explorerFrame);
 
         JMenuBar menuBar = explorer.buildMenuBar();
@@ -218,33 +253,4 @@ public class DataDog {
     public static DataDog getApplication() {
         return application;
     }
-
-    private JFrame frame;
-
-    private JList streamsList;
-
-    private JScrollPane streamsListScrollPane;
-
-    private Action quitAction;
-
-    private Action showStreamAction;
-
-    private DefaultListModel openedStreams;
-
-    private Map openedStreamsUis = Collections.synchronizedMap(new HashMap());
-
-    /**
-     * The application instance.
-     */
-    private static DataDog application;
-
-    /**
-     * The version of the application.
-     */
-    public static final String version = "0.01";
-
-    /**
-     * The list of known stream explorer factories.
-     */
-    public static final StreamExplorerFactory[] streamExplorerFactories = new StreamExplorerFactory[] { new net.lidskialf.datadog.mpeg.TransportStreamExplorerFactory() };
 }

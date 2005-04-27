@@ -23,10 +23,18 @@ import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.layout.*;
 
 /**
+ * The about box UI for DataDog.
+ *
  * @author Andrew de Quincey
  *
  */
 public class AboutBox {
+
+    private JDialog dialog;
+    private JLabel logo;
+    private JTextArea aboutText;
+    private JButton okButton;
+
 
     /**
      * Constructor - shows the About Box.
@@ -82,11 +90,4 @@ public class AboutBox {
         return builder.getPanel();
     }
 
-    private JDialog dialog;
-
-    private JLabel logo;
-
-    private JTextArea aboutText;
-
-    private JButton okButton;
 }

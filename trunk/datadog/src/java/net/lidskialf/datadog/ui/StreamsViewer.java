@@ -30,24 +30,6 @@ import javax.swing.*;
 public abstract class StreamsViewer extends JScrollPane {
 
     /**
-     * Spaces between streams should be treated as part of the stream above the
-     * separator in the display.
-     */
-    public static final int SEPARATOR_PARTOF_STREAM_ABOVE_IT = 0;
-
-    /**
-     * Spaces between streams should be treated as part of the stream below the
-     * separator in the display.
-     */
-    public static final int SEPARATOR_PARTOF_STREAM_BELOW_IT = 1;
-
-    /**
-     * Spaces between streams should be treated as invalid streams.
-     */
-    public static final int SEPARATOR_INVALID = 2;
-
-
-    /**
      * The absolute length of the stream.
      */
     protected long absoluteLength = 0;
@@ -63,7 +45,7 @@ public abstract class StreamsViewer extends JScrollPane {
     protected int curZoomFactor = 0;
 
     /**
-     * The minimum permitted zoom factor (chosen to avoid integer overflows for
+     * The minimum permitted zoom factor (auto-chosen to avoid integer overflows for
      * very long streams).
      */
     protected int minZoomFactor = 0;
@@ -82,11 +64,6 @@ public abstract class StreamsViewer extends JScrollPane {
      * The height of a row in pixels.
      */
     protected int panelRowHeight = 10;
-
-    /**
-     * The separation between two rows in pixels.
-     */
-    protected int panelRowSeparation = 1;
 
     /**
      * The stream viewer component instance.
@@ -108,6 +85,10 @@ public abstract class StreamsViewer extends JScrollPane {
      */
     protected StreamBookmark movingBookmark = null;
 
+    /**
+     * List of substreams within the stream.
+     */
+    protected Substreams substreams;
 
 
 
@@ -115,10 +96,14 @@ public abstract class StreamsViewer extends JScrollPane {
      * Constructor.
      *
      * @param bookmarks StreamBookmarks instance for this stream, or null if no implementation desired.
+     * @param substreams Substreams for this stream.
+     * @param maxZoomFactor Max zoom factor for this stream.
      */
-    public StreamsViewer(StreamBookmarks bookmarks) {
+    public StreamsViewer(StreamBookmarks bookmarks, Substreams substreams, int maxZoomFactor) {
         super(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         this.bookmarks = bookmarks;
+        this.substreams = substreams;
+        this.maxZoomFactor = maxZoomFactor;
 
         panel = new StreamsPanel();
         getViewport().add(panel);
@@ -161,7 +146,7 @@ public abstract class StreamsViewer extends JScrollPane {
      * @return The Y position of the top of the stream's rendering position.
      */
     public int streamIndexToPanelYPosition(int streamIdx) {
-        return streamIdx * (panelRowHeight + panelRowSeparation);
+        return streamIdx * panelRowHeight;
     }
 
     /**
@@ -169,31 +154,10 @@ public abstract class StreamsViewer extends JScrollPane {
      *
      * @param yPos
      *            The y position.
-     * @param separatorDisposition
-     *            One of the SEPARATOR_* values, for controlling how the spaces
-     *            between the streams are treated.
      * @return The stream index, or -1 for an invalid y position.
      */
-    public int panelYPositionToStreamIndex(int yPos, int separatorDisposition) {
-
-        // calculate the index
-        int tmpIdx = -1;
-        if (separatorDisposition == SEPARATOR_PARTOF_STREAM_BELOW_IT) {
-            tmpIdx = (yPos + panelRowSeparation) / (panelRowHeight + panelRowSeparation);
-        } else if (separatorDisposition == SEPARATOR_PARTOF_STREAM_ABOVE_IT) {
-            if (yPos < 0)
-                return -1;
-            tmpIdx = yPos / (panelRowHeight + panelRowSeparation);
-        } else if (separatorDisposition == SEPARATOR_INVALID) {
-            if (yPos < 0)
-                return -1;
-            tmpIdx = yPos / (panelRowHeight + panelRowSeparation);
-            if (yPos >= ((tmpIdx * (panelRowHeight + panelRowSeparation)) + panelRowHeight))
-                return -1;
-        }
-
-        // watch out for too many streams!
-        return tmpIdx;
+    public int panelYPositionToStreamIndex(int yPos) {
+        return yPos / panelRowHeight;
     }
 
     /**
@@ -312,7 +276,7 @@ public abstract class StreamsViewer extends JScrollPane {
      * @param newSelectorPos
      *            The absolute new position of the selector.
      */
-    public void updateSelector(long newSelectorPos) {
+    public void setSelectorPosition(long newSelectorPos) {
         if (newSelectorPos != absoluteSelectorPos) {
             long oldSelectorPos = absoluteSelectorPos;
             absoluteSelectorPos = newSelectorPos;
@@ -451,11 +415,69 @@ public abstract class StreamsViewer extends JScrollPane {
         fireChangeListeners(StreamsViewerChangeEvent.bookmarkChanged(this, position));
     }
 
+    /**
+     * Returns the number of substreams known to the viewer.
+     *
+     * @return Number of rows.
+     */
+    public int substreamsCount() {
+        return substreams.size();
+    }
+
+    /**
+     * Get details of a specific row in the streams viewer.
+     *
+     * @param index Index of the requested substream.
+     * @return The row, or null if it does not exist.
+     */
+    public Substream getSubstream(int index) {
+        return substreams.get(index);
+    }
+
+    /**
+     * Get an iterator of all substreams.
+     *
+     * @return The iterator of all substreams in order.
+     */
+    public Iterator getSubstreams() {
+        return substreams.get();
+    }
+
+    /**
+     * Add a substream into the list.
+     *
+     * @param substream The substream to add.
+     */
+    public void addSubStream(Substream substream) {
+        int index = substreams.add(substream);
+        updateDimensions();
+        repaint();
+        fireChangeListeners(StreamsViewerChangeEvent.substreamAdded(this, index));
+    }
+
+    /**
+     * Vertical space allocated to a substream.
+     *
+     * @return The vertical space in pixels.
+     */
+    public int substreamHeight() {
+        return panelRowHeight;
+    }
+
+    public void setSubstreamHeight(int height) {
+        panelRowHeight = height;
+        repaint();
+    }
+
+
+
+
 
 
     /**
      * Fires all change listener events for the given changeType.
      *
+     * @param e The StreamsViewerChangeEvent describing the event.
      */
     protected void fireChangeListeners(StreamsViewerChangeEvent e) {
         Iterator it = changeListeners.iterator();
@@ -485,6 +507,18 @@ public abstract class StreamsViewer extends JScrollPane {
 
             case StreamsViewerChangeEvent.CHANGE_ADDBOOKMARK:
                 curListener.bookmarkAdded(e);
+                break;
+
+            case StreamsViewerChangeEvent.CHANGE_ADDSUBSTREAM:
+                curListener.substreamAdded(e);
+                break;
+
+            case StreamsViewerChangeEvent.CHANGE_CHANGESUBSTREAM:
+                curListener.substreamChanged(e);
+                break;
+
+            case StreamsViewerChangeEvent.CHANGE_REMOVESUBSTREAM:
+                curListener.substreamRemoved(e);
                 break;
             }
         }
@@ -559,8 +593,8 @@ public abstract class StreamsViewer extends JScrollPane {
      * the specified minimum and maximum values. Should be called after any stream-specific painting.
      *
      * @param g                       the Graphics context to paint onto.
-     * @param minAbsoluteDrawPosition the minimum absolute stream position.
-     * @param maxAbsoluteDrawPosition the maximum absolute stream position (inclusively).
+     * @param minAbsoluteStreamPosition the minimum absolute stream position.
+     * @param maxAbsoluteStreamPosition the maximum absolute stream position (inclusively).
      */
     protected void paintStreamsPanel(Graphics g, long minAbsoluteStreamPosition, long maxAbsoluteStreamPosition) {
         // paint the selector
@@ -593,6 +627,10 @@ public abstract class StreamsViewer extends JScrollPane {
      * @author Andrew de Quincey
      */
     protected class StreamsPanel extends JPanel implements Scrollable {
+
+        /* (non-Javadoc)
+         * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
+         */
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             paintStreamsPanel(g);

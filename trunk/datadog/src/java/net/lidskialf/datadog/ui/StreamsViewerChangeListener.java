@@ -73,4 +73,28 @@ public interface StreamsViewerChangeListener {
      *            The StreamsViewerChangeEvent describing the event.
      */
     public void bookmarkAdded(StreamsViewerChangeEvent e);
+
+    /**
+     * A substream was added.
+     *
+     * @param e
+     *            The StreamsViewerChangeEvent describing the event.
+     */
+    public void substreamAdded(StreamsViewerChangeEvent e);
+
+    /**
+     * A substream was changed.
+     *
+     * @param e
+     *            The StreamsViewerChangeEvent describing the event.
+     */
+    public void substreamChanged(StreamsViewerChangeEvent e);
+
+    /**
+     * A substream was removed.
+     *
+     * @param e
+     *            The StreamsViewerChangeEvent describing the event.
+     */
+    public void substreamRemoved(StreamsViewerChangeEvent e);
 }

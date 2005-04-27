@@ -26,28 +26,24 @@ import com.jgoodies.forms.builder.*;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
+/**
+ * A generic UI for editing bookmarks.
+ *
+ * @author Andrew de Quincey
+ */
 public class BookmarkEditor {
 
     private boolean editing = true;
-
     private StreamsViewer viewer;
-
     private long position;
-
     private StreamBookmark bookmark;
 
     private JDialog dialog;
-
     private JSpinner positionField;
-
     private JTextField descriptionField;
-
     private JButton colourButton;
-
     private JButton okButton;
-
     private JButton cancelButton;
-
     private JButton applyButton;
 
 

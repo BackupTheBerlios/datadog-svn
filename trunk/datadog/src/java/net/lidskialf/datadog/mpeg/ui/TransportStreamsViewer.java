@@ -34,20 +34,46 @@ import javax.swing.*;
 public class TransportStreamsViewer extends StreamsViewer {
 
     /**
+     * Maximum zoom factor.
+     */
+    public static final int MAX_ZOOM_FACTOR = 5;
+
+    /**
+     * Block scroll increment for JScrollPane
+     */
+    public static final int BLOCK_SCROLL_INCREMENT = 0x100;
+
+    /**
+     * Unit scroll increment for JScrollPane
+     */
+    public static final int UNIT_SCROLL_INCREMENT = 16;
+
+
+
+    /**
+     * The stream we are viewing.
+     */
+    private TransportStream stream;
+
+    /**
+     * PID -> Substream instance.
+     */
+    private Map pidToSubstream = Collections.synchronizedMap(new HashMap());
+
+
+
+    /**
      * Constructor.
      *
-     * @param stream   the transport stream
-     * @param rowModel The rows to display with this Transport stream.
+     * @param stream   The transport stream.
+     * @param bookmarks Bookmarks for that stream.
+     * @param substreams Substreams for that stream.
      * @throws IOException if there was a problem determining the length of
      *      other property of <code>stream</code>
      */
-    public TransportStreamsViewer(TransportStream stream, DefaultListModel rowModel, StreamBookmarks bookmarks) throws IOException {
-        super(bookmarks);
-        this.rowModel = rowModel;
+    public TransportStreamsViewer(TransportStream stream, StreamBookmarks bookmarks, Substreams substreams) throws IOException {
+        super(bookmarks, substreams, MAX_ZOOM_FACTOR);
         this.stream = stream;
-
-        // hardcoded "good" value.
-        maxZoomFactor = 5;
 
         setAbsoluteLength(stream.length());
     }
@@ -62,8 +88,8 @@ public class TransportStreamsViewer extends StreamsViewer {
 
         // calculate which area of the stream we need to redraw
         Rectangle clip = g.getClipBounds();
-        int minStreamIdx = panelYPositionToStreamIndex(clip.y, SEPARATOR_PARTOF_STREAM_BELOW_IT);
-        int maxStreamIdx = panelYPositionToStreamIndex(clip.y + clip.height, SEPARATOR_PARTOF_STREAM_ABOVE_IT);
+        int minStreamIdx = panelYPositionToStreamIndex(clip.y);
+        int maxStreamIdx = panelYPositionToStreamIndex(clip.y + clip.height);
 
         try {
             long minStreamDrawPosition = panelXPositionToAbsolutePosition(clip.x);
@@ -79,15 +105,15 @@ public class TransportStreamsViewer extends StreamsViewer {
                     continue;
 
                 // find/create a row for the PID
-                int pid = packet.pid();
-                TransportStreamRow row = getRowForPid(pid);
+                TransportSubstream substream = getSubstreamForPid(packet.pid());
+                int index = substreams.indexOf(substream);
 
                 // draw it if it is within the bounds
-                if ((row.rowIdx >= minStreamIdx) && (row.rowIdx <= maxStreamIdx)) {
+                if ((index >= minStreamIdx) && (index <= maxStreamIdx)) {
                     int x = absolutePositionToPanelXPosition(curPos);
                     int x2 = absolutePositionToPanelXPosition(curPos + Constants.TS_PACKET_LENGTH);
-                    int y = streamIndexToPanelYPosition(row.rowIdx);
-                    g.setColor(Color.green);
+                    int y = streamIndexToPanelYPosition(index);
+                    g.setColor(substream.getColour());
                     g.fillRect(x+1, y+1, x2 - x - 1, panelRowHeight-1);
                     g.setColor(Color.black);
                     g.drawRect(x, y, x2 - x, panelRowHeight);
@@ -109,7 +135,7 @@ public class TransportStreamsViewer extends StreamsViewer {
      *      int, int)
      */
     protected int blockScrollIncrement(Rectangle arg0, int arg1, int arg2) {
-        return 0x100;
+        return BLOCK_SCROLL_INCREMENT;
     }
 
     /*
@@ -119,114 +145,59 @@ public class TransportStreamsViewer extends StreamsViewer {
      *      int, int)
      */
     protected int unitScrollIncrement(Rectangle arg0, int arg1, int arg2) {
-        return 16;
+        return UNIT_SCROLL_INCREMENT;
     }
 
     /**
-     * Find/allocate a row for the specified PID.
+     * Find/allocate a substream for the specified PID.
      *
      * @param pid
      *            The PID concerned.
-     * @return A TransportStreamRow structure for that PID.
+     * @return The TransportSubstream structure for that PID.
      */
-    private TransportStreamRow getRowForPid(int pid) {
+    private TransportSubstream getSubstreamForPid(int pid) {
 
-        // retrieve the old version if present
+        // retrieve the current version if present
         Integer pidI = new Integer(pid);
-        if (pidToRowDescriptor.containsKey(pidI)) {
-            return (TransportStreamRow) pidToRowDescriptor.get(pidI);
+        if (pidToSubstream.containsKey(pidI)) {
+            return (TransportSubstream) pidToSubstream.get(pidI);
         }
 
-        // create a new one
-        TransportStreamRow newDesc = new TransportStreamRow(pid);
-
-        // find where to insert it
-        boolean inserted = false;
-        for (int i = 0; i < rowModel.getSize(); i++) {
-            TransportStreamRow curDesc = (TransportStreamRow) rowModel.getElementAt(i);
-
-            // found a pid greater than our current one? insert it!
-            if (!inserted) {
-                if (curDesc.pid > newDesc.pid) {
-                    newDesc.rowIdx = i;
-                    rowModel.add(i, newDesc);
-                    pidToRowDescriptor.put(pidI, newDesc);
-                    inserted = true;
-                    i++;
-                    curDesc.rowIdx = i;
-                }
-            } else {
-                // update all row indexes after the inserted position
-                curDesc.rowIdx = i;
-            }
-        }
-
-        // if we didn't insert it anywhere, append it
-        if (!inserted) {
-            newDesc.rowIdx = rowModel.getSize();
-            rowModel.addElement(newDesc);
-            pidToRowDescriptor.put(pidI, newDesc);
-        }
-
-        return newDesc;
+        // create a new one and append it
+        TransportSubstream newSubstream = new TransportSubstream(pid);
+        addSubStream(newSubstream);
+        pidToSubstream.put(pidI, newSubstream);
+        return newSubstream;
     }
 
+
     /**
-     * A Row tailored for transport streams.
+     * Substream tailored for transport streams.
      *
      * @author Andrew de Quincey
      */
-    private class TransportStreamRow {
+    public class TransportSubstream extends Substream {
+
+        /**
+         * The PID of the substream.
+         */
+        protected int pid;
 
         /**
          * Constructor.
          *
-         * @param pid
-         *            PID this row is representing.
+         * @param pid The PID of the substream.
          */
-        public TransportStreamRow(int pid) {
+        public TransportSubstream(int pid) {
+            super("", Color.green, "", false);
+
             String tmp = Integer.toHexString(pid);
             while (tmp.length() < 4) {
                 tmp = "0" + tmp;
             }
-            description = "0x" + tmp;
-            this.pid = pid;
+
+            setLabel("0x" + tmp);
+            setDescription("0x" + tmp);
         }
-
-        /*
-         * (non-Javadoc)
-         *
-         * @see java.lang.Object#toString()
-         */
-        public String toString() {
-            return description;
-        }
-
-        private String description;
-
-        /**
-         * The PID of the row.
-         */
-        public int pid;
-
-        /**
-         * Index of the row containing the pid.
-         */
-        public int rowIdx;
     }
-
-    /**
-     * The stream we are viewing.
-     */
-    private TransportStream stream;
-
-    /**
-     * PID -> row descriptor.
-     */
-    private Map pidToRowDescriptor = Collections.synchronizedMap(new HashMap());
-
-    /**
-     * Model of the rows of this viewer.
-     */
-    private DefaultListModel rowModel;
 }

@@ -32,6 +32,8 @@ import net.lidskialf.datadog.ui.DataDog;
  */
 public class HideStreamAction extends AbstractAction {
 
+    private StreamExplorer explorer;
+
     /**
      * Constructor for an Action which listens to the currently selected item on
      * the streams list on the main datadog window.
@@ -66,6 +68,4 @@ public class HideStreamAction extends AbstractAction {
             DataDog.getApplication().setStreamVisibility(tmpexplorer, false);
         }
     }
-
-    private StreamExplorer explorer;
 }

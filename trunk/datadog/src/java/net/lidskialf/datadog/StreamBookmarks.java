@@ -27,6 +27,11 @@ import java.util.*;
 public class StreamBookmarks {
 
     /**
+     * The bookmarks themselves.
+     */
+    protected SortedMap bookmarks;
+
+    /**
      * Constructor.
      */
     public StreamBookmarks() {
@@ -128,9 +133,4 @@ public class StreamBookmarks {
     public StreamBookmark get(long position) {
         return (StreamBookmark) bookmarks.get(new Long(position));
     }
-
-    /**
-     * The bookmarks themselves.
-     */
-    protected SortedMap bookmarks;
 }

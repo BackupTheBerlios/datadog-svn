@@ -43,6 +43,14 @@ public class TransportStream {
     public static final int ROUND_INC = 2;
 
     /**
+     * The bitstream containing our stream.
+     */
+    private Bitstream bitstream;
+
+
+
+
+    /**
      * Construct a parser for an mpeg2 transport stream.
      *
      * @param bitstream
@@ -184,9 +192,4 @@ public class TransportStream {
         // success!
         return true;
     }
-
-    /**
-     * The bitstream containing our stream.
-     */
-    private Bitstream bitstream;
 }

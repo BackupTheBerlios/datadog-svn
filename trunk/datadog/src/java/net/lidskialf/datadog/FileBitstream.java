@@ -27,6 +27,16 @@ import java.io.*;
 public class FileBitstream implements Bitstream {
 
     /**
+     * The file backing the bitstream.
+     */
+    private RandomAccessFile dataFile;
+
+    /**
+     * The filename of the file.
+     */
+    private String filename;
+
+    /**
      * Constructor.
      *
      * @param filename
@@ -101,14 +111,4 @@ public class FileBitstream implements Bitstream {
     public String toString() {
         return filename;
     }
-
-    /**
-     * The file backing the bitstream.
-     */
-    private RandomAccessFile dataFile;
-
-    /**
-     * The filename of the file.
-     */
-    private String filename;
 }

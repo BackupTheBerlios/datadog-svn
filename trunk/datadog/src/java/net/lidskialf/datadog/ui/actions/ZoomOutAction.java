@@ -31,6 +31,8 @@ import net.lidskialf.datadog.ui.StreamsViewer;
  */
 public class ZoomOutAction extends AbstractAction {
 
+    private StreamsViewer viewer;
+
     /**
      * Constructor.
      *
@@ -51,6 +53,4 @@ public class ZoomOutAction extends AbstractAction {
     public void actionPerformed(ActionEvent arg0) {
         viewer.zoomOut();
     }
-
-    private StreamsViewer viewer;
 }

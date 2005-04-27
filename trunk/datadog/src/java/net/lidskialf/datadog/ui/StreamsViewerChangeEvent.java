@@ -54,6 +54,21 @@ public class StreamsViewerChangeEvent {
      */
     public static final int CHANGE_ADDBOOKMARK = 5;
 
+    /**
+     * A substream was added.
+     */
+    public static final int CHANGE_ADDSUBSTREAM = 6;
+
+    /**
+     * A substream was changed.
+     */
+    public static final int CHANGE_CHANGESUBSTREAM = 7;
+
+    /**
+     * A substream was removed.
+     */
+    public static final int CHANGE_REMOVESUBSTREAM = 8;
+
 
     /**
      * The StreamsViewer which this event concerns.
@@ -85,11 +100,16 @@ public class StreamsViewerChangeEvent {
      */
     public long bookmarkPosition;
 
+    /**
+     * The substream index for a substream related event.
+     */
+    public int substream;
 
 
     /**
      * Constructor.
      *
+     * @param viewer The associated StreamsViewer.
      * @param changeType Type of change - one of the CHANGED_* values.
      */
     public StreamsViewerChangeEvent(StreamsViewer viewer, int changeType) {
@@ -101,6 +121,7 @@ public class StreamsViewerChangeEvent {
     /**
      * Create an object indicating the zoom factor was changed.
      *
+     * @param viewer The associated StreamsViewer.
      * @param zoomFactor The new zoom factor.
      * @return Appropriately initialised StreamsViewerChangeEvent instance.
      */
@@ -113,7 +134,8 @@ public class StreamsViewerChangeEvent {
     /**
      * Create an object indicating the stream length changed.
      *
-     * @param zoomFactor The new zoom factor.
+     * @param viewer The associated StreamsViewer.
+     * @param length The new length.
      * @return Appropriately initialised StreamsViewerChangeEvent instance.
      */
     public static StreamsViewerChangeEvent lengthChanged(StreamsViewer viewer, long length) {
@@ -125,7 +147,9 @@ public class StreamsViewerChangeEvent {
     /**
      * Create an object indicating a bookmark was moved.
      *
-     * @param zoomFactor The new zoom factor.
+     * @param viewer The associated StreamsViewer.
+     * @param oldPosition The old position of the bookmark.
+     * @param newPosition The new position of the bookmark.
      * @return Appropriately initialised StreamsViewerChangeEvent instance.
      */
     public static StreamsViewerChangeEvent bookmarkMoved(StreamsViewer viewer, long oldPosition, long newPosition) {
@@ -136,9 +160,10 @@ public class StreamsViewerChangeEvent {
     }
 
     /**
-     * Create an object indicating a bookmark was moved.
+     * Create an object indicating a bookmark was changed.
      *
-     * @param zoomFactor The new zoom factor.
+     * @param viewer The associated StreamsViewer.
+     * @param position Position of the bookmark that changed.
      * @return Appropriately initialised StreamsViewerChangeEvent instance.
      */
     public static StreamsViewerChangeEvent bookmarkChanged(StreamsViewer viewer, long position) {
@@ -150,7 +175,8 @@ public class StreamsViewerChangeEvent {
     /**
      * Create an object indicating a bookmark was removed.
      *
-     * @param zoomFactor The new zoom factor.
+     * @param viewer The associated StreamsViewer.
+     * @param position Position of the bookmark that was removed.
      * @return Appropriately initialised StreamsViewerChangeEvent instance.
      */
     public static StreamsViewerChangeEvent bookmarkRemoved(StreamsViewer viewer, long position) {
@@ -162,12 +188,52 @@ public class StreamsViewerChangeEvent {
     /**
      * Create an object indicating a bookmark was added.
      *
-     * @param zoomFactor The new zoom factor.
+     * @param viewer The associated StreamsViewer.
+     * @param position Position of the new bookmark.
      * @return Appropriately initialised StreamsViewerChangeEvent instance.
      */
     public static StreamsViewerChangeEvent bookmarkAdded(StreamsViewer viewer, long position) {
         StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_ADDBOOKMARK);
         tmp.bookmarkPosition = position;
+        return tmp;
+    }
+
+    /**
+     * Create an object indicating a substream was added.
+     *
+     * @param viewer The associated StreamsViewer.
+     * @param substream Index of the new substream.
+     * @return Appropriately initialised StreamsViewerChangeEvent instance.
+     */
+    public static StreamsViewerChangeEvent substreamAdded(StreamsViewer viewer, int substream) {
+        StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_ADDSUBSTREAM);
+        tmp.substream = substream;
+        return tmp;
+    }
+
+    /**
+     * Create an object indicating a substream was changed.
+     *
+     * @param viewer The associated StreamsViewer.
+     * @param substream Index of the modified substream.
+     * @return Appropriately initialised StreamsViewerChangeEvent instance.
+     */
+    public static StreamsViewerChangeEvent substreamChanged(StreamsViewer viewer, int substream) {
+        StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_CHANGESUBSTREAM);
+        tmp.substream = substream;
+        return tmp;
+    }
+
+    /**
+     * Create an object indicating a substream was removed.
+     *
+     * @param viewer The associated StreamsViewer.
+     * @param substream Index of the removed substream.
+     * @return Appropriately initialised StreamsViewerChangeEvent instance.
+     */
+    public static StreamsViewerChangeEvent substreamRemoved(StreamsViewer viewer, int substream) {
+        StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_REMOVESUBSTREAM);
+        tmp.substream = substream;
         return tmp;
     }
 }

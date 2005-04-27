@@ -46,6 +46,24 @@ public class TransportPacket {
 
     public static final int TS_PACKET_LEN = 188;
 
+    /**
+     * The raw data itself (finally!)
+     */
+    private byte[] data;
+
+    /**
+     * Position of packet within the source stream.
+     */
+    private long streamPosition;
+
+
+
+    /**
+     * Constructor.
+     *
+     * @param data
+     * @param streamPosition
+     */
     public TransportPacket(byte[] data, long streamPosition) {
         if (data.length != TS_PACKET_LEN) {
             throw new RuntimeException("Invalid length of transport stream packet");
@@ -436,14 +454,4 @@ public class TransportPacket {
 
         return pos;
     }
-
-    /**
-     * The raw data itself (finally!)
-     */
-    private byte[] data;
-
-    /**
-     * Position of packet within the source stream.
-     */
-    private long streamPosition;
 }

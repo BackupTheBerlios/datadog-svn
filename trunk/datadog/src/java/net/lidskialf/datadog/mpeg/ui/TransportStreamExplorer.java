@@ -37,9 +37,28 @@ import net.lidskialf.datadog.ui.actions.*;
  */
 public class TransportStreamExplorer implements StreamExplorer {
 
+    /**
+     * Spacing between minor ticks in the column header.
+     */
     public static final int MINOR_TICK_SPACING = 16;
 
+    /**
+     * Spacing between major ticks in the column header.
+     */
     public static final int MAJOR_TICK_SPACING = 0x100;
+
+
+    private Bitstream bitstream;
+    private TransportStream transportStream;
+    private StreamBookmarks bookmarks;
+    private Substreams substreams;
+
+    private JToolBar toolbar;
+    private TransportStreamsViewer viewer;
+    private StreamsViewerColumnHeader columnHeader;
+    private StreamsViewerRowHeader rowHeader;
+    private JComponent ui;
+
 
     /**
      * Constructor.
@@ -65,7 +84,9 @@ public class TransportStreamExplorer implements StreamExplorer {
         try {
             initComponents();
         } catch (IOException e) {
-            // FIXME: do something with this
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            return null;
         }
 
         FormLayout layout = new FormLayout("pref:grow", "pref:grow, pref:grow");
@@ -115,17 +136,16 @@ public class TransportStreamExplorer implements StreamExplorer {
      * @throws IOException if there was a problem initialising any component
      */
     private void initComponents() throws IOException {
-        rowModel = new DefaultListModel();
-
         bookmarks = new StreamBookmarks();
+        substreams = new Substreams();
 
-        viewer = new TransportStreamsViewer(transportStream, rowModel, bookmarks);
+        viewer = new TransportStreamsViewer(transportStream, bookmarks, substreams);
         viewer.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
         columnHeader = new StreamsViewerColumnHeader(viewer, MINOR_TICK_SPACING, MAJOR_TICK_SPACING);
         viewer.setColumnHeaderView(columnHeader);
 
-        rowHeader = new StreamsViewerRowHeader(viewer, rowModel);
+        rowHeader = new StreamsViewerRowHeader(viewer);
         viewer.setRowHeaderView(rowHeader);
 
         toolbar = new JToolBar();
@@ -135,22 +155,4 @@ public class TransportStreamExplorer implements StreamExplorer {
         toolbar.add(new ZoomInAction(viewer));
         toolbar.add(new ZoomOutAction(viewer));
     }
-
-    private Bitstream bitstream;
-
-    private TransportStream transportStream;
-
-    private DefaultListModel rowModel;
-
-    private JToolBar toolbar;
-
-    private TransportStreamsViewer viewer;
-
-    private StreamsViewerColumnHeader columnHeader;
-
-    private StreamsViewerRowHeader rowHeader;
-
-    private JComponent ui;
-
-    private StreamBookmarks bookmarks;
 }
