@@ -69,6 +69,11 @@ public class StreamsViewerChangeEvent {
      */
     public static final int CHANGE_REMOVESUBSTREAM = 8;
 
+    /**
+     * A substream was moved.
+     */
+    public static final int CHANGE_MOVESUBSTREAM = 9;
+
 
     /**
      * The StreamsViewer which this event concerns.
@@ -91,7 +96,7 @@ public class StreamsViewerChangeEvent {
     public long length;
 
     /**
-     * The old bookmark absolute position on a CHANGED_MOVEBOOKMARK event.
+     * The old bookmark absolute position on a CHANGE_MOVEBOOKMARK event.
      */
     public long oldBookmarkPosition;
 
@@ -101,9 +106,14 @@ public class StreamsViewerChangeEvent {
     public long bookmarkPosition;
 
     /**
+     * The old substream index for a CHANGE_MOVESUBSTREAM event.
+     */
+    public int oldSubstreamIndex;
+
+    /**
      * The substream index for a substream related event.
      */
-    public int substream;
+    public int substreamIndex;
 
 
     /**
@@ -207,7 +217,7 @@ public class StreamsViewerChangeEvent {
      */
     public static StreamsViewerChangeEvent substreamAdded(StreamsViewer viewer, int substream) {
         StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_ADDSUBSTREAM);
-        tmp.substream = substream;
+        tmp.substreamIndex = substream;
         return tmp;
     }
 
@@ -220,7 +230,7 @@ public class StreamsViewerChangeEvent {
      */
     public static StreamsViewerChangeEvent substreamChanged(StreamsViewer viewer, int substream) {
         StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_CHANGESUBSTREAM);
-        tmp.substream = substream;
+        tmp.substreamIndex = substream;
         return tmp;
     }
 
@@ -233,7 +243,22 @@ public class StreamsViewerChangeEvent {
      */
     public static StreamsViewerChangeEvent substreamRemoved(StreamsViewer viewer, int substream) {
         StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_REMOVESUBSTREAM);
-        tmp.substream = substream;
+        tmp.substreamIndex = substream;
+        return tmp;
+    }
+
+    /**
+     * Create an object indicating a substream was moved.
+     *
+     * @param viewer The associated StreamsViewer.
+     * @param oldIndex Old substream index.
+     * @param newIndex New substream index.
+     * @return Appropriately initialised StreamsViewerChangeEvent instance.
+     */
+    public static StreamsViewerChangeEvent substreamMoved(StreamsViewer viewer, int oldIndex, int newIndex) {
+        StreamsViewerChangeEvent tmp = new StreamsViewerChangeEvent(viewer, CHANGE_MOVESUBSTREAM);
+        tmp.oldSubstreamIndex = oldIndex;
+        tmp.substreamIndex = newIndex;
         return tmp;
     }
 }

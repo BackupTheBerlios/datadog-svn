@@ -44,6 +44,11 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
      */
     protected int selectorIndex = -1;
 
+    /**
+     * Index of the row being moved.
+     */
+    protected int movingRow = -1;
+
 
 
     /**
@@ -103,15 +108,24 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
 
         // draw the selector if present
         if ((selectorIndex != -1) && (minStreamIdx <= selectorIndex) && (maxStreamIdx >= selectorIndex)) {
-            g.setColor(Color.blue);
+            g.setColor(Color.red);
             g.drawLine(0, selectorIndex * rowHeight, rowWidth, selectorIndex * rowHeight);
+        }
+    }
+
+    /**
+     * Repaint the current selector position.
+     */
+    protected void repaintSelector() {
+        if (selectorIndex != -1) {
+            repaint(0, selectorIndex * viewer.substreamHeight(), getWidth(), (selectorIndex * viewer.substreamHeight())+1);
         }
     }
 
     /**
      * Update the dimensions of the row header when the list of rows changes.
      */
-    private void updateDimensions() {
+    protected void updateDimensions() {
         Graphics g = getGraphics();
         if (g == null)
             return;
@@ -199,12 +213,25 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
     }
 
     /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#substreamMoved(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void substreamMoved(StreamsViewerChangeEvent e) {
+        // TODO Auto-generated method stub
+        repaint();
+
+    }
+
+    /* (non-Javadoc)
      * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
      */
     public void mouseDragged(MouseEvent e) {
         if (selectorIndex != -1) {
-            selectorIndex = viewer.panelYPositionToStreamIndex(e.getY());
-            // FIXME: redraw
+            int tmpSelectorIndex = viewer.panelYPositionToStreamIndex(e.getY());
+            if (tmpSelectorIndex <= viewer.substreamsCount()) {
+                repaintSelector();
+                selectorIndex = tmpSelectorIndex;
+                repaintSelector();
+            }
         }
     }
 
@@ -220,24 +247,18 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
      */
     public void mouseClicked(MouseEvent e) {
-        // TODO Auto-generated method stub
-
     }
 
     /* (non-Javadoc)
      * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
      */
     public void mouseEntered(MouseEvent e) {
-        // TODO Auto-generated method stub
-
     }
 
     /* (non-Javadoc)
      * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
      */
     public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
-
     }
 
     /* (non-Javadoc)
@@ -246,7 +267,8 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             selectorIndex = viewer.panelYPositionToStreamIndex(e.getY());
-            // FIXME: redraw
+            movingRow = selectorIndex;
+            repaintSelector();
         }
     }
 
@@ -255,8 +277,9 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
      */
     public void mouseReleased(MouseEvent e) {
         if (selectorIndex != -1) {
-            // FIXME: move stream
+            viewer.moveSubstream(movingRow, selectorIndex);
 
+            repaintSelector();
             selectorIndex = -1;
         }
     }

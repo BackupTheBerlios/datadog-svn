@@ -464,9 +464,26 @@ public abstract class StreamsViewer extends JScrollPane {
         return panelRowHeight;
     }
 
+    /**
+     * Set the height of a substream.
+     *
+     * @param height The height in pixels.
+     */
     public void setSubstreamHeight(int height) {
         panelRowHeight = height;
         repaint();
+    }
+
+    /**
+     * Move a substream from one position to another.
+     *
+     * @param start Starting index of substream.
+     * @param dest Destination index of substream.
+     */
+    public void moveSubstream(int start, int dest) {
+        substreams.move(start, dest);
+        repaint();
+        fireChangeListeners(StreamsViewerChangeEvent.substreamMoved(this, start, dest));
     }
 
 

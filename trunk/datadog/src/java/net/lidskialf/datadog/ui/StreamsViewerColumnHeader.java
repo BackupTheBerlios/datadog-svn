@@ -207,6 +207,12 @@ public class StreamsViewerColumnHeader extends JPanel implements StreamsViewerCh
     public void substreamRemoved(StreamsViewerChangeEvent e) {
     }
 
+    /* (non-Javadoc)
+     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#substreamMoved(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+     */
+    public void substreamMoved(StreamsViewerChangeEvent e) {
+    }
+
     /*
      * (non-Javadoc)
      *

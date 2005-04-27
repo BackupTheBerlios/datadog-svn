@@ -93,4 +93,28 @@ public class Substreams {
         substreamToIndex.put(substream, new Integer(insertPos));
         return insertPos;
     }
+
+    /**
+     * Move a substream.
+     *
+     * @param oldIndex Index of substream to move.
+     * @param newIndex Destination index of substream.
+     */
+    public void move(int oldIndex, int newIndex) {
+
+        if (newIndex > oldIndex) newIndex--;
+
+        Substream s = (Substream) substreams.get(oldIndex);
+        substreams.remove(oldIndex);
+        if (newIndex >= substreams.size()) {
+            substreams.add(s);
+        } else {
+            substreams.add(newIndex, s);
+        }
+
+        substreamToIndex.clear();
+        for(int i=0; i< substreams.size(); i++) {
+            substreamToIndex.put(substreams.get(i), new Integer(i));
+        }
+    }
 }

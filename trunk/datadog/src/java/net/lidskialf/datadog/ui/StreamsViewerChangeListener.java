@@ -97,4 +97,12 @@ public interface StreamsViewerChangeListener {
      *            The StreamsViewerChangeEvent describing the event.
      */
     public void substreamRemoved(StreamsViewerChangeEvent e);
+
+    /**
+     * A substream was moved.
+     *
+     * @param e
+     *            The StreamsViewerChangeEvent describing the event.
+     */
+    public void substreamMoved(StreamsViewerChangeEvent e);
 }
