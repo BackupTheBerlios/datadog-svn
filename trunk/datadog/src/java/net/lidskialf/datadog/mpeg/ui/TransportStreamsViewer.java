@@ -36,7 +36,7 @@ public class TransportStreamsViewer extends StreamsViewer {
     /**
      * Maximum zoom factor.
      */
-    public static final int MAX_ZOOM_FACTOR = 5;
+    public static final int MAX_ZOOM_FACTOR = 10;
 
     /**
      * Block scroll increment for JScrollPane

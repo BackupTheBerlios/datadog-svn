@@ -216,9 +216,7 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
      * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#substreamMoved(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
      */
     public void substreamMoved(StreamsViewerChangeEvent e) {
-        // TODO Auto-generated method stub
         repaint();
-
     }
 
     /* (non-Javadoc)
