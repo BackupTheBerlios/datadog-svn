@@ -165,7 +165,7 @@ public class TransportStreamsViewer extends StreamsViewer {
 
         // create a new one and append it
         TransportSubstream newSubstream = new TransportSubstream(pid);
-        addSubStream(newSubstream);
+        addSubstream(newSubstream);
         pidToSubstream.put(pidI, newSubstream);
         return newSubstream;
     }

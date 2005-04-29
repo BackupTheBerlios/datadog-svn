@@ -95,6 +95,20 @@ public class Substreams {
     }
 
     /**
+     * Insert the specified substream to a position in the list.
+     *
+     * @param index The index to insert at.
+     * @param substream The substream to add.
+     */
+    public void add(int index, Substream substream) {
+        int insertPos = substreams.size();
+        substreams.add(substream);
+        substreamToIndex.put(substream, new Integer(insertPos));
+
+        regenerateLookupTable();
+    }
+
+    /**
      * Move a substream.
      *
      * @param oldIndex Index of substream to move.
@@ -112,6 +126,13 @@ public class Substreams {
             substreams.add(newIndex, s);
         }
 
+        regenerateLookupTable();
+    }
+
+    /**
+     * Regenerate the substream->index lookup table.
+     */
+    protected void regenerateLookupTable() {
         substreamToIndex.clear();
         for(int i=0; i< substreams.size(); i++) {
             substreamToIndex.put(substreams.get(i), new Integer(i));

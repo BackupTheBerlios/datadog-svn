@@ -444,14 +444,27 @@ public abstract class StreamsViewer extends JScrollPane {
     }
 
     /**
-     * Add a substream into the list.
+     * Append a substream to the list.
      *
      * @param substream The substream to add.
      */
-    public void addSubStream(Substream substream) {
+    public void addSubstream(Substream substream) {
         int index = substreams.add(substream);
         updateDimensions();
-        repaint();
+        panel.repaint();
+        fireChangeListeners(StreamsViewerChangeEvent.substreamAdded(this, index));
+    }
+
+    /**
+     * Insert a substream into the list.
+     *
+     * @param index Index to insert at.
+     * @param substream The substream to add.
+     */
+    public void addSubstream(int index, Substream substream) {
+        substreams.add(index, substream);
+        updateDimensions();
+        panel.repaint();
         fireChangeListeners(StreamsViewerChangeEvent.substreamAdded(this, index));
     }
 
@@ -471,7 +484,7 @@ public abstract class StreamsViewer extends JScrollPane {
      */
     public void setSubstreamHeight(int height) {
         panelRowHeight = height;
-        repaint();
+        panel.repaint();
     }
 
     /**
@@ -482,8 +495,18 @@ public abstract class StreamsViewer extends JScrollPane {
      */
     public void moveSubstream(int start, int dest) {
         substreams.move(start, dest);
-        repaint();
+        panel.repaint();
         fireChangeListeners(StreamsViewerChangeEvent.substreamMoved(this, start, dest));
+    }
+
+    /**
+     * Inform the viewer that a substream has changed.
+     *
+     * @param index
+     */
+    public void substreamModified(int index) {
+        panel.repaint();
+        fireChangeListeners(StreamsViewerChangeEvent.substreamChanged(this, index));
     }
 
 

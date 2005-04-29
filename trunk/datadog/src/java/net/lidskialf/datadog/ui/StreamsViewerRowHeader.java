@@ -237,8 +237,11 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
      * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
      */
     public void mouseMoved(MouseEvent e) {
-        // TODO Auto-generated method stub
-
+        int index = viewer.panelYPositionToStreamIndex(e.getY());
+        Substream substream = viewer.getSubstream(index);
+        if (substream != null) {
+            setToolTipText(substream.getDescription());
+        }
     }
 
     /* (non-Javadoc)
