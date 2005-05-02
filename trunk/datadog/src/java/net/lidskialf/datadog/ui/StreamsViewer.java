@@ -560,6 +560,10 @@ public abstract class StreamsViewer extends JScrollPane {
             case StreamsViewerChangeEvent.CHANGE_REMOVESUBSTREAM:
                 curListener.substreamRemoved(e);
                 break;
+
+            case StreamsViewerChangeEvent.CHANGE_MOVESUBSTREAM:
+                curListener.substreamMoved(e);
+                break;
             }
         }
     }

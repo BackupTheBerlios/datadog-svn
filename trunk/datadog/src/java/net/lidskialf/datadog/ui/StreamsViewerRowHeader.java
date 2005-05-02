@@ -26,13 +26,14 @@ import java.awt.geom.*;
 import javax.swing.*;
 
 import net.lidskialf.datadog.Substream;
+import net.lidskialf.datadog.ui.actions.*;
 
 /**
  * Generic Row Header for the StreamViewer.
  *
  * @author Andrew de Quincey
  */
-public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChangeListener, MouseMotionListener, MouseListener {
+public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChangeListener, MouseMotionListener, MouseListener, ActionInformationSource {
 
     /**
      * The StreamsViewer instance we are associated with.
@@ -40,14 +41,23 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
     protected StreamsViewer viewer;
 
     /**
-     * Index of the selector when dragging a row.
+     * Index of the selector when dragging a substream.
      */
-    protected int selectorIndex = -1;
+    protected int curSelectorIndex = -1;
 
     /**
-     * Index of the row being moved.
+     * Index of the selected substream.
      */
-    protected int movingRow = -1;
+    protected int selectedIndex = -1;
+
+    /**
+     * The selected substream.
+     */
+    protected Substream selectedSubstream = null;
+
+    protected JPopupMenu substreamPopupMenu;
+
+    protected ActionGroup substreamPopupMenuActions;
 
 
 
@@ -65,13 +75,129 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
         addMouseListener(this);
 
         setPreferredSize(new Dimension(20, 0));
+
+        createPopupMenus();
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see javax.swing.JComponent#print(java.awt.Graphics)
-     */
+    public void bookmarkAdded(StreamsViewerChangeEvent e) {
+    }
+
+    public void bookmarkChanged(StreamsViewerChangeEvent e) {
+    }
+
+    public void bookmarkMoved(StreamsViewerChangeEvent e) {
+    }
+
+    public void bookmarkRemoved(StreamsViewerChangeEvent e) {
+    }
+
+    public void lengthChanged(StreamsViewerChangeEvent e) {
+    }
+
+    public void zoomChanged(StreamsViewerChangeEvent e) {
+    }
+
+    public void substreamAdded(StreamsViewerChangeEvent e) {
+        updateDimensions();
+    }
+
+    public void substreamChanged(StreamsViewerChangeEvent e) {
+        updateDimensions();
+    }
+
+    public void substreamRemoved(StreamsViewerChangeEvent e) {
+        updateDimensions();
+    }
+
+    public void substreamMoved(StreamsViewerChangeEvent e) {
+        repaint();
+    }
+
+    public void mouseDragged(MouseEvent e) {
+        if (curSelectorIndex != -1) {
+            int tmpSelectorIndex = viewer.panelYPositionToStreamIndex(e.getY());
+            if (tmpSelectorIndex <= viewer.substreamsCount()) {
+                repaintSelector();
+                curSelectorIndex = tmpSelectorIndex;
+                repaintSelector();
+            }
+        }
+    }
+
+    public void mouseMoved(MouseEvent e) {
+        int index = viewer.panelYPositionToStreamIndex(e.getY());
+        Substream substream = viewer.getSubstream(index);
+        if (substream != null) {
+            setToolTipText(substream.getDescription());
+        }
+    }
+
+    public void mouseClicked(MouseEvent e) {
+        if (e.isPopupTrigger()) {
+            updateSelectedSubstream(e);
+            substreamPopupMenuActions.update();
+            substreamPopupMenu.show(this, e.getX(), e.getY());
+        }
+    }
+
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    public void mouseExited(MouseEvent e) {
+    }
+
+    public void mousePressed(MouseEvent e) {
+        if (e.isPopupTrigger()) {
+            updateSelectedSubstream(e);
+            substreamPopupMenuActions.update();
+            substreamPopupMenu.show(this, e.getX(), e.getY());
+        } else if (e.getButton() == MouseEvent.BUTTON1) {
+            updateSelectedSubstream(e);
+            curSelectorIndex = selectedIndex;
+            repaintSelector();
+        }
+    }
+
+    public void mouseReleased(MouseEvent e) {
+        if (curSelectorIndex != -1) {
+            viewer.moveSubstream(selectedIndex, curSelectorIndex);
+
+            repaintSelector();
+            selectedIndex = -1;
+            selectedSubstream = null;
+            curSelectorIndex = -1;
+        }
+    }
+
+    public Object getActionParameter(String name) {
+        // return what it asks for
+        if (name == "substreamIndex") {
+            if (selectedIndex == -1) return null;
+            return new Integer(selectedIndex);
+        } else if (name == "substream") {
+            return selectedSubstream;
+        }
+
+        // unknown
+        return null;
+    }
+
+    public boolean isActionEnabled(String action) {
+        if ((action == "EditSubstreamAction") && (selectedIndex != -1)) return true;
+
+        return false;
+    }
+
+    protected void updateSelectedSubstream(MouseEvent e) {
+        selectedIndex = viewer.panelYPositionToStreamIndex(e.getY());
+        if (selectedIndex < viewer.substreamsCount()) {
+            selectedSubstream = viewer.getSubstream(selectedIndex);
+        } else {
+            selectedIndex = -1;
+            selectedSubstream = null;
+        }
+    }
+
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
@@ -107,9 +233,9 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
         }
 
         // draw the selector if present
-        if ((selectorIndex != -1) && (minStreamIdx <= selectorIndex) && (maxStreamIdx >= selectorIndex)) {
+        if ((curSelectorIndex != -1) && (minStreamIdx <= curSelectorIndex) && (maxStreamIdx >= curSelectorIndex)) {
             g.setColor(Color.red);
-            g.drawLine(0, selectorIndex * rowHeight, rowWidth, selectorIndex * rowHeight);
+            g.drawLine(0, curSelectorIndex * rowHeight, rowWidth, curSelectorIndex * rowHeight);
         }
     }
 
@@ -117,8 +243,8 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
      * Repaint the current selector position.
      */
     protected void repaintSelector() {
-        if (selectorIndex != -1) {
-            repaint(0, selectorIndex * viewer.substreamHeight(), getWidth(), (selectorIndex * viewer.substreamHeight())+1);
+        if (curSelectorIndex != -1) {
+            repaint(0, curSelectorIndex * viewer.substreamHeight(), getWidth(), (curSelectorIndex * viewer.substreamHeight())+1);
         }
     }
 
@@ -154,139 +280,17 @@ public class StreamsViewerRowHeader extends JPanel implements StreamsViewerChang
         repaint();
     }
 
-
-    /* (non-Javadoc)
-     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#bookmarkAdded(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
+    /**
+     * Create the popup menus.
      */
-    public void bookmarkAdded(StreamsViewerChangeEvent e) {
-    }
+    protected void createPopupMenus() {
+        if (substreamPopupMenu != null) return;
 
-    /* (non-Javadoc)
-     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#bookmarkChanged(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
-     */
-    public void bookmarkChanged(StreamsViewerChangeEvent e) {
-    }
+        substreamPopupMenu = new JPopupMenu();
+        substreamPopupMenuActions = new ActionGroup();
 
-    /* (non-Javadoc)
-     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#bookmarkMoved(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
-     */
-    public void bookmarkMoved(StreamsViewerChangeEvent e) {
-    }
-
-    /* (non-Javadoc)
-     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#bookmarkRemoved(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
-     */
-    public void bookmarkRemoved(StreamsViewerChangeEvent e) {
-    }
-
-    /* (non-Javadoc)
-     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#lengthChanged(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
-     */
-    public void lengthChanged(StreamsViewerChangeEvent e) {
-    }
-
-    /* (non-Javadoc)
-     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#zoomChanged(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
-     */
-    public void zoomChanged(StreamsViewerChangeEvent e) {
-    }
-
-    /* (non-Javadoc)
-     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#substreamAdded(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
-     */
-    public void substreamAdded(StreamsViewerChangeEvent e) {
-        updateDimensions();
-    }
-
-    /* (non-Javadoc)
-     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#substreamChanged(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
-     */
-    public void substreamChanged(StreamsViewerChangeEvent e) {
-        updateDimensions();
-    }
-
-    /* (non-Javadoc)
-     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#substreamRemoved(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
-     */
-    public void substreamRemoved(StreamsViewerChangeEvent e) {
-        updateDimensions();
-    }
-
-    /* (non-Javadoc)
-     * @see net.lidskialf.datadog.ui.StreamsViewerChangeListener#substreamMoved(net.lidskialf.datadog.ui.StreamsViewerChangeEvent)
-     */
-    public void substreamMoved(StreamsViewerChangeEvent e) {
-        repaint();
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseMotionListener#mouseDragged(java.awt.event.MouseEvent)
-     */
-    public void mouseDragged(MouseEvent e) {
-        if (selectorIndex != -1) {
-            int tmpSelectorIndex = viewer.panelYPositionToStreamIndex(e.getY());
-            if (tmpSelectorIndex <= viewer.substreamsCount()) {
-                repaintSelector();
-                selectorIndex = tmpSelectorIndex;
-                repaintSelector();
-            }
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseMotionListener#mouseMoved(java.awt.event.MouseEvent)
-     */
-    public void mouseMoved(MouseEvent e) {
-        int index = viewer.panelYPositionToStreamIndex(e.getY());
-        Substream substream = viewer.getSubstream(index);
-        if (substream != null) {
-            setToolTipText(substream.getDescription());
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-     */
-    public void mouseClicked(MouseEvent e) {
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-     */
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-     */
-    public void mouseExited(MouseEvent e) {
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-     */
-    public void mousePressed(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1) {
-            selectorIndex = viewer.panelYPositionToStreamIndex(e.getY());
-            if (selectorIndex >= viewer.substreamsCount()) {
-                selectorIndex = -1;
-                return;
-            }
-
-            movingRow = selectorIndex;
-            repaintSelector();
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-     */
-    public void mouseReleased(MouseEvent e) {
-        if (selectorIndex != -1) {
-            viewer.moveSubstream(movingRow, selectorIndex);
-
-            repaintSelector();
-            selectorIndex = -1;
-        }
+        substreamPopupMenu.add(substreamPopupMenuActions.add(new AddSubstreamAction(viewer, this)));
+        substreamPopupMenu.add(substreamPopupMenuActions.add(new EditSubstreamAction(viewer, this)));
+        substreamPopupMenu.add(substreamPopupMenuActions.add(new RemoveSubstreamAction(viewer, this)));
     }
 }

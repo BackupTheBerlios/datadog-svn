@@ -42,9 +42,9 @@ public class Substream {
     protected String label;
 
     /**
-     * Is this stream removeable by the user?
+     * Is this a separator, or a real stream?
      */
-    protected boolean removeable;
+    protected boolean separator;
 
 
 
@@ -54,13 +54,13 @@ public class Substream {
      * @param label A brief label to display for this substream.
      * @param colour Colour used for this substream.
      * @param description A textual description of the substream.
-     * @param removable Is this stream removeable by the user?
+     * @param separator Is this a separator?
      */
-    public Substream(String label, Color colour, String description, boolean removable) {
+    public Substream(String label, Color colour, String description, boolean separator) {
         this.label = label;
         this.colour = colour;
         this.description = description;
-        this.removeable = removable;
+        this.separator = separator;
     }
 
     /**
@@ -106,16 +106,16 @@ public class Substream {
     }
 
     /**
-     * @return Returns the removeable.
+     * @return Returns the separator.
      */
-    public boolean isRemoveable() {
-        return removeable;
+    public boolean isSeparator() {
+        return separator;
     }
 
     /**
-     * @param removeable The removeable to set.
+     * @param separator The separator to set.
      */
-    public void setRemoveable(boolean removeable) {
-        this.removeable = removeable;
+    public void setSeparator(boolean separator) {
+        this.separator = separator;
     }
 }
